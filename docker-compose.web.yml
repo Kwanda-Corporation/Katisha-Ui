@@ -1,0 +1,26 @@
+# Production web stack for the SPA — runs on the same VPS as the API.
+# The API itself is deployed by the server repo's CD (service "api", project "katisha").
+# This file only manages the nginx container; it joins the same "katisha_default"
+# docker network so nginx can reach the API at http://api:5001.
+#
+# Filename is intentionally distinct from the server's docker-compose.prod.yml so
+# both deploy files can coexist in the same directory on the server.
+#
+# Setup on the server:
+#   1. docker compose -f docker-compose.web.yml config -q   # validate
+#   2. Run deploy.sh (or the Deploy workflow) to pull & start
+name: katisha
+
+services:
+  web:
+    image: ghcr.io/ally-keyz/katisha-ui:latest
+    container_name: katisha-web
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8080:80"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s

@@ -1,0 +1,97 @@
+# Katisha Robots.txt
+# https://katisha.today/robots.txt
+# Last updated: 2026-08-09
+
+User-agent: *
+Crawl-delay: 10
+Allow: /
+Allow: /book
+Allow: /bus/
+Allow: /agency/
+Allow: /my-bookings
+Allow: /track
+Allow: /guide
+Allow: /welcome
+Disallow: /dashboard/
+Disallow: /login
+Disallow: /register
+Disallow: /reset-password
+Disallow: /forgot-password
+Disallow: /verify-code
+Disallow: /set-password
+Disallow: /api/
+Allow: /api/seo/sitemap-routes.xml
+Disallow: /unauthorized
+# Language variants (?lang=) are listed as hreflang alternates in the sitemap
+# and must remain crawlable - do NOT block them here.
+
+# Sitemaps
+Sitemap: https://katisha.today/sitemap.xml
+
+# Google-specific
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 5
+
+User-agent: Googlebot-Image
+Allow: /1.png
+Allow: /2.png
+Allow: /og-cover.png
+Allow: /images/
+
+User-agent: Googlebot-Video
+Allow: /
+
+User-agent: Googlebot-News
+Disallow: /
+
+User-agent: Google-Extended
+Allow: /
+
+# Bing
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 5
+
+# Other bots
+User-agent: DuckDuckBot
+Crawl-delay: 5
+
+User-agent: Yandex
+Crawl-delay: 10
+
+User-agent: Baiduspider
+Crawl-delay: 10
+
+User-agent: Twitterbot
+Allow: /
+Allow: /1.png
+Allow: /og-cover.png
+
+# Social media preview bots
+User-agent: facebookexternalhit
+Allow: /
+Allow: /1.png
+Allow: /og-cover.png
+
+User-agent: LinkedInBot
+Allow: /
+Allow: /1.png
+Allow: /og-cover.png
+
+# AI / LLM crawlers (opt-in)
+User-agent: ChatGPT-User
+Allow: /
+Crawl-delay: 10
+
+User-agent: GPTBot
+Allow: /
+Crawl-delay: 10
+
+User-agent: Claude-Web
+Allow: /
+Crawl-delay: 10
+
+User-agent: PerplexityBot
+Allow: /
+Crawl-delay: 5

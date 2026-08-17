@@ -1,0 +1,115 @@
+# CD: build the SPA with production env baked in, push to GHCR, and deploy to the VPS over SSH.
+# Triggers: push to main, version tags (v*), or manual dispatch.
+#
+# Required GitHub repository secrets:
+#   SSH_HOST          — VPS hostname/IP
+#   SSH_USERNAME      — SSH user (must be able to run docker)
+#   SSH_PRIVATE_KEY   — SSH private key (ed25519 or RSA)
+# Optional secrets:
+#   SSH_PORT          — default 22
+#   DEPLOY_PATH       — directory on the server, default /opt/katisha-web
+#   GHCR_PAT          — PAT with `read:packages` ONLY if the repo is private
+#   GHCR_USERNAME     — GitHub username owning that PAT
+#   VITE_API_URL      — API base URL baked into the bundle, default https://api.katisha.today/api
+#   VITE_GOOGLE_CLIENT_ID — Google OAuth client ID (falls back to frontend/.env if set)
+#   VITE_MAPBOX_TOKEN — optional Mapbox token (falls back to the hardcoded default)
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  workflow_dispatch:
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Compute image name (GHCR requires lowercase)
+        id: image
+        run: echo "name=$(echo ghcr.io/${{ github.repository }} | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract image metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ steps.image.outputs.name }}
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=semver,pattern={{version}}
+            type=sha
+
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          build-args: |
+            VITE_API_URL=${{ secrets.VITE_API_URL || 'https://api.katisha.today/api' }}
+            VITE_GOOGLE_CLIENT_ID=${{ secrets.VITE_GOOGLE_CLIENT_ID }}
+            VITE_MAPBOX_TOKEN=${{ secrets.VITE_MAPBOX_TOKEN }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy:
+    needs: build-and-push
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    env:
+      DEPLOY_PATH: ${{ secrets.DEPLOY_PATH || '/opt/katisha-web' }}
+      SSH_PORT: ${{ secrets.SSH_PORT || '22' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Upload compose file and deploy script
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          port: ${{ env.SSH_PORT }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "docker-compose.web.yml,deploy.sh"
+          target: ${{ env.DEPLOY_PATH }}
+
+      - name: Deploy
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          port: ${{ env.SSH_PORT }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: GHCR_PAT,GHCR_USERNAME,DEPLOY_PATH
+          script: |
+            set -euo pipefail
+            cd "$DEPLOY_PATH"
+            # Authenticate to GHCR when the image is private (skip for public repos).
+            if [ -n "${GHCR_PAT:-}" ]; then
+              echo "$GHCR_PAT" | docker login ghcr.io -u "$GHCR_USERNAME" --password-stdin
+            fi
+            chmod +x deploy.sh
+            bash deploy.sh
+        env:
+          GHCR_PAT: ${{ secrets.GHCR_PAT }}
+          GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
+          DEPLOY_PATH: ${{ env.DEPLOY_PATH }}
