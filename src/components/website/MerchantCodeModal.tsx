@@ -47,7 +47,10 @@ function generateUssd(template: string, code: string, amount: number): string {
 function attemptDial(ussd: string): boolean {
   try {
     const a = document.createElement('a');
-    a.href = `tel:${ussd}`;
+    // '#' delimits a URL fragment, so it must be percent-encoded — otherwise
+    // the browser strips everything from '#' onward and the dialer receives
+    // an incomplete USSD string.
+    a.href = `tel:${ussd.replace(/#/g, '%23')}`;
     a.style.display = 'none';
     document.body.appendChild(a);
     a.click();
@@ -84,7 +87,10 @@ export default function MerchantCodeModal({
   const ussd = generateUssd(ussdTemplate, merchantCode, amount);
 
   const handleDialAndConfirm = () => {
-    attemptDial(ussd);
+    // Handing off to the phone's dialer suspends this page — wait 2 seconds
+    // so the booking request goes out and the UI can show progress first,
+    // then open the call app with the USSD pre-filled.
+    window.setTimeout(() => attemptDial(ussd), 2000);
     onSubmit();
   };
 
