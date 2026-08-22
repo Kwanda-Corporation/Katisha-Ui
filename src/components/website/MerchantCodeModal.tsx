@@ -281,7 +281,7 @@ export default function MerchantCodeModal({
               </p>
               <div className="flex items-center gap-2 mb-3">
                 <span className="flex-1 text-[16px] sm:text-lg font-bold text-zinc-900 tabular-nums break-all font-mono tracking-wide leading-snug">
-                  {ussd}#
+                  {ussd}
                 </span>
                 <button
                   type="button"
