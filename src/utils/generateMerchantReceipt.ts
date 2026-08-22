@@ -270,7 +270,7 @@ export async function generateMerchantReceipt(data: MerchantReceiptData): Promis
   ctx.textAlign = 'center';
   ctx.font = 'bold 28px Inter, Helvetica, Arial, sans-serif';
   ctx.fillStyle = ORANGE_DARK;
-  const msgY2 = wrapText(
+  wrapText(
     ctx,
     'We are checking your payment. You will receive your ticket once the payment is verified by our team.',
     PADDING + 40,

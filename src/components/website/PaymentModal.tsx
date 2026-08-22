@@ -398,9 +398,6 @@ export default function PaymentModal({
   onContactPhoneChange,
   contactPhoneError,
   total,
-  fareTotal = 0,
-  serviceFeeTotal = 0,
-  paymentFee = 0,
   submitting = false,
   onSubmit,
   submitError,
@@ -409,7 +406,6 @@ export default function PaymentModal({
   onToggleFreeTicket,
   ussdCode,
   ussdHighlight,
-  showPricingBreakdown = false,
 }: PaymentModalProps) {
   const { t } = useTranslation();
   const isMobile = useIsMobile();

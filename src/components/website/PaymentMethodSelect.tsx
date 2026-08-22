@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Smartphone, CreditCard, ArrowRight, X } from 'lucide-react';
 import { useTranslation } from '../../../node_modules/react-i18next';
@@ -36,7 +36,6 @@ export default function PaymentMethodSelect({
   open,
   onClose,
   onSelect,
-  merchantCodeFee,
   onlineFee,
   merchantTotal,
   onlineTotal,
