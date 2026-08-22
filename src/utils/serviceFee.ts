@@ -199,9 +199,9 @@ export function bookingServiceFee(
   return Math.min(fee, cfg.maxFeePerTicket * n);
 }
 
-export const INTERCITY_FLAT_FEE = 300;
+export const INTERCITY_FLAT_FEE = 100;
 
-/** Rwandan intercity journeys carry a flat 300 RWF system fee; every other
+/** Rwandan intercity journeys carry a flat 100 RWF system fee; every other
  * journey type uses the margin-driven booking fee. */
 export function systemFeeFor(
   journeyType: string | null | undefined,
