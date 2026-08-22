@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Check, Search, TicketCheck, Calendar, Loader, Activity, RefreshCw, Ticket,
+  Smartphone, Globe,
 } from 'lucide-react';
 import { useTranslation } from '../../../node_modules/react-i18next';
 import { api } from '../../api';
@@ -149,6 +150,33 @@ export default function AgentBookings() {
     return map[status] || map.confirmed;
   };
 
+  const paymentStatusClass = (s: string) => {
+    if (s === 'paid') return 'bg-emerald-100 text-emerald-800';
+    if (s === 'processing' || s === 'pending') return 'bg-amber-100 text-amber-800';
+    if (s === 'failed') return 'bg-red-100 text-red-700';
+    if (s === 'refunded') return 'bg-purple-100 text-purple-700';
+    return 'bg-zinc-100 text-zinc-600';
+  };
+
+  // Payment channel badge — MoMo (merchant code) vs Online (pawaPay).
+  const paymentTypeBadge = (b: any) => {
+    if (!b.paymentChannel) {
+      return <span className="text-xs text-[var(--text-muted)]">—</span>;
+    }
+    const isMomo = b.paymentChannel === 'momo_merchant';
+    return (
+      <span
+        className={`inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-md ${
+          isMomo ? 'bg-[#FEF3C7] text-[#92400E]' : 'bg-blue-100 text-blue-800'
+        }`}
+        title={isMomo ? 'Paid via MoMo merchant code' : 'Paid online (pawaPay)'}
+      >
+        {isMomo ? <Smartphone size={11} /> : <Globe size={11} />}
+        {isMomo ? 'MoMo' : 'Online'}
+      </span>
+    );
+  };
+
   return (
     <div className="space-y-8">
       {/* ── Header ─────────────────────────────────────────────────── */}
@@ -243,7 +271,7 @@ export default function AgentBookings() {
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-[#F9FAFB]">
-                {['Ref', 'Passenger', 'Phone', 'Passengers', 'Route', 'Date', 'Time', 'Amount', 'Status', 'Action'].map(h => (
+                {['Ref', 'Passenger', 'Phone', 'Passengers', 'Route', 'Date', 'Time', 'Amount', 'Payment', 'Status', 'Action'].map(h => (
                   <th key={h} className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-[var(--text-sub)]">{h}</th>
                 ))}
               </tr>
@@ -252,7 +280,7 @@ export default function AgentBookings() {
               {loading ? (
                   Array.from({ length: 6 }).map((_, i) => (
                     <tr key={i}>
-                      {Array.from({ length: 10 }).map((_, j) => (
+                      {Array.from({ length: 11 }).map((_, j) => (
                         <td key={j} className="px-6 py-3">
                           <div className="h-4 bg-[#F9FAFB] rounded w-4/5 animate-pulse" />
                         </td>
@@ -261,7 +289,7 @@ export default function AgentBookings() {
                   ))
                 ) : filteredBookings.length === 0 ? (
                   <tr>
-                    <td colSpan={10} className="py-12 text-center text-sm text-[var(--text-muted)]">{t('booking.noBookings')}</td>
+                    <td colSpan={11} className="py-12 text-center text-sm text-[var(--text-muted)]">{t('booking.noBookings')}</td>
                   </tr>
               ) : (
                 filteredBookings.map(b => (
@@ -278,6 +306,14 @@ export default function AgentBookings() {
                     <td className="px-6 py-3 text-sm text-[var(--text-sub)]">{parseLocalDate(b.travelDate)?.toLocaleDateString() || '—'}</td>
                     <td className="px-6 py-3 text-sm text-[var(--text-sub)]">{b.travelTime}</td>
                     <td className="px-6 py-3 text-sm font-semibold text-zinc-950">{((b.totalAmount || 0) + (b.systemFee || 0)).toLocaleString()} RWF</td>
+                    <td className="px-6 py-3">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        {paymentTypeBadge(b)}
+                        <span className={`inline-flex items-center text-xs font-medium px-2 py-0.5 rounded-md ${paymentStatusClass(b.paymentStatus)}`}>
+                          {b.paymentStatus || '—'}
+                        </span>
+                      </div>
+                    </td>
                     <td className="px-6 py-3">
                       <span className={`inline-flex items-center text-xs font-medium px-2 py-0.5 rounded-md ${statusBadge(b.status)}`}>{b.status}</span>
                     </td>
@@ -330,6 +366,18 @@ export default function AgentBookings() {
                     Ticket {selectedBooking.totalAmount?.toLocaleString()} RWF
                     {selectedBooking.systemFee > 0 && ` + Fee ${selectedBooking.systemFee?.toLocaleString()} RWF`}
                   </p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="px-3 py-2 bg-[#F9FAFB] rounded-md">
+                  <p className="text-[10px] font-bold uppercase text-[var(--text-sub)] tracking-wider">Payment Type</p>
+                  <p className="mt-1">{paymentTypeBadge(selectedBooking)}</p>
+                </div>
+                <div className="px-3 py-2 bg-[#F9FAFB] rounded-md">
+                  <p className="text-[10px] font-bold uppercase text-[var(--text-sub)] tracking-wider">Payment Status</p>
+                  <span className={`inline-block mt-1 px-2 py-0.5 rounded-md text-xs font-medium ${paymentStatusClass(selectedBooking.paymentStatus)}`}>
+                    {selectedBooking.paymentStatus || '—'}
+                  </span>
                 </div>
               </div>
               <div className="px-3 py-2 bg-[#F9FAFB] rounded-md">

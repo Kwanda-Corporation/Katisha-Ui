@@ -14,6 +14,7 @@ import {
   clearExpiredTickets, cacheTicketWithImage,
   getCachedTicket, getAllCachedTickets,
 } from '../../services/ticketCache';
+import { downloadImage } from '../../utils/downloadImage';
 
 export default function MyBookings() {
   const { t } = useTranslation(); 
@@ -44,24 +45,8 @@ export default function MyBookings() {
     const booking = merchantReceiptBooking;
     if (!booking?.merchantReceiptImage) return;
     const url = resolveImageUrl(booking.merchantReceiptImage);
-    const baseName = `katisha-receipt-${booking.referenceCode || 'receipt'}`;
-    try {
-      if (!url) throw new Error('no url');
-      const res = await fetch(url, { mode: 'cors' });
-      if (!res.ok) throw new Error('fetch failed');
-      const blob = await res.blob();
-      const ext = blob.type === 'image/jpeg' ? 'jpg' : blob.type === 'image/webp' ? 'webp' : 'png';
-      const blobUrl = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = blobUrl;
-      a.download = `${baseName}.${ext}`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
-    } catch {
-      window.open(url, '_blank', 'noopener');
-    }
+    if (!url) return;
+    await downloadImage(url, `katisha-receipt-${booking.referenceCode || 'receipt'}.png`);
   }, [merchantReceiptBooking]);
 
   // Lazily fetch ticket images for bookings that are missing one (e.g. ticket
@@ -186,38 +171,18 @@ export default function MyBookings() {
     setSearchParams(params, { replace: true });
   }, [bookings, loading, loadTicketModal, searchParams, setSearchParams]);
 
-  // Download the ticket image to the user's device. Local blob URLs can be
-  // saved directly; remote URLs are fetched first so the browser saves the
-  // file instead of navigating to it. Falls back to opening the image in a new
-  // tab when the remote host blocks cross-origin fetches.
+  // Download the ticket image to the user's device. Uses the shared blob-based
+  // downloader so the browser saves the file instead of navigating to it (a
+  // plain <a href download> is ignored for cross-origin URLs). Falls back to
+  // opening the image in a new tab when the remote host blocks cross-origin
+  // fetches.
   const downloadTicket = useCallback(async () => {
     const url = ticketImageUrl;
     const booking = ticketModalBooking;
     if (!url || !booking) return;
-    const baseName = `ticket-${booking.referenceCode || 'ticket'}`;
-    try {
-      let blobUrl = url;
-      let ext = 'png';
-      if (!url.startsWith('blob:')) {
-        const res = await fetch(url, { mode: 'cors' });
-        if (!res.ok) throw new Error('fetch failed');
-        const blob = await res.blob();
-        ext = blob.type === 'image/jpeg' ? 'jpg' : blob.type === 'image/webp' ? 'webp' : 'png';
-        blobUrl = URL.createObjectURL(blob);
-      }
-      const a = document.createElement('a');
-      a.href = blobUrl;
-      a.download = `${baseName}.${ext}`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      if (blobUrl !== url) setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
-    } catch {
-      window.open(url, '_blank', 'noopener');
-    } finally {
-      setTicketModalBooking(null);
-      setTicketImageUrl(null);
-    }
+    await downloadImage(url, `ticket-${booking.referenceCode || 'ticket'}.png`);
+    setTicketModalBooking(null);
+    setTicketImageUrl(null);
   }, [ticketImageUrl, ticketModalBooking]);
 
   // Real-time updates
@@ -558,15 +523,14 @@ export default function MyBookings() {
                 alt="Payment receipt"
                 className="w-full max-w-[360px] rounded-2xl shadow-2xl border border-[#FDE68A] mb-5"
               />
-              <a
-                href={resolveImageUrl(merchantReceiptBooking.merchantReceiptImage)}
-                download={`katisha-receipt-${merchantReceiptBooking.referenceCode}.png`}
+              <button
+                type="button"
                 onClick={downloadMerchantReceipt}
-                className="w-full max-w-[360px] h-14 rounded-2xl bg-[#D97706] hover:bg-[#B45309] text-white text-base font-bold flex items-center justify-center gap-3 transition-colors duration-200 no-underline shadow-lg"
+                className="w-full max-w-[360px] h-14 rounded-2xl bg-[#D97706] hover:bg-[#B45309] text-white text-base font-bold flex items-center justify-center gap-3 transition-colors duration-200 cursor-pointer border-none shadow-lg"
               >
                 <Download size={20} />
                 {t('booking.downloadReceipt', { defaultValue: 'Download Receipt' })}
-              </a>
+              </button>
               <p className="text-white/70 text-xs text-center mt-4 max-w-xs">
                 {t('booking.receiptDesc', { defaultValue: 'Your payment is being verified. We will send your ticket once confirmed.' })}
               </p>

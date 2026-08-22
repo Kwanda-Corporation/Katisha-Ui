@@ -6,10 +6,12 @@ import {
 import {
   DollarSign, Ticket, Route, Users, Building2,
   Download, RefreshCw, Clock, Wallet, UserCheck, ChevronLeft, ChevronRight,
+  Smartphone, Globe, CheckCircle2, XCircle, ReceiptText, Loader2,
 } from 'lucide-react';
-import { api } from '../../api';
+import { api, resolveImageUrl } from '../../api';
 import { useAuth } from '../../contexts/AuthContext';
 import { StatCard } from '../../components/ui';
+import { useToast } from '../../components/ui/Toast';
 import { viaLabel } from '../../utils/via';
 
 const BLUE = '#1D4ED8';
@@ -65,11 +67,24 @@ function shortDate(iso: string): string {
 
 export default function SystemDashboard() {
   const { user } = useAuth();
+  const toast = useToast();
   const [data, setData] = useState<any>(null);
   const [adminData, setAdminData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [recentPage, setRecentPage] = useState(1);
+  const [pendingMomo, setPendingMomo] = useState<any[]>([]);
+  const [momoBusyId, setMomoBusyId] = useState<string | null>(null);
+
+  const loadPendingMomo = useCallback(async () => {
+    try {
+      const res = await api.getPendingMomoPayments();
+      setPendingMomo(res.data?.bookings || []);
+    } catch {
+      // Non-critical: panel just stays empty.
+      setPendingMomo([]);
+    }
+  }, []);
 
   const loadAnalytics = useCallback(async () => {
     try {
@@ -87,9 +102,40 @@ export default function SystemDashboard() {
 
   useEffect(() => {
     loadAnalytics();
-    const interval = setInterval(loadAnalytics, 30000);
+    loadPendingMomo();
+    const interval = setInterval(() => {
+      loadAnalytics();
+      loadPendingMomo();
+    }, 30000);
     return () => clearInterval(interval);
-  }, [loadAnalytics]);
+  }, [loadAnalytics, loadPendingMomo]);
+
+  const handleMomoApprove = async (b: any) => {
+    setMomoBusyId(b._id);
+    try {
+      await api.approveMomoPayment(b._id);
+      toast.success('Payment approved', `Ticket for ${b.referenceCode} has been issued.`);
+      await Promise.all([loadAnalytics(), loadPendingMomo()]);
+    } catch (err: any) {
+      toast.error('Approval failed', err?.message || 'Could not approve this payment.');
+    } finally {
+      setMomoBusyId(null);
+    }
+  };
+
+  const handleMomoReject = async (b: any) => {
+    if (!window.confirm(`Reject MoMo payment ${b.referenceCode}? The booking will be cancelled.`)) return;
+    setMomoBusyId(b._id);
+    try {
+      await api.rejectMomoPayment(b._id);
+      toast.info('Payment rejected', `${b.referenceCode} was cancelled.`);
+      await Promise.all([loadAnalytics(), loadPendingMomo()]);
+    } catch (err: any) {
+      toast.error('Rejection failed', err?.message || 'Could not reject this payment.');
+    } finally {
+      setMomoBusyId(null);
+    }
+  };
 
   const overview = data?.overview || {};
   const revenue = data?.revenue || {};
@@ -170,6 +216,33 @@ export default function SystemDashboard() {
     return 'bg-zinc-100 text-zinc-600';
   };
 
+  const paymentStatusClass = (s: string) => {
+    if (s === 'paid') return 'bg-emerald-100 text-emerald-800';
+    if (s === 'processing' || s === 'pending') return 'bg-amber-100 text-amber-800';
+    if (s === 'failed') return 'bg-red-100 text-red-700';
+    if (s === 'refunded') return 'bg-purple-100 text-purple-700';
+    return 'bg-zinc-100 text-zinc-600';
+  };
+
+  // Payment channel badge — MoMo (merchant code) vs Online (pawaPay).
+  const paymentTypeBadge = (b: any) => {
+    if (!b.paymentChannel) {
+      return <span className="text-xs text-[var(--text-muted)]">—</span>;
+    }
+    const isMomo = b.paymentChannel === 'momo_merchant';
+    return (
+      <span
+        className={`inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-md ${
+          isMomo ? 'bg-[#FEF3C7] text-[#92400E]' : 'bg-blue-100 text-blue-800'
+        }`}
+        title={isMomo ? 'Paid via MoMo merchant code' : 'Paid online (pawaPay)'}
+      >
+        {isMomo ? <Smartphone size={11} /> : <Globe size={11} />}
+        {isMomo ? 'MoMo' : 'Online'}
+      </span>
+    );
+  };
+
   return (
     <div className="space-y-8">
       {/* ── Personalized Header ─────────────────────────────────── */}
@@ -190,7 +263,7 @@ export default function SystemDashboard() {
         </div>
         <div className="flex items-center gap-2">
           <button
-            onClick={loadAnalytics}
+            onClick={() => { loadAnalytics(); loadPendingMomo(); }}
             className="h-9 px-4 rounded-md border border-[var(--border)] text-sm font-medium flex items-center gap-2 cursor-pointer bg-[#F9FAFB] hover:bg-[#F3F4F6] transition-colors text-zinc-700"
           >
             <RefreshCw size={14} /> Refresh
@@ -601,6 +674,98 @@ export default function SystemDashboard() {
         </div>
       </div>
 
+      {/* ── MoMo Payments Pending Review ────────────────────────── */}
+      <div className="bg-white rounded-md border border-[var(--border)] overflow-hidden">
+        <div className="px-6 py-4 border-b border-[var(--border)] flex items-center justify-between flex-wrap gap-3 bg-[#FFFBEB]">
+          <h3 className="text-sm font-bold text-zinc-950 flex items-center gap-2">
+            <Smartphone size={15} className="text-[#D97706]" /> MoMo Payments — Pending Review
+          </h3>
+          <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#92400E] bg-[#FEF3C7] px-2 py-0.5 rounded-md">
+            {pendingMomo.length} awaiting approval
+          </span>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-[#F9FAFB]">
+                {['Ref', 'Agency', 'Passenger', 'Phone', 'Route', 'Travel Date', 'Amount', 'Receipt', 'Actions'].map(h => (
+                  <th key={h} className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-[var(--text-sub)]">{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-zinc-100">
+              {pendingMomo.length === 0 ? (
+                <tr>
+                  <td colSpan={9} className="py-10 text-center text-sm text-[var(--text-muted)]">
+                    No pending MoMo payments — all merchant-code payments have been reviewed.
+                  </td>
+                </tr>
+              ) : (
+                pendingMomo.map(b => (
+                  <tr key={b._id} className="hover:bg-[#F9FAFB] transition-colors">
+                    <td className="px-6 py-3 font-mono text-xs font-bold text-[var(--blue)]">{b.referenceCode}</td>
+                    <td className="px-6 py-3 text-sm text-zinc-700">{b.agency?.name || '—'}</td>
+                    <td className="px-6 py-3 text-sm text-zinc-700">
+                      {b.user?.name || b.passengerDetails?.[0]?.name || b.guestName || 'Guest'}
+                    </td>
+                    <td className="px-6 py-3 text-sm text-[var(--text-sub)]">
+                      {b.contactPhone || b.passengerDetails?.[0]?.phone || b.guestPhone || b.user?.phone || '—'}
+                    </td>
+                    <td className="px-6 py-3 text-sm text-[var(--text-sub)]">
+                      {b.route?.origin ? `${b.route.origin} → ${b.route.destination}${viaLabel(b.route.via)}` : `${b.origin} → ${b.destination}`}
+                    </td>
+                    <td className="px-6 py-3 text-sm text-[var(--text-sub)]">
+                      {parseLocalDate(b.travelDate)?.toLocaleDateString() || '—'} · {b.travelTime}
+                    </td>
+                    <td className="px-6 py-3 text-sm font-semibold text-zinc-950">
+                      {(b.pricing?.customerTotal ?? ((b.totalAmount || 0) + (b.systemFee || 0))).toLocaleString()} RWF
+                      <span className="ml-1.5 inline-flex items-center gap-1 text-[11px] font-semibold px-1.5 py-0.5 rounded bg-[#FEF3C7] text-[#92400E] align-middle">
+                        <Smartphone size={10} /> MoMo
+                      </span>
+                    </td>
+                    <td className="px-6 py-3">
+                      {b.merchantReceiptImage ? (
+                        <a
+                          href={resolveImageUrl(b.merchantReceiptImage)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={e => e.stopPropagation()}
+                          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--blue)] hover:underline cursor-pointer"
+                        >
+                          <ReceiptText size={13} /> View Receipt
+                        </a>
+                      ) : (
+                        <span className="text-xs text-[var(--text-muted)]">—</span>
+                      )}
+                    </td>
+                    <td className="px-6 py-3">
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleMomoApprove(b)}
+                          disabled={momoBusyId === b._id}
+                          className="h-8 px-3 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold cursor-pointer border-none flex items-center gap-1.5 transition-colors disabled:opacity-50 disabled:cursor-default"
+                        >
+                          {momoBusyId === b._id ? <Loader2 size={12} className="animate-spin" /> : <CheckCircle2 size={12} />}
+                          Approve
+                        </button>
+                        <button
+                          onClick={() => handleMomoReject(b)}
+                          disabled={momoBusyId === b._id}
+                          className="h-8 px-3 rounded-md border border-red-200 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-semibold cursor-pointer flex items-center gap-1.5 transition-colors disabled:opacity-50 disabled:cursor-default"
+                        >
+                          <XCircle size={12} />
+                          Reject
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       {/* ── Recent Bookings Table ───────────────────────────────── */}
       <div className="bg-white rounded-md border border-[var(--border)] overflow-hidden">
         <div className="px-6 py-4 border-b border-[var(--border)] flex items-center justify-between flex-wrap gap-3 bg-[#F9FAFB]">
@@ -613,7 +778,7 @@ export default function SystemDashboard() {
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-[#F9FAFB]">
-                {['Ref', 'Agency', 'Passenger', 'Phone', 'Passengers', 'Route', 'Date', 'Time', 'Amount', 'Status'].map(h => (
+                {['Ref', 'Agency', 'Passenger', 'Phone', 'Passengers', 'Route', 'Date', 'Time', 'Amount', 'Payment', 'Status'].map(h => (
                   <th
                     key={h}
                     className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-[var(--text-sub)]"
@@ -627,7 +792,7 @@ export default function SystemDashboard() {
               {loading ? (
                 Array.from({ length: RECENT_PER_PAGE }).map((_, i) => (
                   <tr key={i}>
-                    {Array.from({ length: 10 }).map((_, j) => (
+                    {Array.from({ length: 11 }).map((_, j) => (
                       <td key={j} className="px-6 py-3">
                         <div className="h-4 bg-[#F9FAFB] rounded w-4/5 animate-pulse" />
                       </td>
@@ -636,7 +801,7 @@ export default function SystemDashboard() {
                 ))
               ) : recentBookings.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className="py-12 text-center text-sm text-[var(--text-muted)]">
+                  <td colSpan={11} className="py-12 text-center text-sm text-[var(--text-muted)]">
                     No bookings yet
                   </td>
                 </tr>
@@ -669,6 +834,14 @@ export default function SystemDashboard() {
                     </td>
                     <td className="px-6 py-3 text-sm font-semibold text-zinc-950">
                       {((b.totalAmount || 0) + (b.systemFee || 0)).toLocaleString()} RWF
+                    </td>
+                    <td className="px-6 py-3">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        {paymentTypeBadge(b)}
+                        <span className={`inline-flex items-center text-xs font-medium px-2 py-0.5 rounded-md ${paymentStatusClass(b.paymentStatus)}`}>
+                          {b.paymentStatus || '—'}
+                        </span>
+                      </div>
                     </td>
                     <td className="px-6 py-3">
                       <span

@@ -144,6 +144,10 @@ export const api = {
   viewTicket: (id: string) => request(`/bookings/${id}/ticket`),
   getTakenSeats: (params: Record<string, string>) => request('/bookings/taken-seats', { params }),
   getPaymentConfig: () => request('/bookings/payment-config'),
+  getPendingMomoPayments: (params?: Record<string, string>) => request('/bookings/payments/momo/pending', { params }),
+  approveMomoPayment: (id: string) => request(`/bookings/${id}/payment/approve`, { method: 'PATCH' }),
+  rejectMomoPayment: (id: string, reason?: string) =>
+    request(`/bookings/${id}/payment/reject`, { method: 'PATCH', body: JSON.stringify({ reason }) }),
 
   // Departure Blocks
   getDepartureSchedule: (params: Record<string, string>) => request('/departure-blocks/schedule', { params }),

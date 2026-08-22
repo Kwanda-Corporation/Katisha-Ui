@@ -17,6 +17,7 @@ import { cacheTicketWithImage, cacheTicket } from '../../services/ticketCache';
 import { useOnline } from '../../contexts/OnlineContext';
 import { systemFeeFor } from '../../utils/serviceFee';
 import { generateMerchantReceipt } from '../../utils/generateMerchantReceipt';
+import { downloadImage, extFromMime } from '../../utils/downloadImage';
 import PaymentMethodSelect, { type PaymentChannel } from './PaymentMethodSelect';
 import MerchantCodeModal from './MerchantCodeModal';
 import Lottie from 'lottie-react';
@@ -1167,16 +1168,23 @@ export default function BookingWizard() {
             </div>
           )}
 
-          {/* Download button — prominent, below the image */}
+          {/* Download button — prominent, below the image. Uses a blob-based
+              downloader: a plain <a href download> is ignored by browsers for
+              cross-origin URLs and would navigate to the image instead. */}
           {merchantReceiptUrl && (
-            <a
-              href={merchantReceiptUrl}
-              download={`katisha-receipt-${bookingResult.referenceCode}.png`}
-              className="w-full max-w-[360px] h-14 rounded-2xl bg-[#D97706] hover:bg-[#B45309] text-white text-base font-bold flex items-center justify-center gap-3 transition-colors duration-200 no-underline shadow-lg"
+            <button
+              type="button"
+              onClick={() => {
+                const mime = merchantReceiptUrl.startsWith('data:')
+                  ? merchantReceiptUrl.slice(5, merchantReceiptUrl.indexOf(';')) || ''
+                  : '';
+                downloadImage(merchantReceiptUrl, `katisha-receipt-${bookingResult.referenceCode}.${extFromMime(mime)}`);
+              }}
+              className="w-full max-w-[360px] h-14 rounded-2xl bg-[#D97706] hover:bg-[#B45309] text-white text-base font-bold flex items-center justify-center gap-3 transition-colors duration-200 cursor-pointer border-none shadow-lg"
             >
               <Download size={20} />
               {t('booking.downloadReceipt', { defaultValue: 'Download Receipt' })}
-            </a>
+            </button>
           )}
 
           <p className="text-white/70 text-xs text-center mt-4 max-w-xs">
