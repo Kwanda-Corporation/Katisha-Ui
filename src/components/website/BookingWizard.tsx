@@ -1771,8 +1771,13 @@ export default function BookingWizard() {
                   <motion.button key={day} disabled={disabled}
                     whileTap={disabled ? {} : { scale: 0.93 }}
                     onClick={() => {
+                      const changed = form.travelDate !== dateStr;
                       setForm(f => f.travelDate === dateStr ? f : { ...f, travelDate: dateStr, travelTime: '' });
                       setShowDateModal(false);
+                      // Flow straight into departure-time selection after a
+                      // date is picked; the schedule/blocked-times effect
+                      // refetches for the new date automatically.
+                      if (changed) setShowTimeModal(true);
                     }}
                     className={`w-full h-11 sm:h-10 rounded-md text-base sm:text-sm font-medium flex items-center justify-center transition-all duration-200 cursor-pointer ${
                       isSelected ? 'bg-[var(--blue)] text-white shadow-[0_3px_10px_-3px_rgba(29, 78, 216,0.6)]' :
