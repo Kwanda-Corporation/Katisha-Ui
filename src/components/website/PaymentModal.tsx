@@ -347,6 +347,8 @@ export interface PaymentModalProps {
   fareTotal?: number;
   /** Service fee portion, accepted for API compatibility. */
   serviceFeeTotal?: number;
+  /** Online payment processing fee (PawaPay deposit fee). */
+  paymentFee?: number;
   /** Trip origin, accepted for API compatibility. */
   origin?: string;
   /** Trip destination, accepted for API compatibility. */
@@ -363,6 +365,8 @@ export interface PaymentModalProps {
   ussdCode?: string;
   /** Portion of the ussdCode to visually highlight (e.g. the merchant/txn code). */
   ussdHighlight?: string;
+  /** Whether this is the "Pay Online" modal (shows pricing breakdown). */
+  showPricingBreakdown?: boolean;
 }
 
 function useIsMobile() {
@@ -394,6 +398,9 @@ export default function PaymentModal({
   onContactPhoneChange,
   contactPhoneError,
   total,
+  fareTotal = 0,
+  serviceFeeTotal = 0,
+  paymentFee = 0,
   submitting = false,
   onSubmit,
   submitError,
@@ -402,6 +409,7 @@ export default function PaymentModal({
   onToggleFreeTicket,
   ussdCode,
   ussdHighlight,
+  showPricingBreakdown = false,
 }: PaymentModalProps) {
   const { t } = useTranslation();
   const isMobile = useIsMobile();

@@ -3,7 +3,17 @@ const SERVER_ORIGIN = API_BASE.replace(/\/api\/?$/, '');
 
 export function resolveImageUrl(path?: string): string | undefined {
   if (!path) return undefined;
-  if (path.startsWith('http://') || path.startsWith('https://')) return path;
+  if (path.startsWith('http://') || path.startsWith('https://')) {
+    try {
+      const url = new URL(path);
+      if (url.pathname.startsWith('/uploads/') && url.origin !== SERVER_ORIGIN) {
+        return `${SERVER_ORIGIN}${url.pathname}`;
+      }
+    } catch {
+      return path;
+    }
+    return path;
+  }
   return `${SERVER_ORIGIN}${path}`;
 }
 
@@ -133,6 +143,7 @@ export const api = {
   abandonBooking: (id: string) => request(`/bookings/${id}/abandon`, { method: 'POST' }),
   viewTicket: (id: string) => request(`/bookings/${id}/ticket`),
   getTakenSeats: (params: Record<string, string>) => request('/bookings/taken-seats', { params }),
+  getPaymentConfig: () => request('/bookings/payment-config'),
 
   // Departure Blocks
   getDepartureSchedule: (params: Record<string, string>) => request('/departure-blocks/schedule', { params }),

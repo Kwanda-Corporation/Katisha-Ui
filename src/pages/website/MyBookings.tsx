@@ -34,6 +34,35 @@ export default function MyBookings() {
   const [ticketImageUrl, setTicketImageUrl] = useState<string | null>(null);
   const [ticketLoading, setTicketLoading] = useState(false);
   const [ticketError, setTicketError] = useState('');
+  const [merchantReceiptBooking, setMerchantReceiptBooking] = useState<any>(null);
+
+  const openMerchantReceipt = (booking: any) => {
+    setMerchantReceiptBooking(booking);
+  };
+
+  const downloadMerchantReceipt = useCallback(async () => {
+    const booking = merchantReceiptBooking;
+    if (!booking?.merchantReceiptImage) return;
+    const url = resolveImageUrl(booking.merchantReceiptImage);
+    const baseName = `katisha-receipt-${booking.referenceCode || 'receipt'}`;
+    try {
+      if (!url) throw new Error('no url');
+      const res = await fetch(url, { mode: 'cors' });
+      if (!res.ok) throw new Error('fetch failed');
+      const blob = await res.blob();
+      const ext = blob.type === 'image/jpeg' ? 'jpg' : blob.type === 'image/webp' ? 'webp' : 'png';
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = `${baseName}.${ext}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+    } catch {
+      window.open(url, '_blank', 'noopener');
+    }
+  }, [merchantReceiptBooking]);
 
   // Lazily fetch ticket images for bookings that are missing one (e.g. ticket
   // generation failed at booking time). Falls back to the local cache first.
@@ -232,19 +261,22 @@ export default function MyBookings() {
 
   const { today: todayBookings, upcoming: upcomingBookings } = splitBookings();
 
-  const TicketCard = ({ booking, index, isToday }: { booking: any; index: number; isToday?: boolean }) => (
+  const TicketCard = ({ booking, index, isToday }: { booking: any; index: number; isToday?: boolean }) => {
+    const isMerchantPending = booking.paymentChannel === 'momo_merchant' && booking.paymentStatus === 'processing';
+    const displayImage = booking.ticketImage || booking.merchantReceiptImage;
+    return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: Math.min(index * 0.05, 0.5), duration: 0.3 }}
       className="group cursor-pointer mx-auto w-full max-w-[320px]"
-      onClick={() => loadTicketModal(booking)}
+      onClick={() => isMerchantPending ? openMerchantReceipt(booking) : loadTicketModal(booking)}
     >
       {/* Ticket image — no card, just the ticket */}
       <div className={`relative flex flex-col items-center${isToday ? ' ring-2 ring-[var(--blue)] rounded-md' : ''}`}>
-        {booking.ticketImage ? (
+        {displayImage ? (
           <img
-            src={resolveImageUrl(booking.ticketImage)}
+            src={resolveImageUrl(displayImage)}
             alt={`Ticket ${booking.referenceCode}`}
             className="w-full h-auto object-contain drop-shadow-md transition-transform duration-300 group-hover:scale-[1.02]"
             loading="lazy"
@@ -258,10 +290,16 @@ export default function MyBookings() {
             {t('booking.today') || 'Today'}
           </span>
         )}
+        {isMerchantPending && (
+          <span className="absolute top-2 right-2 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#D97706] text-white text-[11px] font-bold shadow-md">
+            <Clock size={11} className="shrink-0" />
+            {t('booking.paymentUnderReview', { defaultValue: 'Payment Under Review' })}
+          </span>
+        )}
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100 rounded-md">
           <div className="bg-white/90 rounded-md px-3 py-1.5 flex items-center gap-2">
             <Eye size={14} className="text-[var(--blue)]" />
-            <span className="text-xs font-semibold text-zinc-700">{t('booking.viewTicket') || 'View Ticket'}</span>
+            <span className="text-xs font-semibold text-zinc-700">{isMerchantPending ? (t('booking.viewReceipt') || 'View Receipt') : (t('booking.viewTicket') || 'View Ticket')}</span>
           </div>
         </div>
       </div>
@@ -279,7 +317,8 @@ export default function MyBookings() {
         </p>
       </div>
     </motion.div>
-  );
+    );
+  };
 
   if (!isAuthenticated) {
     return (
@@ -485,6 +524,53 @@ export default function MyBookings() {
                 </div>
               ) : null}
             </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Merchant receipt modal — backdrop overlay */}
+      <AnimatePresence>
+        {merchantReceiptBooking && merchantReceiptBooking.merchantReceiptImage && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-[100] bg-black/80 flex items-center justify-center p-4"
+            onClick={() => setMerchantReceiptBooking(null)}
+          >
+            <button
+              onClick={() => setMerchantReceiptBooking(null)}
+              className="absolute top-4 right-4 z-50 w-10 h-10 rounded-md bg-white/90 hover:bg-white flex items-center justify-center cursor-pointer border-none transition-colors"
+            >
+              <X size={20} className="text-zinc-700" />
+            </button>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.25 }}
+              className="relative w-full max-w-lg flex flex-col items-center"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <img
+                src={resolveImageUrl(merchantReceiptBooking.merchantReceiptImage)}
+                alt="Payment receipt"
+                className="w-full max-w-[360px] rounded-2xl shadow-2xl border border-[#FDE68A] mb-5"
+              />
+              <a
+                href={resolveImageUrl(merchantReceiptBooking.merchantReceiptImage)}
+                download={`katisha-receipt-${merchantReceiptBooking.referenceCode}.png`}
+                onClick={downloadMerchantReceipt}
+                className="w-full max-w-[360px] h-14 rounded-2xl bg-[#D97706] hover:bg-[#B45309] text-white text-base font-bold flex items-center justify-center gap-3 transition-colors duration-200 no-underline shadow-lg"
+              >
+                <Download size={20} />
+                {t('booking.downloadReceipt', { defaultValue: 'Download Receipt' })}
+              </a>
+              <p className="text-white/70 text-xs text-center mt-4 max-w-xs">
+                {t('booking.receiptDesc', { defaultValue: 'Your payment is being verified. We will send your ticket once confirmed.' })}
+              </p>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>

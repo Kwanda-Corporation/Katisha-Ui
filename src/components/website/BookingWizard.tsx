@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Bus, MapPin, Calendar, ArrowRight, ArrowLeft, Check, Smartphone,
-  Loader, Minus, Plus, Clock, Info, AlertCircle, X, ChevronDown, Search, Lock, Star, Route
+  Loader, Minus, Plus, Clock, Info, AlertCircle, X, ChevronDown, Search, Lock, Star, Route, Download, Globe
 } from 'lucide-react';
 import { api, resolveImageUrl } from '../../api';
 import { useAuth } from '../../contexts/AuthContext';
@@ -15,7 +15,12 @@ import i18n from '../../i18n';
 import { searchRoutesOffline, getPublicAgencyOffline } from '../../services/offlineData';
 import { cacheTicketWithImage, cacheTicket } from '../../services/ticketCache';
 import { useOnline } from '../../contexts/OnlineContext';
-import { bookingServiceFee } from '../../utils/serviceFee';
+import { systemFeeFor } from '../../utils/serviceFee';
+import { generateMerchantReceipt } from '../../utils/generateMerchantReceipt';
+import PaymentMethodSelect, { type PaymentChannel } from './PaymentMethodSelect';
+import MerchantCodeModal from './MerchantCodeModal';
+import Lottie from 'lottie-react';
+import paymentAnimation from '../../assets/lottie/payment.json';
 
 function FieldError({ message }: { message?: string }) {
   if (!message) return null;
@@ -108,11 +113,45 @@ const kigaliTodayDate = (): Date => new Date(`${getKigaliTodayStr()}T00:00:00`);
 const formatDateStr = (d: Date): string =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
+const getKigaliTimeMinutes = (): number => {
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Africa/Kigali',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).formatToParts(new Date());
+  const hour = Number(parts.find(p => p.type === 'hour')?.value) % 24;
+  const minute = Number(parts.find(p => p.type === 'minute')?.value);
+  return hour * 60 + minute;
+};
+
+const INTERCITY_CURFEW_START_MIN = 21 * 60 + 30;
+const INTERCITY_CURFEW_END_MIN = 4 * 60;
+const INTERCITY_ADVANCE_MINUTES = 3 * 60;
+
+const timeToMinutes = (time: string): number => {
+  const [h, m] = String(time).split(':').map(Number);
+  return (h || 0) * 60 + (m || 0);
+};
+
+const isInIntercityCurfew = (time: string): boolean => {
+  const mins = timeToMinutes(time);
+  return mins >= INTERCITY_CURFEW_START_MIN || mins < INTERCITY_CURFEW_END_MIN;
+};
+
+const isIntercitySlotBookable = (time: string, travelDate: string): boolean => {
+  if (isInIntercityCurfew(time)) return false;
+  if (travelDate === getKigaliTodayStr() && timeToMinutes(time) < getKigaliTimeMinutes() + INTERCITY_ADVANCE_MINUTES) return false;
+  return true;
+};
+
 interface CatalogRoute {
   origin?: string;
   destination?: string;
   via?: string;
   countries?: string[];
+  provinces?: string[];
+  type?: string;
 }
 
 /**
@@ -163,8 +202,9 @@ const TIME_SLOTS = generateTimeSlots();
  * Kigali → Kampala via Kagitumba and Kigali → Kampala via Gatuna are separate
  * bookable routes), and orders featured agencies first. When a `via` is given
  * (e.g. the user picked "Nairobi via Kagitumba"), only routes through that
- * specific via point are kept.
- */function normalizeAgencyRoutes(routes: any[], origin: string, destination: string, via?: string): any[] {
+ * specific via point are kept. When a `journeyType` is given, only routes of
+ * that type are considered.
+ */function normalizeAgencyRoutes(routes: any[], origin: string, destination: string, via?: string, journeyType?: string | null): any[] {
   const o = origin.trim().toLowerCase();
   const d = destination.trim().toLowerCase();
   const v = (via || '').trim().toLowerCase();
@@ -172,6 +212,7 @@ const TIME_SLOTS = generateTimeSlots();
   const direct: any[] = [];
   const viaRoutes: any[] = [];
   for (const r of routes) {
+    if (journeyType && r.type && r.type !== journeyType) continue;
     const rOrigin = (r.origin || '').toLowerCase();
     if (rOrigin !== o) continue;
     if ((r.destination || '').toLowerCase() === d) {
@@ -180,6 +221,13 @@ const TIME_SLOTS = generateTimeSlots();
       viaRoutes.push(r);
     }
   }
+
+  // Safety net: if the type filter excluded everything (e.g. legacy data
+  // without a `type` field), retry without it so the user still sees options.
+  const fallbackList = direct.length === 0 && viaRoutes.length === 0 && journeyType
+    ? normalizeAgencyRoutes(routes, origin, destination, via, null)
+    : null;
+  if (fallbackList) return fallbackList;
 
   const priceOf = (r: any) => r.effectivePrice || r.price || 0;
   const byKey = new Map<string, any>();
@@ -206,7 +254,7 @@ const TIME_SLOTS = generateTimeSlots();
 }
 
 interface BookingForm {
-  journeyType: 'east_africa' | null;
+  journeyType: 'east_africa' | 'intercity' | null;
   origin: string;
   destination: string;
   via: string;
@@ -269,6 +317,17 @@ export default function BookingWizard() {
   const scheduleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const confirmationRef = useRef<HTMLDivElement>(null);
   const pendingAgencyRef = useRef<string | null>(null);
+
+  // Payment channel selection state
+  const [paymentChannel, setPaymentChannel] = useState<PaymentChannel | null>(null);
+  const [showPaymentMethodSelect, setShowPaymentMethodSelect] = useState(false);
+  const [showMerchantCodeModal, setShowMerchantCodeModal] = useState(false);
+  const [paymentConfig, setPaymentConfig] = useState<{ merchantCode: string; merchantName: string; ussdTemplate: string; depositRate: number; payoutRate: number; payoutFixed: number } | null>(null);
+
+  // Merchant code receipt flow state
+  const [merchantReceiptPhase, setMerchantReceiptPhase] = useState<'waiting' | 'receipt'>('waiting');
+  const [merchantReceiptUrl, setMerchantReceiptUrl] = useState<string | null>(null);
+  const [merchantCountdown, setMerchantCountdown] = useState(30);
 
   // Deep-link hydration: /book?to=Huye&agency=...&date=... from SEO landing
   // pages. Pre-fills the destination (origin is fixed to Kigali), jumps to the
@@ -366,6 +425,38 @@ export default function BookingWizard() {
     selectLocation('destination', dest, via);
   };
 
+  /** User picks the kind of trip BEFORE choosing a destination; the
+   * destination picker then only offers destinations of that type. */
+  const selectJourneyType = (journeyType: 'east_africa' | 'intercity') => {
+    if (scheduleTimerRef.current) clearTimeout(scheduleTimerRef.current);
+    setShowSchedule(false);
+    setForm(f => ({
+      ...f,
+      journeyType,
+      destination: '',
+      via: '',
+      routeId: '',
+      agencyId: '',
+      pickupPoint: '',
+      travelTime: '',
+    }));
+    setAvailableRoutes([]);
+    setCityPickerField('destination');
+  };
+
+  /** Going back to the journey-type choice clears every downstream selection. */
+  const changeJourneyType = () => {
+    if (scheduleTimerRef.current) clearTimeout(scheduleTimerRef.current);
+    setShowSchedule(false);
+    setForm(f => ({
+      ...f,
+      journeyType: null,
+      destination: '', via: '', routeId: '', agencyId: '',
+      pickupPoint: '', travelDate: '', travelTime: '',
+    }));
+    setAvailableRoutes([]);
+  };
+
   const handleAgencySelect = (route: any) => {
     setForm(f => ({ ...f, routeId: route._id, agencyId: route.agency?._id || '' }));
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -382,8 +473,15 @@ export default function BookingWizard() {
   const selectedRoute = availableRoutes.find(r => r._id === form.routeId);
   const effectivePrice = selectedRoute?.effectivePrice || availableRoutes[0]?.price || 0;
   const fareTotal = effectivePrice * form.seats || 0;
-  const serviceFeeTotal = bookingServiceFee(effectivePrice, form.seats);
+  const serviceFeeTotal = systemFeeFor(form.journeyType, effectivePrice, form.seats);
   const totalDue = fareTotal + serviceFeeTotal;
+
+  // Pricing for both payment channels
+  const merchantCodeTotal = totalDue; // No PawaPay fee
+  const onlinePaymentFee = paymentConfig
+    ? Math.round(totalDue * paymentConfig.depositRate) + Math.round(fareTotal * paymentConfig.payoutRate) + paymentConfig.payoutFixed
+    : Math.round(totalDue * 0.018791) + Math.round(fareTotal * 0.01) + 60;
+  const onlineTotal = totalDue + onlinePaymentFee; // Includes PawaPay fee
   const medianPrice = useMemo(() => {
     const prices = availableRoutes
       .map(r => Number(r.effectivePrice || r.price) || 0)
@@ -432,6 +530,13 @@ export default function BookingWizard() {
     if (!form.paymentMethod || !available.some(pm => pm.value === form.paymentMethod)) {
       setForm(f => ({ ...f, paymentMethod: available[0].value }));
     }
+    // Reset payment channel selection when entering step 2
+    setPaymentChannel(null);
+    setShowPaymentMethodSelect(true);
+    setShowMerchantCodeModal(false);
+    setMerchantReceiptPhase('waiting');
+    setMerchantReceiptUrl(null);
+    setMerchantCountdown(30);
   }, [step, form.journeyType, form.paymentMethod]);
 
   /**/
@@ -441,6 +546,98 @@ export default function BookingWizard() {
       if (autoAdvanceRef.current) clearTimeout(autoAdvanceRef.current);
       if (scheduleTimerRef.current) clearTimeout(scheduleTimerRef.current);
     };
+  }, []);
+
+  // Merchant code receipt: 30s waiting → generate orange receipt
+  useEffect(() => {
+    if (bookingResult?.status !== 'processing_merchant') return;
+    if (merchantReceiptPhase !== 'waiting') return;
+
+    const countdownId = window.setInterval(() => {
+      setMerchantCountdown(prev => {
+        if (prev <= 1) {
+          window.clearInterval(countdownId);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    const receiptTimer = window.setTimeout(async () => {
+      try {
+        // Use server-generated receipt if available, otherwise generate client-side
+        if (bookingResult.merchantReceiptImage) {
+          setMerchantReceiptUrl(resolveImageUrl(bookingResult.merchantReceiptImage) || null);
+        } else {
+          const url = await generateMerchantReceipt({
+            referenceCode: bookingResult.referenceCode,
+            origin: bookingResult.origin,
+            destination: bookingResult.destination,
+            travelDate: bookingResult.travelDate,
+            travelTime: bookingResult.travelTime,
+            seats: bookingResult.seats,
+            totalAmount: bookingResult.totalAmount + (bookingResult.systemFee || 0),
+            passengerName: guestName || undefined,
+          });
+          setMerchantReceiptUrl(url);
+        }
+        setMerchantReceiptPhase('receipt');
+
+        // Play notification sound
+        try {
+          const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+          const playNote = (freq: number, startTime: number, duration: number) => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.value = freq;
+            gain.gain.setValueAtTime(0.3, startTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(startTime);
+            osc.stop(startTime + duration);
+          };
+          const now = audioCtx.currentTime;
+          playNote(523.25, now, 0.15);
+          playNote(659.25, now + 0.12, 0.15);
+          playNote(783.99, now + 0.24, 0.25);
+        } catch {}
+      } catch {
+        setMerchantReceiptPhase('receipt');
+      }
+    }, 30_000);
+
+    return () => {
+      window.clearInterval(countdownId);
+      window.clearTimeout(receiptTimer);
+    };
+  }, [bookingResult?.status, bookingResult?.referenceCode, merchantReceiptPhase]);
+
+  // Fetch payment configuration (merchant code, USSD template, fee rate)
+  useEffect(() => {
+    api.getPaymentConfig()
+      .then((res: any) => {
+        const data = res?.data || res;
+        setPaymentConfig({
+          merchantCode: data?.merchantCode || '2228178',
+          merchantName: data?.merchantName || 'Manzi Ineza Alpe',
+          ussdTemplate: data?.ussdTemplate || '*182*8*1*{{code}}*{{amount}}#',
+          depositRate: data?.pawapayDepositFeeRate ?? 0.018791,
+          payoutRate: data?.pawapayPayoutFeeRate ?? 0.01,
+          payoutFixed: data?.pawapayPayoutFixed ?? 60,
+        });
+      })
+      .catch(() => {
+        setPaymentConfig({
+          merchantCode: '2228178',
+          merchantName: 'Manzi Ineza Alpe',
+          ussdTemplate: '*182*8*1*{{code}}*{{amount}}#',
+          depositRate: 0.018791,
+          payoutRate: 0.01,
+          payoutFixed: 60,
+        });
+      });
   }, []);
 
   useEffect(() => {
@@ -506,7 +703,7 @@ export default function BookingWizard() {
   // data already loaded. Once a specific date is picked, refetches for it.
   useEffect(() => {
     if (!form.routeId) { setBlockedTimes([]); setScheduleConfigured(false); setScheduleTimes([]); return; }
-    const minDays = form.journeyType === 'east_africa' ? 2 : 1;
+    const minDays = form.journeyType === 'east_africa' ? 2 : 0;
     const prefetchDate = kigaliTodayDate();
     prefetchDate.setDate(prefetchDate.getDate() + minDays);
     const travelDate = form.travelDate || formatDateStr(prefetchDate);
@@ -542,6 +739,11 @@ export default function BookingWizard() {
       if (!form.routeId || !form.agencyId) e.agencyId = t('booking.selectRoute');
       if (!form.travelDate) e.travelDate = t('booking.selectTravelDate');
       if (!form.travelTime) e.travelTime = t('booking.selectDepartureTime');
+      else if (form.journeyType === 'intercity' && form.travelDate && !isIntercitySlotBookable(form.travelTime, form.travelDate)) {
+        e.travelTime = isInIntercityCurfew(form.travelTime)
+          ? t('booking.intercityCurfew')
+          : t('booking.intercityAdvance');
+      }
     }
     if (step === 1) {
       if (form.seats < 1) e.seats = t('booking.atLeastOneSeat');
@@ -563,10 +765,10 @@ export default function BookingWizard() {
     setLoading(true);
     try {
       const { data: routes } = await searchRoutesOffline(origin, destination);
-      const normalized = normalizeAgencyRoutes(routes || [], origin, destination, via);
+      const normalized = normalizeAgencyRoutes(routes || [], origin, destination, via, form.journeyType);
       setAvailableRoutes(normalized);
-      if (normalized.length > 0 && normalized[0].type) {
-        setForm(f => ({ ...f, journeyType: normalized[0].type }));
+      if (!form.journeyType && normalized.length > 0 && normalized[0].type) {
+        setForm(f => (f.journeyType ? f : { ...f, journeyType: normalized[0].type }));
       }
       applyPendingAgency(normalized);
     } catch {
@@ -630,27 +832,51 @@ export default function BookingWizard() {
     if (viaFetchedOriginRef.current !== form.origin) loadViaRoutes(form.origin);
   }, [cityPickerField, form.origin, loadViaRoutes]);
 
+  // Deep-linked destinations (?to=...) arrive without a chosen journey type.
+  // Once the route catalogue is available, infer it from the matching route so
+  // the wizard skips straight to the correct destination set.
+  useEffect(() => {
+    if (form.journeyType || !form.destination || catalogue.length === 0) return;
+    const destKey = form.destination.trim().toLowerCase();
+    const originKey = form.origin.trim().toLowerCase();
+    const match = catalogue.find(r =>
+      (r.origin || '').trim().toLowerCase() === originKey &&
+      ((r.destination || '').trim().toLowerCase() === destKey ||
+       (r.via || '').trim().toLowerCase() === destKey)
+    );
+    if (match && (match.type === 'intercity' || match.type === 'east_africa')) {
+      setForm(f => (f.journeyType ? f : { ...f, journeyType: match.type as 'east_africa' | 'intercity' }));
+    }
+  }, [catalogue, form.destination, form.origin, form.journeyType]);
+
   // Destination picker groups, built from the LIVE route catalogue (the same
-  // fetch used for via routes) rather than a hardcoded list. Each route's
-  // `countries` field (real DB data) provides the group label; destinations
-  // without a country fall back to an "Other" group. Rwandan cities are
-  // excluded — this picker is for cross-border destinations only.
+  // fetch used for via routes) rather than a hardcoded list, and scoped to the
+  // selected journey type. Intercity shows Rwandan destinations grouped by
+  // province; East African travel groups by destination country (Rwanda
+  // excluded — that is what the intercity mode is for).
   const destinationGroups = useMemo(() => {
     const originKey = form.origin.trim().toLowerCase();
-    const byCountry = new Map<string, Set<string>>();
+    const intercityMode = form.journeyType === 'intercity';
+    const byGroup = new Map<string, Set<string>>();
     for (const r of catalogue) {
       const dest = (r.destination || '').trim();
       if (!dest || (r.origin || '').trim().toLowerCase() !== originKey) continue;
-      const country = Array.isArray(r.countries) && r.countries[0] ? r.countries[0] : 'Other';
-      if (country.trim().toLowerCase() === 'rwanda') continue;
-      let set = byCountry.get(country);
-      if (!set) { set = new Set(); byCountry.set(country, set); }
+      if (form.journeyType && r.type && r.type !== form.journeyType) continue;
+      let label: string;
+      if (intercityMode) {
+        label = (Array.isArray(r.provinces) ? r.provinces.find(p => p.trim().toLowerCase() !== 'kigali') : '') || 'Rwanda';
+      } else {
+        label = Array.isArray(r.countries) && r.countries[0] ? r.countries[0] : 'Other';
+        if (label.trim().toLowerCase() === 'rwanda') continue;
+      }
+      let set = byGroup.get(label);
+      if (!set) { set = new Set(); byGroup.set(label, set); }
       set.add(dest);
     }
-    return Array.from(byCountry.entries())
+    return Array.from(byGroup.entries())
       .map(([label, cities]) => ({ label, cities: Array.from(cities).sort((a, b) => a.localeCompare(b)) }))
       .sort((a, b) => a.label.localeCompare(b.label));
-  }, [catalogue, form.origin]);
+  }, [catalogue, form.origin, form.journeyType]);
 
   const handleNext = async () => {
     if (!validate()) return;
@@ -696,7 +922,7 @@ export default function BookingWizard() {
           }
 
           const todayStr = getKigaliTodayStr();
-          if (form.travelDate <= todayStr) {
+          if (form.journeyType !== 'intercity' && form.travelDate <= todayStr) {
             setErrors({ travelDate: t('booking.bookTomorrow') || 'You can only book travel from tomorrow onwards. Please choose another date.' });
             setShowDateModal(true);
             return;
@@ -720,11 +946,13 @@ export default function BookingWizard() {
 
   const handleBack = () => {
     if (step === 0) {
-      // Plan-your-trip sub-steps: schedule → agency → destination pick.
+      // Plan-your-trip sub-steps: schedule → agency → destination → journey type.
       if (showSchedule) {
         setShowSchedule(false);
       } else if (form.destination) {
         setForm(f => ({ ...f, destination: '', via: '', routeId: '', agencyId: '', pickupPoint: '', travelTime: '' }));
+      } else if (form.journeyType) {
+        changeJourneyType();
       }
       return;
     }
@@ -748,6 +976,7 @@ export default function BookingWizard() {
         travelTime: form.travelTime,
         seats: form.seats,
         paymentMethod: form.paymentMethod,
+        paymentChannel: paymentChannel || 'pawapay_online',
         phone: form.phone,
         contactPhone: useExtraContactPhone ? (form.contactPhone.trim() || undefined) : form.phone,
       };
@@ -792,6 +1021,21 @@ export default function BookingWizard() {
         } else {
           cacheTicket(booking._id, '', booking).catch(() => {});
         }
+      } else if (paymentStatus === 'processing' && paymentChannel === 'momo_merchant') {
+        // Merchant code: show processing receipt directly in the wizard
+        setBookingResult({
+          referenceCode: booking.referenceCode,
+          status: 'processing_merchant',
+          totalAmount: booking.totalAmount,
+          systemFee: booking.systemFee,
+          origin: booking.origin,
+          destination: booking.destination,
+          travelDate: booking.travelDate,
+          travelTime: booking.travelTime,
+          seats: booking.seats,
+          bookingId: booking._id,
+          merchantReceiptImage: booking.merchantReceiptImage || null,
+        });
       } else if (paymentStatus === 'processing') {
         const totalAmount = booking.pricing?.customerTotal ?? booking.totalAmount;
         navigate(`/payment/${encodeURIComponent(booking.referenceCode)}?bookingId=${booking._id}&amount=${encodeURIComponent(String(totalAmount))}`);
@@ -811,12 +1055,137 @@ export default function BookingWizard() {
     }
   };
 
+  const handlePaymentChannelSelect = (channel: PaymentChannel) => {
+    setPaymentChannel(channel);
+    setShowPaymentMethodSelect(false);
+    if (channel === 'momo_merchant') {
+      setShowMerchantCodeModal(true);
+    }
+    // If pawapay_online, PaymentModal opens naturally via paymentChannel state
+  };
+
+  const handleMerchantCodeConfirm = () => {
+    setShowMerchantCodeModal(false);
+    handleSubmit();
+  };
+
   const STEP_TITLES = [
-    t('booking.tripTitle'), t('booking.title5'), t('booking.title6'),
+    form.journeyType ? t('booking.tripTitle') : t('booking.chooseJourneyType') || t('booking.tripTitle'),
+    t('booking.title5'), t('booking.title6'),
   ];
   const STEP_DESCS = [
-    t('booking.tripDesc'), t('booking.desc5'), t('booking.desc6'),
+    form.journeyType ? t('booking.tripDesc') : t('booking.chooseJourneyTypeDesc') || t('booking.tripDesc'),
+    t('booking.desc5'), t('booking.desc6'),
   ];
+
+  if (bookingResult?.status === 'processing_merchant') {
+    // Phase 1: Waiting screen with countdown (same visual style as PawaPay)
+    if (merchantReceiptPhase === 'waiting') {
+      return (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center"
+          style={{ background: '#FFFFFF' }}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="merchant-waiting-title"
+        >
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+            className="flex flex-col items-center px-6 text-center max-w-sm"
+          >
+            <Lottie
+              animationData={paymentAnimation}
+              loop
+              autoplay
+              style={{ width: 200, height: 200 }}
+              aria-label={t('booking.verifyingPayment', { defaultValue: 'Verifying your payment' })}
+            />
+            <h2 id="merchant-waiting-title" className="text-xl font-semibold text-[var(--text)] mb-2">
+              {t('booking.verifyingPayment', { defaultValue: 'Verifying your payment...' })}
+            </h2>
+            <p className="text-sm text-[var(--text-sub)] leading-relaxed mb-5">
+              {t('booking.merchantWaitingDesc', { defaultValue: 'We are checking your payment. This usually takes a few seconds.' })}
+            </p>
+            {bookingResult.referenceCode && (
+              <p className="text-xs text-[var(--text-muted)] mb-1">
+                {t('booking.refCode')}: <span className="font-mono text-[var(--text)]/80">{bookingResult.referenceCode}</span>
+              </p>
+            )}
+            {bookingResult.totalAmount > 0 && (
+              <p className="text-xs text-[var(--text-muted)] mb-4">
+                {t('booking.amount')}: {bookingResult.totalAmount.toLocaleString()} {t('booking.currency')}
+              </p>
+            )}
+            {/* Countdown */}
+            <div className="flex items-center gap-2 mb-6">
+              <div className="w-2 h-2 rounded-full bg-[#D97706] animate-pulse" />
+              <span className="text-sm font-medium text-[#D97706] tabular-nums">
+                {merchantCountdown}s
+              </span>
+            </div>
+            <button
+              onClick={() => navigate('/')}
+              className="h-10 rounded-md bg-[var(--green-cta)] hover:bg-[var(--green-cta-hover)] active:bg-[var(--green-cta-active)] text-[var(--green-ink)] text-sm font-semibold px-6 flex items-center justify-center gap-2 transition-colors duration-200 cursor-pointer border-none"
+            >
+              <X size={16} />
+              {t('booking.cancel', { defaultValue: 'Cancel' })}
+            </button>
+          </motion.div>
+        </div>
+      );
+    }
+
+    // Phase 2: Orange receipt image — backdrop modal
+    return (
+      <div className="fixed inset-0 z-[100] bg-black/80 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="merchant-receipt-title">
+        {/* Close button */}
+        <button
+          onClick={() => navigate('/')}
+          className="absolute top-4 right-4 z-50 w-10 h-10 rounded-md bg-white/90 hover:bg-white flex items-center justify-center cursor-pointer border-none transition-colors"
+        >
+          <X size={20} className="text-[var(--text)]" />
+        </button>
+
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+          className="relative w-full max-w-lg flex flex-col items-center"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {merchantReceiptUrl ? (
+            <img
+              src={merchantReceiptUrl}
+              alt="Payment receipt"
+              className="w-full max-w-[360px] rounded-2xl shadow-2xl border border-[#FDE68A] mb-5"
+            />
+          ) : (
+            <div className="w-full max-w-[360px] aspect-[3/4] rounded-2xl bg-[#FEF3C7] border border-[#FDE68A] flex items-center justify-center mb-5">
+              <Loader size={32} className="animate-spin text-[#D97706]" />
+            </div>
+          )}
+
+          {/* Download button — prominent, below the image */}
+          {merchantReceiptUrl && (
+            <a
+              href={merchantReceiptUrl}
+              download={`katisha-receipt-${bookingResult.referenceCode}.png`}
+              className="w-full max-w-[360px] h-14 rounded-2xl bg-[#D97706] hover:bg-[#B45309] text-white text-base font-bold flex items-center justify-center gap-3 transition-colors duration-200 no-underline shadow-lg"
+            >
+              <Download size={20} />
+              {t('booking.downloadReceipt', { defaultValue: 'Download Receipt' })}
+            </a>
+          )}
+
+          <p className="text-white/70 text-xs text-center mt-4 max-w-xs">
+            {t('booking.receiptReadyDesc', { defaultValue: 'Save or screenshot this receipt. We will send your ticket after verifying the payment.' })}
+          </p>
+        </motion.div>
+      </div>
+    );
+  }
 
   if (bookingResult?.status === 'paid') {
     return (
@@ -1031,7 +1400,48 @@ export default function BookingWizard() {
       case 0:
         return (
           <div className="flex flex-col gap-6 pt-2">
-            {!form.destination && (
+            {/* Journey type comes FIRST — the destination picker is scoped by it */}
+            {!form.journeyType && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <motion.button
+                  type="button"
+                  onClick={() => selectJourneyType('intercity')}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.2, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
+                  whileHover={{ scale: 1.01, x: 2 }}
+                  whileTap={{ scale: 0.99 }}
+                  className="group w-full p-5 rounded-md border-2 border-[var(--blue)] bg-[var(--blue)] text-left transition-all duration-200 cursor-pointer hover:border-[var(--blue-dark)] hover:bg-[var(--blue-dark)] hover:shadow-[0_3px_12px_-5px_rgba(29,78,216,0.45)] focus-visible:border-[var(--blue-deep)]"
+                >
+                  <span className="w-11 h-11 rounded-md bg-white/15 text-white flex items-center justify-center mb-3 transition-colors duration-200 group-hover:bg-white group-hover:text-[var(--blue-dark)]">
+                    <Bus size={20} />
+                  </span>
+                  <p className="font-semibold text-lg text-white">{t('booking.intercity')}</p>
+                  <p className="text-sm text-white/80 mt-1 leading-relaxed">{t('booking.intercityDesc')}</p>
+                </motion.button>
+
+                <motion.button
+                  type="button"
+                  onClick={() => selectJourneyType('east_africa')}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.2, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+                  whileHover={{ scale: 1.01, x: 2 }}
+                  whileTap={{ scale: 0.99 }}
+                  className="group w-full p-5 rounded-md border-2 border-[var(--blue)] bg-[var(--blue)] text-left transition-all duration-200 cursor-pointer hover:border-[var(--blue-dark)] hover:bg-[var(--blue-dark)] hover:shadow-[0_3px_12px_-5px_rgba(29,78,216,0.45)] focus-visible:border-[var(--blue-deep)]"
+                >
+                  <span className="w-11 h-11 rounded-md bg-white/15 text-white flex items-center justify-center mb-3 transition-colors duration-200 group-hover:bg-white group-hover:text-[var(--blue-dark)]">
+                    <Globe size={20} />
+                  </span>
+                  <p className="font-semibold text-lg text-white">{t('booking.eastAfrica')}</p>
+                  <p className="text-sm text-white/80 mt-1 leading-relaxed">{t('booking.eastAfricaDesc')}</p>
+                </motion.button>
+              </div>
+            )}
+
+       
+
+            {form.journeyType && !form.destination && (
               <div>
                 {/* Origin (fixed to Kigali) + Destination */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
@@ -1342,7 +1752,7 @@ export default function BookingWizard() {
                 const todayStr = getKigaliTodayStr();
                 const isToday = dateStr === todayStr;
                 const isSelected = form.travelDate === dateStr;
-                const minDays = form.journeyType === 'east_africa' ? 2 : 1;
+                const minDays = form.journeyType === 'east_africa' ? 2 : 0;
                 const minDate = kigaliTodayDate();
                 minDate.setDate(minDate.getDate() + minDays);
                 const minDateStr = formatDateStr(minDate);
@@ -1418,15 +1828,19 @@ export default function BookingWizard() {
             const routeDepartureTimes: string[] = Array.isArray(selectedRoute?.departureTimes)
               ? selectedRoute.departureTimes.slice().sort()
               : [];
-            const allSlots = scheduleConfigured
+            let allSlots = scheduleConfigured
               ? scheduleTimes
               : (routeDepartureTimes.length > 0 ? routeDepartureTimes : TIME_SLOTS);
 
-            if (scheduleConfigured && allSlots.length === 0) {
+            if (form.journeyType === 'intercity' && form.travelDate) {
+              allSlots = allSlots.filter(time => isIntercitySlotBookable(time, form.travelDate));
+            }
+
+            if (allSlots.length === 0) {
               return (
                 <div className="py-8 text-center">
                   <Clock size={28} className="mx-auto text-[var(--text-muted)] mb-2" />
-                  <p className="text-sm text-[var(--text-sub)]">{t('booking.noDeparturesScheduled') || 'No departures are scheduled for this date.'}</p>
+                  <p className="text-sm text-[var(--text-sub)]">{t('booking.noBookableDepartures') || 'No departures are available for booking on this date.'}</p>
                 </div>
               );
             }
@@ -1622,7 +2036,7 @@ export default function BookingWizard() {
         transition={{ duration: 0.2, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
         className="flex items-center justify-between pt-5 border-t border-zinc-200 gap-2"
       >
-        <motion.button onClick={handleBack} disabled={step === 0 && !form.destination}
+        <motion.button onClick={handleBack} disabled={step === 0 && !form.journeyType}
           whileTap={{ scale: 0.97 }}
           className="flex items-center gap-1.5 px-4 py-2.5 rounded-md text-base font-semibold transition-all duration-200 cursor-pointer shrink-0 text-[var(--text)] hover:bg-[#F9FAFB] border-2 border-[var(--border)] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent"
         >
@@ -1684,9 +2098,59 @@ export default function BookingWizard() {
       )}
         </div>
 
+      {/* Payment method selection modal (step 2 entry point) */}
+      <PaymentMethodSelect
+        open={step === 2 && showPaymentMethodSelect}
+        onClose={() => {
+          setShowPaymentMethodSelect(false);
+          setStep(1);
+        }}
+        onSelect={handlePaymentChannelSelect}
+        merchantCodeFee={0}
+        onlineFee={onlinePaymentFee}
+        merchantTotal={merchantCodeTotal}
+        onlineTotal={onlineTotal}
+      />
+
+      {/* Merchant code modal (opened when user picks merchant code option) */}
+      {paymentConfig && (
+        <MerchantCodeModal
+          open={showMerchantCodeModal}
+          onClose={() => {
+            setShowMerchantCodeModal(false);
+            setPaymentChannel(null);
+            setShowPaymentMethodSelect(true);
+          }}
+          merchantCode={paymentConfig.merchantCode}
+          merchantName={paymentConfig.merchantName}
+          ussdTemplate={paymentConfig.ussdTemplate}
+          amount={merchantCodeTotal}
+          showGuestName={!user}
+          guestName={guestName}
+          onGuestNameChange={setGuestName}
+          phoneValue={phoneDisplay}
+          onPhoneChange={(raw) => {
+            const digits = raw.replace(/\D/g, '').replace(/^250/, '').slice(0, 10);
+            setPhoneInput(digits);
+            const normalized = digits.replace(/^0+/, '').slice(0, 9);
+            setForm(f => ({ ...f, phone: `${t('booking.phonePrefix')} ${normalized}` }));
+            if (errors.phone) setErrors(e => ({ ...e, phone: '' }));
+          }}
+          phoneError={errors.phone}
+          submitting={submitting}
+          onSubmit={handleMerchantCodeConfirm}
+          submitError={submitError || undefined}
+          bookingResult={null}
+        />
+      )}
+
+      {/* Pay Online modal (opened when user picks online payment option) */}
       <PaymentModal
-        open={step === 2}
-        onClose={() => { if (step === 2) setStep(1); }}
+        open={step === 2 && paymentChannel === 'pawapay_online' && !showPaymentMethodSelect && !showMerchantCodeModal}
+        onClose={() => {
+          setPaymentChannel(null);
+          setShowPaymentMethodSelect(true);
+        }}
         phoneValue={phoneDisplay}
         onPhoneChange={(raw) => {
           const digits = raw.replace(/\D/g, '').replace(/^250/, '').slice(0, 10);
@@ -1710,9 +2174,10 @@ export default function BookingWizard() {
           if (errors.contactPhone) setErrors(e => ({ ...e, contactPhone: '' }));
         }}
         contactPhoneError={errors.contactPhone}
-        total={totalDue}
+        total={onlineTotal}
         fareTotal={fareTotal}
         serviceFeeTotal={serviceFeeTotal}
+        paymentFee={onlinePaymentFee}
         origin={form.origin}
         destination={form.destination}
         via={form.via}
@@ -1722,6 +2187,7 @@ export default function BookingWizard() {
         freeTicketsCount={freeTicketsCount}
         useFreeTicket={useFreeTicket}
         onToggleFreeTicket={() => setUseFreeTicket(v => !v)}
+        showPricingBreakdown
       />
 
       {renderCityPickerModal()}

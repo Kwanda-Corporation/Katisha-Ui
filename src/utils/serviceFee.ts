@@ -199,6 +199,20 @@ export function bookingServiceFee(
   return Math.min(fee, cfg.maxFeePerTicket * n);
 }
 
+export const INTERCITY_FLAT_FEE = 300;
+
+/** Rwandan intercity journeys carry a flat 300 RWF system fee; every other
+ * journey type uses the margin-driven booking fee. */
+export function systemFeeFor(
+  journeyType: string | null | undefined,
+  ticketPrice: number,
+  seats: number,
+  cfg: PricingConfig = DEFAULT_PRICING
+): number {
+  if (journeyType === 'intercity') return INTERCITY_FLAT_FEE;
+  return bookingServiceFee(ticketPrice, seats, cfg);
+}
+
 export interface PricingBreakdown {
   ticketPrice: number;
   seats: number;
@@ -247,4 +261,27 @@ export function pricingBreakdown(
     customerTotal,
     marginPass: margin >= Math.min(required, achievableUnderCap),
   };
+}
+
+/**
+ * Full PawaPay processing fee — deposit cost + payout cost.
+ *
+ *   Deposit cost = depositRate × customerTotal  (PawaPay 1% + MTN 0.8791%)
+ *   Payout cost  = payoutRate × ticketValue + payoutFixed  (PawaPay 1% + 60 RWF)
+ *
+ * This is the additional fee on top of the Katisha service fee for online payments.
+ */
+export function pawapayFee(
+  customerTotal: number,
+  ticketValue: number,
+  depositRate: number = 0.018791,
+  payoutRate: number = 0.01,
+  payoutFixed: number = 60,
+): number {
+  const total = Number(customerTotal) || 0;
+  const ticket = Number(ticketValue) || 0;
+  if (total <= 0 && ticket <= 0) return 0;
+  const depositCost = Math.round(total * depositRate);
+  const payoutCost = Math.round(ticket * payoutRate) + payoutFixed;
+  return depositCost + payoutCost;
 }
