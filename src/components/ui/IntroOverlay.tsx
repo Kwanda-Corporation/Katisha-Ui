@@ -7,7 +7,9 @@ interface IntroOverlayProps {
 }
 
 export default function IntroOverlay({ children, minDisplayMs = 800 }: IntroOverlayProps) {
-  const [showIntro, setShowIntro] = useState(() => !sessionStorage.getItem('vdk_intro_seen'));
+  const [showIntro, setShowIntro] = useState(() =>
+    typeof window !== 'undefined' && !sessionStorage.getItem('vdk_intro_seen')
+  );
 
   useEffect(() => {
     if (showIntro) {

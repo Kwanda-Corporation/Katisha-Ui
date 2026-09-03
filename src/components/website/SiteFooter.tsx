@@ -27,8 +27,12 @@ export default function SiteFooter() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-12 mb-10">
           {/* Brand */}
           <div>
-            <img src="/3.png" alt="Katisha" className="h-14 w-auto object-contain mb-4" />
+            <img src="/3.png" alt="Katisha — Rwanda bus ticket booking" className="h-14 w-auto object-contain mb-4" />
             <p className="text-[13px] leading-relaxed max-w-xs text-white/75">{t('footer.description')}</p>
+            <div className="mt-4 space-y-1.5 text-[13px] text-white/85">
+              <p className="text-sm font-semibold uppercase tracking-[0.15em] text-white/60">Book with Katisha</p>
+              <p>Rwanda intercity buses &amp; East African routes</p>
+            </div>
           </div>
 
           {/* Quick links */}

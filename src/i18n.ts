@@ -26,19 +26,22 @@ async function ensureLocaleLoaded(lang: string): Promise<void> {
   }
 }
 
+const getStoredLang = (): string =>
+  typeof window !== 'undefined' ? (localStorage.getItem('vdk_lang') || 'en') : 'en';
+
 i18n.use(initReactI18next).init({
   resources: {
     en: { translation: en },
   },
-  lng: localStorage.getItem('vdk_lang') || 'en',
+  lng: getStoredLang(),
   fallbackLng: 'en',
   interpolation: { escapeValue: false },
   react: { useSuspense: false },
 });
 
 // Load the stored language on startup if it isn't English.
-const initialLang = localStorage.getItem('vdk_lang') || 'en';
-if (initialLang !== 'en') {
+const initialLang = getStoredLang();
+if (typeof window !== 'undefined' && initialLang !== 'en') {
   void ensureLocaleLoaded(initialLang).then(() => {
     if (i18n.language !== initialLang) i18n.changeLanguage(initialLang);
   });

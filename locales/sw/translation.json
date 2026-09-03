@@ -102,12 +102,12 @@
     "tripTitle": "Panga safari yako",
     "tripDesc": "Chagua njia yako na wakati wa kuondoka",
     "journeyType": "Aina ya Safari",
-    "eastAfrica": "Easy African Travel",
+    "eastAfrica": "Usafiri wa Afrika Mashariki",
     "eastAfricaDesc": "Safiri kwenda Kenya, Uganda, Tanzania na kwingineko",
     "intercity": "Usafiri ndani ya Rwanda",
-    "intercityDesc": "Safiri ndani ya Rwanda — Muhanga, Huye, Musanze, Rubavu, Rusizi na mengine",
+    "intercityDesc": "Safiri ndani ya Rwanda — Kigali kwenda Musanze, Huye, Rubavu, Rusizi, Nyagatare na mengine",
     "chooseJourneyType": "Chagua aina ya safari yako",
-    "chooseJourneyTypeDesc": "Usafiri ndani ya Rwanda, au Easy African Travel katika mkoa",
+    "chooseJourneyTypeDesc": "Usafiri ndani ya Rwanda, au usafiri wa Afrika Mashariki",
     "changeTripType": "Badilisha",
     "origin": "Mahali pa kuanzia",
     "destination": "Mahali pa kwenda",
@@ -460,7 +460,7 @@
     "provinces": "Mikoa",
     "selectProvinces": "Chagua mikoa inayohudumiwa",
     "eastAfricaRoute": "Njia ya Afrika Mashariki",
-    "intercityRoute": "Njia ya Afrika Mashariki"
+    "intercityRoute": "Njia ndani ya Rwanda"
   },
   "agency": {
     "createAgency": "Unda shirika",

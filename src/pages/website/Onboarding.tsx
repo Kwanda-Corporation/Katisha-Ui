@@ -50,8 +50,6 @@ export default function Onboarding() {
   const navigate = useNavigate()
   const { isAuthenticated, user } = useAuth()
 
-  const pageTitle = 'Katisha: Bus Ticket Booking Rwanda | Book Online'
-
   useEffect(() => {
     if (isAuthenticated && user) {
       const dest = ROLE_HOME[user.role] || '/book'
@@ -70,9 +68,8 @@ export default function Onboarding() {
   return (
     <div className="min-h-screen bg-white flex flex-col">
       <SEO
-        title={pageTitle}
-        description="Katisha is Rwanda's leading bus ticket booking platform operating at RURA-approved prices. Book East African cross-border bus routes online. Pay with MTN Mobile Money, Airtel Money & M-Pesa. Track your journey in real-time."
-        keywords="bus booking Rwanda, Katisha, RURA approved bus prices, Kigali bus, transport Rwanda, East Africa bus, cross-border bus, online bus ticket"
+        description="Book bus tickets online in Rwanda at RURA-approved prices. Intercity routes from Kigali to Musanze, Huye, Rubavu, Rusizi, Nyagatare and more, plus East African routes to Kampala and Nairobi. Pay with MTN Mobile Money, Airtel Money & M-Pesa."
+        keywords="bus tickets Rwanda, bus ticket booking Rwanda, Kigali bus tickets, Rwanda intercity bus, RURA approved bus prices, Katisha, online bus booking Rwanda, Kigali to Musanze bus, bus travel Rwanda"
         canonical="/"
         jsonLd={{
           "@context": "https://schema.org",

@@ -40,9 +40,11 @@ export default function TopNav() {
     return () => document.removeEventListener('mousedown', handleOutside);
   }, []);
 
-  const isLoggedIn = !!localStorage.getItem('vdk_access_token');
+  const isLoggedIn = typeof window !== 'undefined' && !!localStorage.getItem('vdk_access_token');
   let user: { name?: string; email?: string } | null = null;
-  try { user = JSON.parse(localStorage.getItem('vdk_user') || 'null'); } catch {}
+  if (typeof window !== 'undefined') {
+    try { user = JSON.parse(localStorage.getItem('vdk_user') || 'null'); } catch {}
+  }
 
   const switchLang = (code: string) => {
     i18n.changeLanguage(code);

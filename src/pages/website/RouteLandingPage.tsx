@@ -4,6 +4,7 @@ import { useTranslation } from '../../../node_modules/react-i18next';
 import { Bus, ArrowRight, Clock, MapPin, Phone } from 'lucide-react';
 import { api } from '../../api';
 import { viaLabelBefore } from '../../utils/via';
+import { ssrData } from '../../ssrData';
 import SEO from '../../components/seo/SEO';
 import TopNav from '../../components/website/TopNav';
 import SiteFooter from '../../components/website/SiteFooter';
@@ -26,6 +27,9 @@ interface ResolvedRoute {
 }
 
 async function fetchAllRoutes(): Promise<any[]> {
+  const preloaded = ssrData.getRoutes();
+  if (preloaded && Array.isArray(preloaded) && preloaded.length) return preloaded;
+
   const all: any[] = [];
   let page = 1;
   let pages = 1;
@@ -71,15 +75,25 @@ function buildRouteMap(routes: any[]): Record<string, ResolvedRoute> {
   return map;
 }
 
-export default function RouteLandingPage() {
+export default function RouteLandingPage({ slug: slugProp }: { slug?: string } = {}) {
   const { t } = useTranslation();
-  const { slug = '' } = useParams();
+  const { slug: slugParam = '' } = useParams();
+  const slug = slugProp ?? slugParam;
 
   const sep = slug.indexOf('-to-');
   const rawFrom = sep >= 0 ? slug.slice(0, sep) : slug;
   const rawTo = sep >= 0 ? slug.slice(sep + 4) : '';
-  const [resolved, setResolved] = useState<ResolvedRoute | null>(null);
-  const [loading, setLoading] = useState(true);
+  // Pre-render support: when the build-time SSR pass embeds route data, resolve
+  // the landing page synchronously so crawlers see the full agency/fare content
+  // instead of a loading state. Otherwise fall through to client-side fetch.
+  const preloadedRoutes = ssrData.getRoutes();
+  const preloadedRoute = (() => {
+    if (!preloadedRoutes || !preloadedRoutes.length) return null;
+    const key = `${slugify(rawFrom)}-to-${slugify(rawTo)}`;
+    return buildRouteMap(preloadedRoutes)[key] || null;
+  })();
+  const [resolved, setResolved] = useState<ResolvedRoute | null>(preloadedRoute);
+  const [loading, setLoading] = useState(preloadedRoute ? false : true);
 
   useEffect(() => {
     let active = true;

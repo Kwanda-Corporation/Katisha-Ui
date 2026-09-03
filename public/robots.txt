@@ -1,6 +1,6 @@
 # Katisha Robots.txt
 # https://katisha.today/robots.txt
-# Last updated: 2026-08-09
+# Last updated: 2026-09-02
 
 User-agent: *
 Crawl-delay: 10
@@ -19,6 +19,8 @@ Disallow: /reset-password
 Disallow: /forgot-password
 Disallow: /verify-code
 Disallow: /set-password
+Disallow: /ticket
+Disallow: /payment
 Disallow: /api/
 Allow: /api/seo/sitemap-routes.xml
 Disallow: /unauthorized

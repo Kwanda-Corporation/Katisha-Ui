@@ -35,9 +35,11 @@ import {
 // that genuinely exists in the seed route data. Durations come from that same
 // route data (estimatedDuration), not invented.
 const destinations = [
+  { key: 'musanze', to: 'Musanze', time: '2h 30m' },
+  { key: 'rubavu', to: 'Rubavu', time: '4h' },
+  { key: 'huye', to: 'Huye', time: '3h' },
   { key: 'kampala', to: 'Kampala', time: '9h' },
   { key: 'nairobi', to: 'Nairobi', time: '24h' },
-  { key: 'bujumbura', to: 'Bujumbura', time: '6h' },
   { key: 'dar', to: 'Dar es Salaam', img: 'dar-es-salaam', time: '24h' },
 ];
 

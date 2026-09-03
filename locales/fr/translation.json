@@ -102,12 +102,12 @@
     "tripTitle": "Planifiez votre voyage",
     "tripDesc": "Choisissez votre itinéraire et l'heure de départ",
     "journeyType": "Type de voyage",
-    "eastAfrica": "Easy African Travel",
+    "eastAfrica": "Voyage en Afrique de l'Est",
     "eastAfricaDesc": "Voyage au Kenya, en Ouganda, en Tanzanie et au-delà",
     "intercity": "Voyage interurbain",
-    "intercityDesc": "Voyagez au Rwanda — Muhanga, Huye, Musanze, Rubavu, Rusizi et plus encore",
+    "intercityDesc": "Voyagez au Rwanda — Kigali vers Musanze, Huye, Rubavu, Rusizi, Nyagatare et plus encore",
     "chooseJourneyType": "Quel type de voyage ?",
-    "chooseJourneyTypeDesc": "Intercity au Rwanda, ou Easy African Travel à travers la région",
+    "chooseJourneyTypeDesc": "Voyage interurbain au Rwanda, ou voyage en Afrique de l'Est",
     "changeTripType": "Changer",
     "origin": "Origine",
     "destination": "Destination",
@@ -460,7 +460,7 @@
     "provinces": "Provinces",
     "selectProvinces": "Sélectionnez les provinces desservies",
     "eastAfricaRoute": "Itinéraire Afrique de l'Est",
-    "intercityRoute": "Itinéraire Afrique de l'Est"
+    "intercityRoute": "Itinéraire interurbain Rwanda"
   },
   "agency": {
     "createAgency": "Créer une agence",

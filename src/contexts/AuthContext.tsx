@@ -90,12 +90,17 @@ function isExpiredOrSoon(token: string | null): boolean {
 // ── Provider ──────────────────────────────────────────────────────────────────
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [state, setState] = useState<AuthState>(() => ({
-    user:         JSON.parse(localStorage.getItem(USER_KEY)  ?? 'null'),
-    accessToken:  localStorage.getItem(TOKEN_KEY),
-    refreshToken: localStorage.getItem(REFRESH_KEY),
-    isLoading:    false,
-  }));
+  const [state, setState] = useState<AuthState>(() => {
+    if (typeof window === 'undefined') {
+      return { user: null, accessToken: null, refreshToken: null, isLoading: false };
+    }
+    return {
+      user:         JSON.parse(localStorage.getItem(USER_KEY)  ?? 'null'),
+      accessToken:  localStorage.getItem(TOKEN_KEY),
+      refreshToken: localStorage.getItem(REFRESH_KEY),
+      isLoading:    false,
+    };
+  });
 
   // Keep a ref so callbacks always see the latest tokens without stale closures
   const stateRef = useRef(state);

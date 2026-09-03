@@ -1,10 +1,25 @@
 import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
+import { createRoot, hydrateRoot } from 'react-dom/client'
+import { BrowserRouter } from 'react-router'
 import { HelmetProvider } from 'react-helmet-async'
 import { GoogleOAuthProvider } from '@react-oauth/google'
 import './index.css'
 import './i18n'
-import App from './App'
+import { AppProviders } from './App'
+import AppRoutes from './routes'
+import { ssrData } from './ssrData'
+
+// Rehydrate server-side-rendered data so the first client render matches the
+// pre-rendered HTML (avoids hydration mismatch / flash) on route & agency
+// landing pages that had their data embedded at build time.
+try {
+  const el = document.getElementById('__KATISHA_SSR__');
+  if (el?.textContent) {
+    const payload = JSON.parse(el.textContent);
+    if (Array.isArray(payload.routes)) ssrData.setRoutes(payload.routes);
+    if (Array.isArray(payload.agencies)) ssrData.setAgencies(payload.agencies);
+  }
+} catch {}
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || ''
 const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:5001/api'
@@ -55,16 +70,31 @@ if (import.meta.env.PROD) {
   }
 }
 
-createRoot(document.getElementById('root')!).render(
+const app = (
   <StrictMode>
     <HelmetProvider>
       {GOOGLE_CLIENT_ID ? (
         <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-          <App />
+          <BrowserRouter>
+            <AppProviders>
+              <AppRoutes />
+            </AppProviders>
+          </BrowserRouter>
         </GoogleOAuthProvider>
       ) : (
-        <App />
+        <BrowserRouter>
+          <AppProviders>
+            <AppRoutes />
+          </AppProviders>
+        </BrowserRouter>
       )}
     </HelmetProvider>
-  </StrictMode>,
+  </StrictMode>
 )
+
+const container = document.getElementById('root')!
+if (container.hasChildNodes()) {
+  hydrateRoot(container, app)
+} else {
+  createRoot(container).render(app)
+}

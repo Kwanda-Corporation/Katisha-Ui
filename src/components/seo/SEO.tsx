@@ -12,9 +12,9 @@ interface SEOProps {
 }
 
 const BASE_URL = 'https://katisha.today';
-const DEFAULT_TITLE = 'Katisha: Bus Ticket Booking Rwanda | Book Online & Track Your Journey';
-const DEFAULT_DESC = 'Book bus tickets online in Rwanda at RURA-approved prices. Compare routes & agencies from Kigali to all provinces & East Africa. Pay via MTN Mobile Money, Airtel Money & M-Pesa. Trusted by 10,000+ travellers.';
-const DEFAULT_KEYWORDS = 'bus ticket booking Rwanda, book bus online Rwanda, RURA approved bus prices, Kigali bus tickets, East Africa bus travel, East African bus routes, cross-border bus Rwanda, Nyabugogo bus station, bus from Kigali to Kampala, bus from Kigali to Nairobi, bus from Kigali to Dar es Salaam, Katisha bus booking, MTN Mobile Money bus payment, Airtel Money bus payment, M-Pesa bus payment';
+const DEFAULT_TITLE = 'Katisha — Rwanda Bus Tickets & Online Booking';
+const DEFAULT_DESC = 'Book bus tickets online in Rwanda at RURA-approved prices. Compare intercity routes from Kigali to Musanze, Huye, Rubavu, Rusizi, Nyagatare & more, plus East African routes. Pay via MTN Mobile Money, Airtel Money & M-Pesa.';
+const DEFAULT_KEYWORDS = 'bus tickets Rwanda, Rwanda bus tickets, bus ticket booking Rwanda, bus booking Rwanda, book bus tickets Rwanda, online bus booking Rwanda, Kigali bus tickets, Kigali bus booking, Rwanda intercity bus booking, intercity buses Rwanda, Rwanda bus routes, Kigali to Musanze bus, Kigali to Huye bus, Kigali to Rubavu bus, Kigali to Rusizi bus, Kigali to Nyagatare bus, Kigali to Kampala bus, Kigali to Nairobi bus, RURA approved bus fares, Katisha bus booking, MTN Mobile Money bus payment, Airtel Money bus payment, M-Pesa bus payment';
 const DEFAULT_OG = `${BASE_URL}/og-cover.png`;
 
 export default function SEO({
@@ -34,7 +34,6 @@ export default function SEO({
   const pageKeywords = keywords || DEFAULT_KEYWORDS;
 
   return (
-    <>
     <Helmet>
       <title>{pageTitle}</title>
       <meta name="title" content={pageTitle} />
@@ -65,13 +64,5 @@ export default function SEO({
         <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
       )}
     </Helmet>
-    {/* Hidden links for crawlers to discover agent/admin login */}
-    <div style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px', overflow: 'hidden' }}>
-      <a href="/login">Agent Login</a>
-      <a href="/login">Agency Admin Login</a>
-      <a href="/login">System Admin Login</a>
-      <a href="/register">Register Account</a>
-    </div>
-    </>
   );
 }

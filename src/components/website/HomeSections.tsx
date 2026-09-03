@@ -28,14 +28,23 @@ const agencySlug = (name: string) => (name || '').toLowerCase().replace(/[^a-z0-
 
 // Kigali → destination routes that exist in the seed data; durations come from
 // each route's estimatedDuration, not invented.
-const destinations = [
+// Rwanda intercity routes come first; regional routes follow.
+const rwandaDestinations = [
+  { key: 'musanze', to: 'Musanze', time: '2h 30m' },
+  { key: 'huye', to: 'Huye', time: '3h' },
+  { key: 'rubavu', to: 'Rubavu', time: '4h' },
+  { key: 'nyagatare', to: 'Nyagatare', time: '3h' },
+  { key: 'rusizi', to: 'Rusizi', time: '5h' },
+];
+
+const regionalDestinations = [
   { key: 'kampala', to: 'Kampala', time: '9h' },
   { key: 'nairobi', to: 'Nairobi', time: '20h' },
   { key: 'dar', to: 'Dar es Salaam', img: 'dar-es-salaam', time: '26h' },
-  { key: 'dodoma', to: 'Dodoma', time: '22h' },
   { key: 'mbarara', to: 'Mbarara', time: '7h' },
-  { key: 'busia', to: 'Busia', time: '12h' },
 ];
+
+const destinations = [...rwandaDestinations, ...regionalDestinations];
 
 /* ------------------------------------------------------------------ */
 /* Full-viewport, scroll-fading destination panel                     */

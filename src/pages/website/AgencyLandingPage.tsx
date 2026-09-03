@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router';
 import { useTranslation } from '../../../node_modules/react-i18next';
 import { ArrowRight, Clock, MapPin, Phone, Bus } from 'lucide-react';
 import { api, resolveImageUrl } from '../../api';
+import { ssrData } from '../../ssrData';
 import SEO from '../../components/seo/SEO';
 import TopNav from '../../components/website/TopNav';
 import SiteFooter from '../../components/website/SiteFooter';
@@ -12,12 +13,26 @@ import { SCRIPT_FONT, Sparkles, CommaSquiggle, SquigglyUnderline, StickyCallout,
 
 const BASE_URL = 'https://katisha.today';
 
-export default function AgencyLandingPage() {
+export default function AgencyLandingPage({ id: idProp, slug: slugProp }: { id?: string; slug?: string } = {}) {
   const { t } = useTranslation();
-  const { id = '', slug = '' } = useParams();
-  const [agency, setAgency] = useState<any | null>(null);
-  const [routes, setRoutes] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const params = useParams();
+  const id = idProp ?? params.id ?? '';
+  const slug = slugProp ?? params.slug ?? '';
+  // Pre-render support: build-time SSR data lets us render the agency and its
+  // routes synchronously for crawlers instead of a loading spinner.
+  const preloadedAgencies = ssrData.getAgencies();
+  const preloadedRoutesAll = ssrData.getRoutes();
+  const preloadedAgency = (() => {
+    if (!preloadedAgencies || !preloadedAgencies.length) return null;
+    return preloadedAgencies.find(a => String(a._id || a.id) === String(id)) || null;
+  })();
+  const preloadedAgencyRoutes = (() => {
+    if (!preloadedAgency || !preloadedRoutesAll) return [];
+    return preloadedRoutesAll.filter(r => String(r.agency?._id || r.agency?.id) === String(id));
+  })();
+  const [agency, setAgency] = useState<any | null>(preloadedAgency);
+  const [routes, setRoutes] = useState<any[]>(preloadedAgencyRoutes);
+  const [loading, setLoading] = useState(preloadedAgency ? false : true);
   const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {

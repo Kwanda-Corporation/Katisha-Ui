@@ -103,12 +103,12 @@
     "tripDesc": "Hitamo inzira yawe n'igihe cyo kugenda ",
     "payOnline":"Kwishyura byihuse online ",
     "journeyType": "Ubwoko bw'urugendo",
-    "eastAfrica": "Easy African Travel",
+    "eastAfrica": "Urugendo rw'Iburasirazuba bwa Afrika",
     "eastAfricaDesc": "Jya muri Kenya, Uganda, Tanzaniya n'ibindi bihugu",
     "intercity": "Urugendo rwo hagati mu Rwanda",
-    "intercityDesc": "Urugendo mu Rwanda — urugero : Muhanga, Huye, Musanze, Rubavu, Rusizi n'ibindi",
+    "intercityDesc": "Urugendo mu Rwanda — Kigali kuri Musanze, Huye, Rubavu, Rusizi, Nyagatare n'ibindi",
     "chooseJourneyType": "Hitamo ubwoko bw'urugendo rwawe",
-    "chooseJourneyTypeDesc": "Urugendo rwo hagati mu Rwanda , cyangwa Easy African Travel mu karere",
+    "chooseJourneyTypeDesc": "Urugendo rwo hagati mu Rwanda, cyangwa urugendo rw'Iburasirazuba bwa Afrika",
     "changeTripType": "Hindura",
     "namesOnCode":"Amazina ari kuri kode",
     "origin": "Aho uhagurukira",
@@ -462,7 +462,7 @@
     "provinces": "Intara",
     "selectProvinces": "Hitamo intara ikorwamo",
     "eastAfricaRoute": "Inzira y'Uburasirazuba bwa Afrika",
-    "intercityRoute": "Inzira ya Afurika y'Iburasirazuba"
+    "intercityRoute": "Inzira y'Urugendo rwo hagati mu Rwanda"
   },
   "agency": {
     "createAgency": "Kora agansi",

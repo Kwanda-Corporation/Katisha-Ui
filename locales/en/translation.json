@@ -76,7 +76,7 @@
     "signInDesc": "Access your existing account",
     "registerDesc": "Register as a new user",
     "changeLanguage": "Change language",
-    "tagline": "Book bus tickets across Rwanda"
+    "tagline": "Book bus tickets across Rwanda and East Africa"
   },
   "booking": {
     "title": "Book a Bus Ticket",
@@ -93,7 +93,7 @@
     "title4": "Select a bus agency",
     "title5": "Passenger details",
     "title6": "Payment & confirm",
-    "desc1": "Choose your East Africa route",
+    "desc1": "Choose your travel route",
     "desc2": "Pick your origin and destination",
     "desc3": "Choose your travel date and time",
     "desc4": "Choose from available bus agencies",
@@ -102,12 +102,12 @@
     "tripTitle": "Plan your trip",
     "tripDesc": "Choose your route and departure time",
     "journeyType": "Journey Type",
-    "eastAfrica": "Easy African Travel",
-    "eastAfricaDesc": "Travel to Kenya, Uganda, Tanzania and beyond",
-    "intercity": "Intercity Travel",
-    "intercityDesc": "Travel within Rwanda — Muhanga, Huye, Musanze, Rubavu, Rusizi and more",
+    "eastAfrica": "East African Travel",
+    "eastAfricaDesc": "Cross-border travel to Kenya, Uganda, Tanzania and beyond",
+    "intercity": "Rwanda Intercity",
+    "intercityDesc": "Travel within Rwanda — Kigali to Musanze, Huye, Rubavu, Rusizi, Nyagatare and more",
     "chooseJourneyType": "What kind of trip?",
-    "chooseJourneyTypeDesc": "Intercity within Rwanda, or Easy African Travel across the region",
+    "chooseJourneyTypeDesc": "Rwanda intercity or East African cross-border travel",
     "changeTripType": "Change",
     "origin": "Origin",
     "destination": "Destination",
@@ -460,7 +460,7 @@
     "provinces": "Provinces",
     "selectProvinces": "Select provinces served",
     "eastAfricaRoute": "East Africa Route",
-    "intercityRoute": "East Africa Route"
+    "intercityRoute": "Rwanda Intercity Route"
   },
   "agency": {
     "createAgency": "Create Agency",
@@ -503,7 +503,7 @@
     "home": "Home"
   },
   "footer": {
-    "description": "Rwanda's leading bus ticket booking platform. Book East African cross-border bus routes online with MTN Mobile Money, Airtel Money & M-Pesa. Real-time tracking, instant e-tickets.",
+    "description": "Rwanda's leading bus ticket booking platform. Book intercity and cross-border bus routes online from Kigali. Pay with MTN Mobile Money, Airtel Money & M-Pesa. Real-time tracking, instant e-tickets.",
     "quickLinks": "Quick Links",
     "contact": "Contact",
     "copyright": "Katisha Transport System. All rights reserved.",
@@ -537,8 +537,8 @@
     "cancellationPolicyTitle": "Cancellation & Late Arrival Policy",
     "lateArrivalTitle": "Late Arrival / Missed Bus",
     "lateArrivalDesc": "If you arrive late and miss the bus, the ticket amount is forfeited. No refund or rescheduling will be provided for no-shows or late arrivals. Please arrive at the departure point at least 30 minutes before the scheduled departure.",
-    "allBookingsTitle": "All Bookings (Domestic & East African)",
-    "allBookingsDesc": "Cancellations must be made at least 1 day (24 hours) before the scheduled departure time. This applies to all bookings — both domestic (Rwanda) and cross-border East African routes. Cancellations made after this window will not be eligible for a refund.",
+    "allBookingsTitle": "All Bookings (Rwanda & East African)",
+    "allBookingsDesc": "Cancellations must be made at least 1 day (24 hours) before the scheduled departure time. This applies to all bookings — both Rwanda domestic and cross-border East African routes. Cancellations made after this window will not be eligible for a refund.",
     "freeTicketsTitle": "Free Tickets",
     "freeTicketsDesc": "Earn 1 free ticket for every 10 paid bookings. Free tickets can be used on any route. Simply select 'Use free ticket' during checkout and no payment will be required.",
     "freeTicketsHow": "How to use your free ticket:",
@@ -568,7 +568,7 @@
     "contactUs": "Contact Us",
     "destinationsEyebrow": "Popular routes",
     "destinationsTitle": "Where do you want to go?",
-    "destinationsDesc": "Pick a destination and we'll take you straight to booking. All journeys depart from Kigali.",
+    "destinationsDesc": "Book bus tickets from Kigali to cities across Rwanda and East Africa. All journeys depart from Kigali.",
     "fromKigali": "{{duration}} from Kigali",
     "bookNow": "Book now",
     "arriveEarly": "Arrive 30 minutes early",
@@ -578,7 +578,7 @@
   "agencies": {
     "eyebrow": "Trusted bus operators",
     "title": "Our bus agencies",
-    "desc": "Compare schedules and fares from RURA-approved operators departing Kigali.",
+    "desc": "Compare schedules and fares from RURA-approved bus operators in Rwanda.",
     "viewRoutes": "View routes",
     "featured": "Featured"
   },
