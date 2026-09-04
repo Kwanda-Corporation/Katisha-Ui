@@ -132,6 +132,7 @@ export const api = {
   getUserBookings: (params?: Record<string, string>) => request('/bookings', { params }),
   getBooking: (id: string) => request(`/bookings/${id}`),
   trackBooking: (ref: string) => request(`/bookings/track/${ref}`),
+  trackBookingStatus: (ref: string) => request(`/bookings/track/${ref}/status`),
   verifyTicket: (ref: string) => request(`/bookings/verify/${ref}`),
   getAgencyBookings: (params?: Record<string, string>) => request('/bookings/agency/all', { params }),
   getAgentBookings: (params?: Record<string, string>) => request('/bookings/agent/today', { params }),
