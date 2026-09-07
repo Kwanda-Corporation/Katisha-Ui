@@ -87,15 +87,22 @@ export default function PaymentStatus() {
   const simulate = import.meta.env.DEV ? searchParams.get('simulate') : null;
 
   // Live polling: the booking flips to paid (deposit confirmed) or failed
-  // (deposit rejected / cancelled server-side). Poll every 5s.
+  // (deposit rejected / cancelled server-side). Poll aggressively at 1s for
+  // the first 10 seconds (quick failures like insufficient funds resolve in
+  // <10s), then settle to 2s intervals.
   useEffect(() => {
     if (simulate || status !== 'processing' || !referenceCode) return;
     let cancelled = false;
+    let elapsed = 0;
+    const FAST_INTERVAL = 1000;
+    const SLOW_INTERVAL = 2000;
+    const FAST_THRESHOLD = 10000;
+
     const poll = async () => {
       try {
-        const res = await api.trackBooking(referenceCode);
+        const res = await api.trackBookingStatus(referenceCode);
         if (cancelled) return;
-        const b = res.data?.booking;
+        const b = res.data;
         if (b?.paymentStatus === 'paid') {
           setStatus('paid');
         } else if (b?.paymentStatus === 'failed' || b?.status === 'cancelled') {
@@ -105,8 +112,17 @@ export default function PaymentStatus() {
         /* transient error — keep polling */
       }
     };
+
     poll();
-    const id = window.setInterval(poll, 5000);
+    let id = window.setInterval(() => {
+      elapsed += FAST_INTERVAL;
+      poll();
+      // After the fast phase, switch to slower interval
+      if (elapsed >= FAST_THRESHOLD) {
+        window.clearInterval(id);
+        id = window.setInterval(poll, SLOW_INTERVAL);
+      }
+    }, FAST_INTERVAL);
     return () => { cancelled = true; window.clearInterval(id); };
   }, [status, referenceCode]);
 
@@ -117,8 +133,8 @@ export default function PaymentStatus() {
     const timer = window.setTimeout(async () => {
       let stillProcessing = true;
       try {
-        const res = await api.trackBooking(referenceCode);
-        const b = res.data?.booking;
+        const res = await api.trackBookingStatus(referenceCode);
+        const b = res.data;
         if (b?.paymentStatus === 'paid') {
           setStatus('paid');
           stillProcessing = false;
@@ -141,12 +157,13 @@ export default function PaymentStatus() {
     return () => window.clearTimeout(timer);
   }, [status, referenceCode, bookingId]);
 
-  // Socket push for instant confirmation when the deposit completes.
+  // Socket push for instant confirmation when the deposit completes or fails.
   useEffect(() => {
     if (simulate || status !== 'processing' || !socket || !bookingId) return;
     const onStatus = (data: { bookingId: string; status: string }) => {
       if (data.bookingId !== bookingId) return;
       if (data.status === 'confirmed') setStatus('paid');
+      else if (data.status === 'failed') setStatus('failed');
     };
     socket.on('booking_status', onStatus);
     return () => {
