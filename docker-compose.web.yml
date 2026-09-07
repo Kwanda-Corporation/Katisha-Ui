@@ -13,7 +13,7 @@ name: katisha
 
 services:
   web:
-    image: ghcr.io/ally-keyz/katisha-ui:latest
+    image: ghcr.io/etix-enterprise/katisha-ui:latest
     container_name: katisha-web
     restart: unless-stopped
     ports:
