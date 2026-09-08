@@ -18,12 +18,33 @@ echo ">>> WHOAMI=$(whoami)"
 echo ">>> PWD=$(pwd)"
 echo "========================================="
 
-echo ">>> GHCR login check:"
+docker_retry() {
+  local max=5
+  local delay=10
+  local n=1
+  while [ $n -le $max ]; do
+    echo ">>> [docker_retry] Attempt $n/$max: $*"
+    if "$@"; then
+      echo ">>> [docker_retry] Success on attempt $n"
+      return 0
+    fi
+    echo ">>> [docker_retry] Failed attempt $n/$max — retrying in ${delay}s..."
+    sleep $delay
+    n=$((n+1))
+  done
+  echo ">>> [docker_retry] All $max attempts failed"
+  return 1
+}
+
+echo ">>> Docker Hub login check:"
 docker info 2>&1 | grep -i 'Username\|Registry' || true
 
-echo ">>> Pulling latest frontend image"
-docker compose -f "$COMPOSE_FILE" pull || {
-  echo ">>> ERROR: docker compose pull failed — trying docker-compose fallback"
+echo ">>> Pre-pulling image directly with retry..."
+docker_retry docker pull "${FRONTEND_IMAGE}" || echo ">>> WARNING: direct docker pull failed, will try compose pull"
+
+echo ">>> Pulling latest frontend image via compose with retry..."
+docker_retry docker compose -f "$COMPOSE_FILE" pull || {
+  echo ">>> ERROR: docker compose pull failed after retries — trying docker-compose fallback"
   docker-compose -f "$COMPOSE_FILE" pull
 }
 

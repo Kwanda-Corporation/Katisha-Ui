@@ -138,9 +138,16 @@ jobs:
             if [ -n "${DOCKERHUB_TOKEN:-}" ]; then
               echo ">>> Attempting docker logout (clean slate)..."
               echo "$DOCKERHUB_TOKEN" | docker logout docker.io || true
-              echo ">>> Attempting docker login..."
-              echo "$DOCKERHUB_TOKEN" | docker login docker.io -u "$GHCR_USERNAME" --password-stdin
-              echo ">>> Docker Hub login exit: $?"
+              echo ">>> Attempting docker login with retry..."
+              for i in 1 2 3; do
+                echo ">>> Docker login attempt $i/3"
+                if echo "$DOCKERHUB_TOKEN" | docker login docker.io -u "$GHCR_USERNAME" --password-stdin; then
+                  echo ">>> Docker Hub login succeeded on attempt $i"
+                  break
+                fi
+                echo ">>> Docker login attempt $i failed, retrying in 15s..."
+                sleep 15
+              done
               echo ">>> Post-login docker info:"
               docker info 2>&1 | grep -i 'Username\|Registry\|Server' || true
             else
