@@ -264,6 +264,7 @@ export default function BookingWizard() {
   const [viaByDest, setViaByDest] = useState<Array<{ dest: string; destKey: string; vias: string[] }>>([]);
   const [catalogue, setCatalogue] = useState<CatalogRoute[]>([]);
   const viaFetchedOriginRef = useRef<string | null>(null);
+  const autoOpenedDestRef = useRef(false);
   const [blockedDates] = useState<string[]>([]);
   const [blockedTimes, setBlockedTimes] = useState<string[]>([]);
   const [scheduleConfigured, setScheduleConfigured] = useState(false);
@@ -280,13 +281,21 @@ export default function BookingWizard() {
 
   // Deep-link hydration: /book?to=Huye&agency=...&date=... from SEO landing
   // pages. Pre-fills the destination (origin is fixed to Kigali), jumps to the
-  // agency step, and auto-selects the agency when it serves the route.
+  // agency step, and auto-selects the agency when it serves the route. When
+  // there's NO deep link, the destination picker opens automatically as soon
+  // as the page loads (the city catalogue was already prefetched above).
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const to = (params.get('to') || params.get('destination') || '').trim();
     const agency = params.get('agency') || params.get('agencyId');
     const date = params.get('date') || params.get('travelDate');
-    if (!to) return;
+    if (!to) {
+      if (!autoOpenedDestRef.current) {
+        autoOpenedDestRef.current = true;
+        setCityPickerField('destination');
+      }
+      return;
+    }
 
     const tomorrow = new Date(kigaliTodayDate());
     tomorrow.setDate(tomorrow.getDate() + 1);
@@ -660,7 +669,11 @@ export default function BookingWizard() {
       const dest = (r.destination || '').trim();
       if (!dest || (r.origin || '').trim().toLowerCase() !== originKey) continue;
       if (r.type && r.type !== 'east_africa') continue;
-      const label = Array.isArray(r.countries) && r.countries[0] ? r.countries[0] : 'Other';
+      // `countries` is ordered [originCountry, destinationCountry, ...], so the
+      // destination's country is the LAST entry — grouping by countries[0]
+      // (always "Rwanda" for Kigali departures) filtered every city out.
+      const countries = Array.isArray(r.countries) ? r.countries.filter(Boolean) : [];
+      const label = countries.length ? countries[countries.length - 1] : 'Other';
       if (label.trim().toLowerCase() === 'rwanda') continue;
       let set = byGroup.get(label);
       if (!set) { set = new Set(); byGroup.set(label, set); }
