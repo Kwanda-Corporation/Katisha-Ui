@@ -408,6 +408,19 @@ export default function BookingWizard() {
     ? Math.round(fareTotal * paymentConfig.payoutRate) + paymentConfig.payoutFixed
     : Math.round(fareTotal * 0.01) + 60;
   const onlineTotal = totalDue + onlinePaymentFee;
+
+  // Per-seat "everything included" price that matches the payment screen total
+  // (ticket + service fee + transaction fee) for the current seat count, so the
+  // agency card always agrees with the PaymentModal.
+  const perSeatTotalFor = (price: number) => {
+    const seats = Math.max(1, form.seats);
+    const fare = price * seats;
+    const fee = systemFeeFor(form.journeyType, price, seats);
+    const txn = paymentConfig
+      ? Math.round(fare * paymentConfig.payoutRate) + paymentConfig.payoutFixed
+      : Math.round(fare * 0.01) + 60;
+    return Math.round((fare + fee + txn) / seats);
+  };
   const medianPrice = useMemo(() => {
     const prices = availableRoutes
       .map(r => Number(r.effectivePrice || r.price) || 0)
@@ -1045,7 +1058,7 @@ export default function BookingWizard() {
                     <div className="mt-3 pt-3 border-t border-white/25 flex items-center justify-between">
                       <span className="text-xs text-white/60">{route.estimatedDuration || ''}</span>
                       <span className="font-semibold text-base whitespace-nowrap text-white">
-                        {((Number(route.effectivePrice || route.price) + Number(route.systemFeePerSeat || 0)).toLocaleString())} {t('booking.currency')}
+                        {perSeatTotalFor(routePrice).toLocaleString()} {t('booking.currency')}
                       </span>
                     </div>
                   </div>

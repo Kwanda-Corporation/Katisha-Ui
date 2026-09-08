@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router';
+import { Link, Navigate, useParams } from 'react-router';
 import { useTranslation } from '../../../node_modules/react-i18next';
 import { Bus, ArrowRight, Clock, MapPin, Phone } from 'lucide-react';
 import { api } from '../../api';
@@ -24,6 +24,8 @@ interface ResolvedRoute {
   destination: string;
   agencies: any[];
   minPrice: number;
+  /** When this URL is a via/alias variant, the canonical destination page it should consolidate onto. */
+  redirectTo?: string;
 }
 
 async function fetchAllRoutes(): Promise<any[]> {
@@ -52,7 +54,7 @@ async function fetchAllRoutes(): Promise<any[]> {
 function buildRouteMap(routes: any[]): Record<string, ResolvedRoute> {
   const map: Record<string, ResolvedRoute> = {};
 
-  const add = (r: any, dest: string, price: number) => {
+  const add = (r: any, dest: string, price: number, variantOfDestination = false) => {
     const key = `${slugify(r.origin)}-to-${slugify(dest)}`;
     const entry = map[key] || (map[key] = { origin: r.origin, destination: dest, agencies: [], minPrice: Infinity });
     const aid = r.agency?._id || r.agency?.id;
@@ -60,14 +62,17 @@ function buildRouteMap(routes: any[]): Record<string, ResolvedRoute> {
     entry.agencies.push(r);
     const p = Number(price) || Number(r.price) || 0;
     if (p > 0 && p < entry.minPrice) entry.minPrice = p;
+    // Via / district-alias variants are consolidated onto the route's real
+    // destination page (single canonical URL), so mark them for redirect.
+    if (variantOfDestination && r.destination) entry.redirectTo = r.destination;
   };
 
   for (const r of routes) {
     add(r, r.destination, r.price);
-    if (r.via && String(r.via).trim()) add(r, r.via, r.price);
+    if (r.via && String(r.via).trim()) add(r, r.via, r.price, true);
     for (const [district, town] of Object.entries(TOWN_ALIASES)) {
       if (String(town).toLowerCase() === String(r.destination || '').toLowerCase()) {
-        add(r, district, r.price);
+        add(r, district, r.price, true);
       }
     }
   }
@@ -117,6 +122,24 @@ export default function RouteLandingPage({ slug: slugProp }: { slug?: string } =
   const originName = resolved?.origin || rawFrom.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
   const destName = resolved?.destination || rawTo.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
   const routeKey = `${slugify(originName)}-to-${slugify(destName)}`;
+
+  // Via / district-alias variants (e.g. /bus/kigali-to-gatuna) are
+  // consolidated onto the route's real destination page. Redirect them there
+  // so every route has exactly one canonical URL (avoids Google "alternate
+  // page" / duplicate-not-indexed signals).
+  const canonicalRedirect =
+    resolved?.redirectTo && slugify(String(resolved.redirectTo)) !== slugify(destName)
+      ? `/bus/${slugify(resolved.origin)}-to-${slugify(resolved.redirectTo)}`
+      : null;
+
+  if (canonicalRedirect) {
+    return (
+      <>
+        <SEO noindex />
+        <Navigate to={canonicalRedirect} replace />
+      </>
+    );
+  }
 
   const title = `Bus from ${originName} to ${destName} | Book Online - Fares & Agencies`;
   const description = resolved

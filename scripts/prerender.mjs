@@ -115,10 +115,12 @@ try {
   ssrDataModule.ssrData.setAgencies(agencies.length ? agencies : null);
 
   // Build the dynamic landing-page URL list from the live data.
+  // Only canonical pages are pre-rendered: the destination page per route.
+  // Via-town variants redirect client-side to the destination page and are
+  // therefore excluded (they would otherwise generate near-duplicate HTML).
   const dynamic = new Set();
   for (const r of routes) {
-    if (r.origin) dynamic.add(`/bus/${slugify(r.origin)}-to-${slugify(r.destination)}`);
-    if (r.origin && r.via) dynamic.add(`/bus/${slugify(r.origin)}-to-${slugify(r.via)}`);
+    if (r.origin && r.destination) dynamic.add(`/bus/${slugify(r.origin)}-to-${slugify(r.destination)}`);
   }
   for (const a of agencies) {
     if (a._id || a.id) dynamic.add(`/agency/${a._id || a.id}/${slugify(a.name)}`);
