@@ -13,8 +13,8 @@ interface SEOProps {
 
 const BASE_URL = 'https://katisha.today';
 const DEFAULT_TITLE = 'Katisha — Rwanda Bus Tickets & Online Booking';
-const DEFAULT_DESC = 'Book bus tickets online in Rwanda at RURA-approved prices. Compare intercity routes from Kigali to Musanze, Huye, Rubavu, Rusizi, Nyagatare & more, plus East African routes. Pay via MTN Mobile Money, Airtel Money & M-Pesa.';
-const DEFAULT_KEYWORDS = 'bus tickets Rwanda, Rwanda bus tickets, bus ticket booking Rwanda, bus booking Rwanda, book bus tickets Rwanda, online bus booking Rwanda, Kigali bus tickets, Kigali bus booking, Rwanda intercity bus booking, intercity buses Rwanda, Rwanda bus routes, Kigali to Musanze bus, Kigali to Huye bus, Kigali to Rubavu bus, Kigali to Rusizi bus, Kigali to Nyagatare bus, Kigali to Kampala bus, Kigali to Nairobi bus, RURA approved bus fares, Katisha bus booking, MTN Mobile Money bus payment, Airtel Money bus payment, M-Pesa bus payment';
+const DEFAULT_DESC = 'Book East African bus tickets online in Rwanda at RURA-approved prices. Compare routes from Kigali to Kampala, Nairobi, Dar es Salaam, Mbarara & more, across Jaguar Express, Simba Express, Trinity Express & Taqwa Classic Coaches. Pay via Mobile Money.';
+const DEFAULT_KEYWORDS = 'bus tickets Rwanda, East Africa bus tickets, bus ticket booking East Africa, bus booking Rwanda, book bus tickets Rwanda, online bus booking Rwanda, Kigali bus tickets, Kigali bus booking, Kigali to Kampala bus, Kigali to Nairobi bus, Kigali to Dar es Salaam bus, Kigali to Mbarara bus, RURA approved bus fares, Katisha booking, bus travel East Africa, Jaguar Express bus, Simba Express bus, Trinity Express bus, Taqwa Classic Coaches bus, Mobile Money bus payment';
 const DEFAULT_OG = `${BASE_URL}/og-cover.png`;
 
 export default function SEO({

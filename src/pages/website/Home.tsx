@@ -11,10 +11,10 @@ export default function WebsiteHome() {
   return (
     <div className="flex flex-col min-h-screen bg-white">
       <SEO
-        title="Book a Bus Ticket in Rwanda"
-        description="Book bus tickets online in Rwanda at RURA-approved prices. Compare intercity routes from Kigali to Musanze, Huye, Rubavu, Rusizi, Nyagatare and more, plus East African routes. Pay with MTN Mobile Money, Airtel Money & M-Pesa. Real-time tracking."
+        title="Book a Bus Ticket to East Africa"
+        description="Book East African bus tickets online in Rwanda at RURA-approved prices. Compare routes from Kigali to Kampala, Nairobi, Dar es Salaam, Mbarara and more, across Jaguar Express, Simba Express, Trinity Express & Taqwa Classic Coaches. Pay online with Mobile Money. Real-time tracking."
         canonical="/book"
-        keywords="book bus ticket Rwanda, online bus booking Rwanda, bus tickets Rwanda, Rwanda bus tickets, Kigali bus tickets, Rwanda intercity bus booking, RURA approved bus fares, Katisha booking, bus transport Rwanda, Kigali to Musanze bus, Kigali to Kampala bus, Kigali to Nairobi bus, MTN MoMo bus payment"
+        keywords="book bus ticket Rwanda, online bus booking Rwanda, bus tickets Rwanda, Kigali bus tickets, East Africa bus booking, RURA approved bus fares, Katisha booking, bus transport East Africa, Kigali to Kampala bus, Kigali to Nairobi bus, Kigali to Dar es Salaam bus, online mobile money bus payment"
         jsonLd={{
           "@context": "https://schema.org",
           "@graph": [

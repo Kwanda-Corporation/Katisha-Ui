@@ -11,7 +11,7 @@ const QUICK_LINKS = [
 
 const CONTACT_LINES = ['support@katisha.today', '+250 793 216 191', '+250 722 829 315', 'Norsken House, KG 7 Ave, Kigali, Rwanda'];
 
-const PAYMENT_METHODS = ['MTN Mobile Money (MoMo)', 'Airtel Money', 'M-Pesa', 'Cash on Arrival'];
+const PAYMENT_METHODS = ['MTN Mobile Money (MoMo)', 'Airtel Money', 'M-Pesa'];
 
 export default function SiteFooter() {
   const { t } = useTranslation();
@@ -31,7 +31,7 @@ export default function SiteFooter() {
             <p className="text-[13px] leading-relaxed max-w-xs text-white/75">{t('footer.description')}</p>
             <div className="mt-4 space-y-1.5 text-[13px] text-white/85">
               <p className="text-sm font-semibold uppercase tracking-[0.15em] text-white/60">Book with Katisha</p>
-              <p>Rwanda intercity buses &amp; East African routes</p>
+              <p>East African bus routes from Kigali</p>
             </div>
           </div>
 

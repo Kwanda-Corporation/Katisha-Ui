@@ -343,11 +343,11 @@ export interface PaymentModalProps {
   onContactPhoneChange?: (value: string) => void;
   contactPhoneError?: string;
   total: number;
-  /** Fare portion (price × seats), accepted for API compatibility. */
+  /** Fare portion (price × seats), shown in the pricing breakdown. */
   fareTotal?: number;
-  /** Service fee portion, accepted for API compatibility. */
+  /** Katisha service fee portion, shown in the pricing breakdown. */
   serviceFeeTotal?: number;
-  /** Online payment processing fee (PawaPay deposit fee). */
+  /** Payment transaction fee ((payout × 1%) + 60 RWF), shown in the breakdown. */
   paymentFee?: number;
   /** Trip origin, accepted for API compatibility. */
   origin?: string;
@@ -398,6 +398,9 @@ export default function PaymentModal({
   onContactPhoneChange,
   contactPhoneError,
   total,
+  fareTotal,
+  serviceFeeTotal,
+  paymentFee,
   submitting = false,
   onSubmit,
   submitError,
@@ -406,6 +409,7 @@ export default function PaymentModal({
   onToggleFreeTicket,
   ussdCode,
   ussdHighlight,
+  showPricingBreakdown = false,
 }: PaymentModalProps) {
   const { t } = useTranslation();
   const isMobile = useIsMobile();
@@ -503,6 +507,29 @@ export default function PaymentModal({
               </div>
               {phoneError && <p className="text-xs text-[#DC2626] mt-2">{phoneError}</p>}
               <p className="text-[13px] text-[#52525B] leading-relaxed mt-2">{t('booking.payInstructions')}</p>
+            </div>
+          )}
+
+          {showPricingBreakdown && !useFreeTicket && (
+            <div className="px-5 pt-3 sm:px-7 space-y-2">
+              <div className="rounded-[14px] bg-[#F6F7F9] px-4 py-3.5">
+                <div className="flex items-center justify-between py-1">
+                  <span className="text-[13px] font-medium text-[#52525B]">{t('booking.ticketPrice', { defaultValue: 'Ticket Price' })}</span>
+                  <span className="text-[13px] font-semibold text-[#111827] tabular-nums">{(fareTotal ?? 0).toLocaleString()} {currency}</span>
+                </div>
+                <div className="flex items-center justify-between py-1">
+                  <span className="text-[13px] font-medium text-[#52525B]">{t('booking.katishaFee', { defaultValue: 'Katisha Service Fee' })}</span>
+                  <span className="text-[13px] font-semibold text-[#111827] tabular-nums">{(serviceFeeTotal ?? 0).toLocaleString()} {currency}</span>
+                </div>
+                <div className="flex items-center justify-between py-1">
+                  <span className="text-[13px] font-medium text-[#52525B]">{t('booking.transactionFee', { defaultValue: 'Transaction Fee' })}</span>
+                  <span className="text-[13px] font-semibold text-[#111827] tabular-nums">{(paymentFee ?? 0).toLocaleString()} {currency}</span>
+                </div>
+                <div className="flex items-center justify-between pt-2 mt-1 border-t border-[#E5E7EB]">
+                  <span className="text-[13px] font-bold text-[#111827]">{t('booking.total')}</span>
+                  <span className="text-[15px] font-extrabold text-[#1D4ED8] tabular-nums">{(total ?? 0).toLocaleString()} {currency}</span>
+                </div>
+              </div>
             </div>
           )}
 
