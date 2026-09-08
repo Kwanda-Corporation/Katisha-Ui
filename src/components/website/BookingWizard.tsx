@@ -12,7 +12,7 @@ import { useTranslation } from '../../../node_modules/react-i18next';
 import { useToast } from '../ui/Toast';
 import PaymentModal, { ModalFrame } from './PaymentModal';
 import i18n from '../../i18n';
-import { searchRoutesOffline, getPublicAgencyOffline } from '../../services/offlineData';
+import { searchRoutesOffline } from '../../services/offlineData';
 import { cacheTicketWithImage, cacheTicket } from '../../services/ticketCache';
 import { useOnline } from '../../contexts/OnlineContext';
 import { systemFeeFor } from '../../utils/serviceFee';
@@ -107,23 +107,6 @@ const kigaliTodayDate = (): Date => new Date(`${getKigaliTodayStr()}T00:00:00`);
 
 const formatDateStr = (d: Date): string =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-
-const getKigaliTimeMinutes = (): number => {
-  const parts = new Intl.DateTimeFormat('en-GB', {
-    timeZone: 'Africa/Kigali',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-  }).formatToParts(new Date());
-  const hour = Number(parts.find(p => p.type === 'hour')?.value) % 24;
-  const minute = Number(parts.find(p => p.type === 'minute')?.value);
-  return hour * 60 + minute;
-};
-
-const timeToMinutes = (time: string): number => {
-  const [h, m] = String(time).split(':').map(Number);
-  return (h || 0) * 60 + (m || 0);
-};
 
 interface CatalogRoute {
   origin?: string;
@@ -281,7 +264,7 @@ export default function BookingWizard() {
   const [viaByDest, setViaByDest] = useState<Array<{ dest: string; destKey: string; vias: string[] }>>([]);
   const [catalogue, setCatalogue] = useState<CatalogRoute[]>([]);
   const viaFetchedOriginRef = useRef<string | null>(null);
-  const [blockedDates, setBlockedDates] = useState<string[]>([]);
+  const [blockedDates] = useState<string[]>([]);
   const [blockedTimes, setBlockedTimes] = useState<string[]>([]);
   const [scheduleConfigured, setScheduleConfigured] = useState(false);
   const [scheduleTimes, setScheduleTimes] = useState<string[]>([]);
@@ -1461,7 +1444,7 @@ export default function BookingWizard() {
             const routeDepartureTimes: string[] = Array.isArray(selectedRoute?.departureTimes)
               ? selectedRoute.departureTimes.slice().sort()
               : [];
-            let allSlots = scheduleConfigured
+            const allSlots = scheduleConfigured
               ? scheduleTimes
               : (routeDepartureTimes.length > 0 ? routeDepartureTimes : TIME_SLOTS);
 
