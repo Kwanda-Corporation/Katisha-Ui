@@ -314,6 +314,15 @@ export default function BookingWizard() {
     if (agency) pendingAgencyRef.current = agency;
   }, []);
 
+  // Auto-open the date picker as soon as the schedule section appears, so the
+  // user never has to tap the Travel Date field first. Skip when a date was
+  // already pre-filled (e.g. SEO deep links with ?date=...).
+  useEffect(() => {
+    if (showSchedule && !form.travelDate) {
+      setShowDateModal(true);
+    }
+  }, [showSchedule, form.travelDate]);
+
   const applyPendingAgency = (routes: any[]) => {
     const target = pendingAgencyRef.current;
     if (!target) return;
