@@ -343,12 +343,6 @@ export interface PaymentModalProps {
   onContactPhoneChange?: (value: string) => void;
   contactPhoneError?: string;
   total: number;
-  /** Fare portion (price × seats), shown in the pricing breakdown. */
-  fareTotal?: number;
-  /** Katisha service fee portion, shown in the pricing breakdown. */
-  serviceFeeTotal?: number;
-  /** Payment transaction fee ((payout × 1%) + 60 RWF), shown in the breakdown. */
-  paymentFee?: number;
   /** Trip origin, accepted for API compatibility. */
   origin?: string;
   /** Trip destination, accepted for API compatibility. */
@@ -396,9 +390,6 @@ export default function PaymentModal({
   onContactPhoneChange,
   contactPhoneError,
   total,
-  fareTotal,
-  serviceFeeTotal,
-  paymentFee,
   submitting = false,
   onSubmit,
   submitError,

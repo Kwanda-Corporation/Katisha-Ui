@@ -1767,9 +1767,6 @@ export default function BookingWizard() {
         }}
         contactPhoneError={errors.contactPhone}
         total={onlineTotal}
-        fareTotal={fareTotal}
-        serviceFeeTotal={serviceFeeTotal}
-        paymentFee={onlinePaymentFee}
         origin={form.origin}
         destination={form.destination}
         via={form.via}
