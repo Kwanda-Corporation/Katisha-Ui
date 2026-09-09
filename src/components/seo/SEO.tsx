@@ -9,6 +9,9 @@ interface SEOProps {
   noindex?: boolean;
   keywords?: string;
   jsonLd?: Record<string, any>;
+  /** Extra hreflang language alternates (in addition to the canonical page).
+   *  Each alternate is rendered as <link rel="alternate" hreflang="X" href="Y" />. */
+  hreflang?: Array<{ lang: string; href: string }>;
 }
 
 const BASE_URL = 'https://katisha.today';
@@ -26,6 +29,7 @@ export default function SEO({
   noindex = false,
   keywords,
   jsonLd,
+  hreflang,
 }: SEOProps) {
   const pageTitle = title ? `${title} | Katisha` : DEFAULT_TITLE;
   const pageDesc = description || DEFAULT_DESC;
@@ -43,6 +47,11 @@ export default function SEO({
       {noindex && <meta name="robots" content="noindex, nofollow" />}
 
       <link rel="canonical" href={pageUrl} />
+
+      {!noindex &&
+        (hreflang || []).map(({ lang, href }) => (
+          <link key={lang} rel="alternate" hrefLang={lang} href={href} />
+        ))}
 
       <meta property="og:type" content={ogType} />
       <meta property="og:url" content={pageUrl} />

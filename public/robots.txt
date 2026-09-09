@@ -1,9 +1,8 @@
 # Katisha Robots.txt
 # https://katisha.today/robots.txt
-# Last updated: 2026-09-02
+# Last updated: 2026-09-08
 
 User-agent: *
-Crawl-delay: 10
 Allow: /
 Allow: /book
 Allow: /bus/
@@ -24,8 +23,6 @@ Disallow: /payment
 Disallow: /api/
 Allow: /api/seo/sitemap-routes.xml
 Disallow: /unauthorized
-# Language variants (?lang=) are listed as hreflang alternates in the sitemap
-# and must remain crawlable - do NOT block them here.
 
 # Sitemaps
 Sitemap: https://katisha.today/sitemap.xml
@@ -33,7 +30,6 @@ Sitemap: https://katisha.today/sitemap.xml
 # Google-specific
 User-agent: Googlebot
 Allow: /
-Crawl-delay: 5
 
 User-agent: Googlebot-Image
 Allow: /1.png
@@ -53,17 +49,16 @@ Allow: /
 # Bing
 User-agent: Bingbot
 Allow: /
-Crawl-delay: 5
 
 # Other bots
 User-agent: DuckDuckBot
-Crawl-delay: 5
+Allow: /
 
 User-agent: Yandex
-Crawl-delay: 10
+Allow: /
 
 User-agent: Baiduspider
-Crawl-delay: 10
+Allow: /
 
 User-agent: Twitterbot
 Allow: /
@@ -84,16 +79,12 @@ Allow: /og-cover.png
 # AI / LLM crawlers (opt-in)
 User-agent: ChatGPT-User
 Allow: /
-Crawl-delay: 10
 
 User-agent: GPTBot
 Allow: /
-Crawl-delay: 10
 
 User-agent: Claude-Web
 Allow: /
-Crawl-delay: 10
 
 User-agent: PerplexityBot
 Allow: /
-Crawl-delay: 5

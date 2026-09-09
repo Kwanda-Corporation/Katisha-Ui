@@ -193,6 +193,10 @@ export default function RouteLandingPage({ slug: slugProp }: { slug?: string } =
         keywords={`${originName} to ${destName} bus, bus ticket ${originName} ${destName}, ${originName} ${destName} bus fare, bus from ${originName} to ${destName}, ${destName} bus station, Katisha ${originName} ${destName}`}
         noindex={!resolved && !loading}
         jsonLd={jsonLd}
+        hreflang={[
+          { lang: 'en', href: `${BASE_URL}/bus/${routeKey}` },
+          { lang: 'x-default', href: `${BASE_URL}/bus/${routeKey}` },
+        ]}
       />
 
       <TopNav />

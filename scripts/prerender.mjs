@@ -36,7 +36,18 @@ const slugify = (s) =>
   String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 
 // ── Public, canonical, indexable static pages ───────────────────────────────
-const STATIC_ROUTES = ['/', '/welcome', '/book', '/guide'];
+const STATIC_ROUTES = [
+  '/',
+  '/welcome',
+  '/book',
+  '/guide',
+  '/bus/rwanda',
+  '/bus/east-africa',
+  // Account-area pages: noindex + self-canonical so they never resolve to a
+  // duplicate of the homepage shell (their own canonical + robots meta).
+  '/my-bookings',
+  '/track',
+];
 
 // Conflicting homepage `<head>` tags replaced by each page's react-helmet head.
 const HEAD_REMOVE_PATTERNS = [

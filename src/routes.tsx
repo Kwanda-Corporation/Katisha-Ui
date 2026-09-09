@@ -23,6 +23,7 @@ const TicketView = lazy(() => import('./pages/website/TicketView'));
 const AgencyRoutesPage = lazy(() => import('./pages/website/AgencyRoutes'));
 const BookingGuide = lazy(() => import('./pages/website/BookingGuide'));
 const RouteLandingPage = lazy(() => import('./pages/website/RouteLandingPage'));
+const RouteHubPage = lazy(() => import('./pages/website/RouteHubPage'));
 const AgencyLandingPage = lazy(() => import('./pages/website/AgencyLandingPage'));
 const PaymentStatus = lazy(() => import('./pages/website/PaymentStatus'));
 
@@ -96,6 +97,8 @@ export default function AppRoutes() {
       <Route path="/auth-choice" element={<AuthChoice />} />
       <Route path="/book" element={<WebsiteHome />} />
       <Route path="/bus/:slug" element={<RouteLandingPage />} />
+      <Route path="/bus/rwanda" element={<RouteHubPage scope="rwanda" />} />
+      <Route path="/bus/east-africa" element={<RouteHubPage scope="east-africa" />} />
       <Route path="/agency/:id/:slug" element={<AgencyLandingPage />} />
       <Route path="/my-bookings" element={<MyBookings />} />
       <Route path="/track" element={<MyBookings />} />

@@ -8,10 +8,12 @@ COPY . .
 ARG VITE_API_URL=https://api.katisha.today/api
 ARG VITE_GOOGLE_CLIENT_ID=
 ARG VITE_MAPBOX_TOKEN=
+ARG VITE_GA_MEASUREMENT_ID=
 ENV VITE_API_URL=$VITE_API_URL \
     VITE_GOOGLE_CLIENT_ID=$VITE_GOOGLE_CLIENT_ID \
-    VITE_MAPBOX_TOKEN=$VITE_MAPBOX_TOKEN
-RUN npm run build
+    VITE_MAPBOX_TOKEN=$VITE_MAPBOX_TOKEN \
+    VITE_GA_MEASUREMENT_ID=$VITE_GA_MEASUREMENT_ID
+RUN npm run build:seo
 
 # ── Runtime stage ─────────────────────────────────────────────
 FROM nginx:1.27-alpine

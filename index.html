@@ -13,6 +13,23 @@
     <meta name="google-site-verification" content="4FQF0TK_HsV27ntJU81mEZ1J7cHPJhcHAlPw35PXy9Y" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
+    <!-- ── Analytics (Google Analytics 4, enabled when VITE_GA_MEASUREMENT_ID is set) ── -->
+    <script>
+      window.__GA_ID__ = '%VITE_GA_MEASUREMENT_ID%';
+      if (window.__GA_ID__ && window.__GA_ID__.indexOf('%VITE_') !== 0 && window.__GA_ID__.length > 0) {
+        window.dataLayer = window.dataLayer || [];
+        window.gtag = function () { window.dataLayer.push(arguments); };
+        gtag('js', new Date());
+        gtag('config', window.__GA_ID__);
+        (function () {
+          var s = document.createElement('script');
+          s.async = true;
+          s.src = 'https://www.googletagmanager.com/gtag/js?id=' + window.__GA_ID__;
+          document.head.appendChild(s);
+        })();
+      }
+    </script>
+
     <!-- ════════════════════════════════════════════════════════════════
          PRIMARY META  (SEO-optimized: front-loaded keywords, RURA
          authority signal, geo-targeted for Rwanda)
@@ -62,11 +79,10 @@
     <meta name="twitter:image" content="https://katisha.today/og-cover.png" />
     <meta name="twitter:image:alt" content="Katisha - Rwanda bus ticket booking" />
 
-    <!-- ── Hreflang (multi-language) ─────────────────────────── -->
+    <!-- ── Hreflang (single canonical locale today; path-based locale
+    variants /rw/ /sw/ /fr/ are a future addition — do not announce
+    ?lang= URLs that do not serve distinct content) ─────────────── -->
     <link rel="alternate" href="https://katisha.today/" hreflang="en" />
-    <link rel="alternate" href="https://katisha.today/?lang=kin" hreflang="rw" />
-    <link rel="alternate" href="https://katisha.today/?lang=sw" hreflang="sw" />
-    <link rel="alternate" href="https://katisha.today/?lang=fr" hreflang="fr" />
     <link rel="alternate" href="https://katisha.today/" hreflang="x-default" />
 
     <!-- ── Icons & PWA ─────────────────────────────────────────── -->
@@ -114,7 +130,13 @@
       "name": "Katisha",
       "alternateName": "Katisha Transport System",
       "url": "https://katisha.today/",
-      "logo": "https://katisha.today/1.png",
+      "logo": {
+        "@type": "ImageObject",
+        "@id": "https://katisha.today/#logo",
+        "url": "https://katisha.today/1.png",
+        "width": 454,
+        "height": 179
+      },
       "description": "Rwanda's leading bus ticket booking platform. Book intercity bus tickets across Rwanda and East African cross-border routes online at RURA-approved prices.",
       "foundingDate": "2024",
       "foundingLocation": "Kigali, Rwanda",
@@ -147,14 +169,6 @@
         "addressRegion": "Kigali City",
         "addressCountry": "RW",
         "postalCode": "KG 7 AV"
-      },
-      "aggregateRating": {
-        "@type": "AggregateRating",
-        "ratingValue": 4.8,
-        "bestRating": 5,
-        "worstRating": 1,
-        "ratingCount": 2500,
-        "reviewCount": 1200
       },
       "sameAs": [
         "https://www.facebook.com/katisha",
@@ -204,7 +218,12 @@
       "@type": "LocalBusiness",
       "@id": "https://katisha.today/#localbusiness",
       "name": "Katisha Transport System",
-      "image": "https://katisha.today/1.png",
+      "image": {
+        "@type": "ImageObject",
+        "url": "https://katisha.today/1.png",
+        "width": 454,
+        "height": 179
+      },
       "telephone": "+250-793-216-191",
       "email": "support@katisha.today",
       "priceRange": "RWF 1,000 - 50,000",
@@ -343,59 +362,6 @@
     }
     </script>
 
-    <!-- ── Bus Ticket Product (AggregateOffer) ─────────────────── -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Product",
-      "@id": "https://katisha.today/#product",
-      "name": "Online Bus Ticket Booking",
-      "description": "Book Rwanda intercity and East African cross-border bus tickets online at RURA-approved prices.",
-      "brand": { "@type": "Brand", "name": "Katisha" },
-      "category": "Transportation",
-      "aggregateRating": {
-        "@type": "AggregateRating",
-        "ratingValue": 4.7,
-        "bestRating": 5,
-        "worstRating": 1,
-        "ratingCount": 3,
-        "reviewCount": 3
-      },
-      "offers": {
-        "@type": "AggregateOffer",
-        "priceCurrency": "RWF",
-        "lowPrice": 1000,
-        "highPrice": 50000,
-        "offerCount": 25,
-        "availability": "https://schema.org/InStock",
-        "seller": { "@id": "https://katisha.today/#organization" }
-      },
-      "review": [
-        {
-          "@type": "Review",
-          "itemReviewed": { "@id": "https://katisha.today/#product" },
-          "reviewRating": { "@type": "Rating", "ratingValue": 5, "bestRating": 5, "worstRating": 1 },
-          "author": { "@type": "Person", "name": "Jean-Paul" },
-          "reviewBody": "Booked my Kigali to Kampala trip in under two minutes — the e-ticket arrived instantly."
-        },
-        {
-          "@type": "Review",
-          "itemReviewed": { "@id": "https://katisha.today/#product" },
-          "reviewRating": { "@type": "Rating", "ratingValue": 5, "bestRating": 5, "worstRating": 1 },
-          "author": { "@type": "Person", "name": "Grace M." },
-          "reviewBody": "Paying with MTN MoMo was seamless, and the fare was exactly the RURA-approved price."
-        },
-        {
-          "@type": "Review",
-          "itemReviewed": { "@id": "https://katisha.today/#product" },
-          "reviewRating": { "@type": "Rating", "ratingValue": 4, "bestRating": 5, "worstRating": 1 },
-          "author": { "@type": "Person", "name": "David K." },
-          "reviewBody": "The live tracking is a game changer — I knew exactly when the bus was arriving."
-        }
-      ]
-    }
-    </script>
-
     <link href="/src/index.css" rel="stylesheet" />
   </head>
   <body>
@@ -414,7 +380,5 @@
       </div>
     </noscript>
 
-    <!-- ── Performance & SEO verification ──────────────────────── -->
-    <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml" />
   </body>
 </html>

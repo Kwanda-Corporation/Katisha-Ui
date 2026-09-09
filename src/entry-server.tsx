@@ -40,7 +40,9 @@ import Onboarding from './pages/website/Onboarding';
 import Home from './pages/website/Home';
 import BookingGuide from './pages/website/BookingGuide';
 import RouteLandingPage from './pages/website/RouteLandingPage';
+import RouteHubPage from './pages/website/RouteHubPage';
 import AgencyLandingPage from './pages/website/AgencyLandingPage';
+import MyBookings from './pages/website/MyBookings';
 
 export interface RenderResult {
   html: string;
@@ -52,6 +54,14 @@ function matchPage(url: string): React.ReactNode {
   if (path === '/' || path === '/welcome') return <Onboarding />;
   if (path === '/book') return <Home />;
   if (path === '/guide') return <BookingGuide />;
+
+  // Account-area pages are pre-rendered as their own (noindex, self-canonical)
+  // documents so crawlers never see the homepage shell clone served in their
+  // place. Client-side they hydrate into the full bookings SPA.
+  if (path === '/my-bookings' || path === '/track') return <MyBookings />;
+
+  if (path === '/bus/rwanda') return <RouteHubPage scope="rwanda" />;
+  if (path === '/bus/east-africa') return <RouteHubPage scope="east-africa" />;
 
   const bus = path.match(/^\/bus\/(.+)$/);
   if (bus) return <RouteLandingPage slug={bus[1]} />;

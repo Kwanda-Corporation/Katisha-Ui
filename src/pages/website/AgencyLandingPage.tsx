@@ -131,6 +131,10 @@ export default function AgencyLandingPage({ id: idProp, slug: slugProp }: { id?:
         keywords={`${name} bus, ${name} bus ticket, ${name} buses Kigali, ${name} bus fare, ${name} booking online, Katisha ${name}`}
         noindex={notFound}
         jsonLd={jsonLd}
+        hreflang={[
+          { lang: 'en', href: `${BASE_URL}/agency/${id}/${slug}` },
+          { lang: 'x-default', href: `${BASE_URL}/agency/${id}/${slug}` },
+        ]}
       />
 
       <TopNav />

@@ -13,6 +13,7 @@
 #   VITE_API_URL      — API base URL baked into the bundle, default https://api.katisha.today/api
 #   VITE_GOOGLE_CLIENT_ID — Google OAuth client ID (falls back to frontend/.env if set)
 #   VITE_MAPBOX_TOKEN — optional Mapbox token (falls back to the hardcoded default)
+#   VITE_GA_MEASUREMENT_ID — optional Google Analytics 4 measurement ID (G-XXXX) baked into the bundle
 name: Deploy
 
 on:
@@ -69,6 +70,7 @@ jobs:
             VITE_API_URL=${{ secrets.VITE_API_URL || 'https://api.katisha.today/api' }}
             VITE_GOOGLE_CLIENT_ID=${{ secrets.VITE_GOOGLE_CLIENT_ID }}
             VITE_MAPBOX_TOKEN=${{ secrets.VITE_MAPBOX_TOKEN }}
+            VITE_GA_MEASUREMENT_ID=${{ secrets.VITE_GA_MEASUREMENT_ID }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 

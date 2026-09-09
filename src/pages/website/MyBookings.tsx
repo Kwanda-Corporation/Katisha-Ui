@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useNavigate, useSearchParams } from 'react-router';
+import { useNavigate, useSearchParams, useLocation } from 'react-router';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Clock, Download, Eye, Loader, AlertCircle, X } from 'lucide-react';
 import { useTranslation } from '../../../node_modules/react-i18next';
@@ -22,6 +22,7 @@ export default function MyBookings() {
   const { socket } = useSocket();
   const { isOnline } = useOnline();
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const autoOpenedRef = useRef(false);
 
@@ -288,7 +289,7 @@ export default function MyBookings() {
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-white">
-        <SEO title="My Bus Trips & Ticket History - Katisha" noindex />
+        <SEO title="My Bus Trips & Ticket History - Katisha" noindex canonical={location.pathname} />
         <TopNav />
         <main className="max-w-4xl mx-auto px-5 sm:px-6 py-16 sm:py-24 flex flex-col items-center text-center">
           <h1 className="text-2xl sm:text-3xl font-bold text-[var(--text)]">
@@ -310,7 +311,7 @@ export default function MyBookings() {
 
   return (
     <div className="min-h-screen bg-white">
-      <SEO title="My Bus Trips & Ticket History - Katisha" noindex />
+      <SEO title="My Bus Trips & Ticket History - Katisha" noindex canonical={location.pathname} />
       <TopNav />
 
       <div className="max-w-6xl mx-auto px-5 sm:px-6 py-10 sm:py-8">
