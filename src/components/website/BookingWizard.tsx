@@ -1779,7 +1779,6 @@ export default function BookingWizard() {
         freeTicketsCount={freeTicketsCount}
         useFreeTicket={useFreeTicket}
         onToggleFreeTicket={() => setUseFreeTicket(v => !v)}
-        showPricingBreakdown
       />
 
       {renderCityPickerModal()}
