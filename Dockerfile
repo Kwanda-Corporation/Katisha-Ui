@@ -4,11 +4,10 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 COPY . .
-# Runtime config baked in at build time (Vite inlines VITE_* vars).
-ARG VITE_API_URL=https://api.katisha.today/api
+# Runtime config baked in at build time
 ARG VITE_GOOGLE_CLIENT_ID=
 ARG VITE_MAPBOX_TOKEN=
-ENV VITE_API_URL=$VITE_API_URL \
+ENV VITE_API_URL=https://api.katisha.today/api \
     VITE_GOOGLE_CLIENT_ID=$VITE_GOOGLE_CLIENT_ID \
     VITE_MAPBOX_TOKEN=$VITE_MAPBOX_TOKEN
 RUN npm run build
