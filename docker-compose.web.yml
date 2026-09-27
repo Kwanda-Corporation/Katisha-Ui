@@ -4,7 +4,7 @@ services:
     container_name: katisha-web 
     restart: unless-stopped
     ports:
-      - "0.0.0.0:5002:80"  # Expose host port 5002 to container port 80
+      - "0.0.0.0:5002:5002"  # Expose host port 5002 to container port 80
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://127.0.0.1/"]
       interval: 30s
