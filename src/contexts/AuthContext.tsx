@@ -90,17 +90,33 @@ function isExpiredOrSoon(token: string | null): boolean {
 // ── Provider ──────────────────────────────────────────────────────────────────
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [state, setState] = useState<AuthState>(() => {
-    if (typeof window === 'undefined') {
-      return { user: null, accessToken: null, refreshToken: null, isLoading: false };
-    }
-    return {
-      user:         JSON.parse(localStorage.getItem(USER_KEY)  ?? 'null'),
-      accessToken:  localStorage.getItem(TOKEN_KEY),
-      refreshToken: localStorage.getItem(REFRESH_KEY),
-      isLoading:    false,
-    };
+  // Always start from the logged-out state so the first client render is
+  // byte-identical to the pre-rendered HTML. Reading localStorage in the
+  // useState initializer made logged-in visitors mismatch the server's
+  // logged-out markup, which is what raised minified React error #418 on the
+  // pre-rendered routes (/, /welcome, /my-bookings, /track). The stored session
+  // is restored in an effect below, after hydration has committed.
+  const [state, setState] = useState<AuthState>({
+    user: null, accessToken: null, refreshToken: null, isLoading: false,
   });
+
+  // Restore an existing session after mount (client only).
+  useEffect(() => {
+    try {
+      const storedUser = JSON.parse(localStorage.getItem(USER_KEY) ?? 'null');
+      const storedAccess = localStorage.getItem(TOKEN_KEY);
+      if (storedUser && storedAccess) {
+        setState({
+          user: storedUser,
+          accessToken: storedAccess,
+          refreshToken: localStorage.getItem(REFRESH_KEY),
+          isLoading: false,
+        });
+      }
+    } catch {
+      // Corrupt value in storage - fall back to logged out.
+    }
+  }, []);
 
   // Keep a ref so callbacks always see the latest tokens without stale closures
   const stateRef = useRef(state);

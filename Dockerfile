@@ -20,6 +20,7 @@ FROM nginx:1.27-alpine
 # Main config: non-root pid path (/tmp) since we run as the nginx user.
 COPY nginx-main.conf /etc/nginx/nginx.conf
 COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY security-headers.inc /etc/nginx/conf.d/security-headers.inc
 COPY --from=builder /app/dist /usr/share/nginx/html
 # Run as non-root
 RUN chown -R nginx:nginx /var/cache/nginx /etc/nginx/conf.d /usr/share/nginx/html

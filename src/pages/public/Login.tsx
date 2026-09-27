@@ -81,13 +81,17 @@ export default function Login() {
           <Card padding="lg">
             <div className="space-y-5">
               <div className="flex justify-center">
-                <GoogleLogin
-                  onSuccess={handleGoogleSuccess}
-                  onError={() => setError('Google sign-in failed')}
-                  text="continue_with"
-                  shape="rectangular"
-                  width={380}
-                />
+                {/* Fluid width: the previous fixed width={380} overflowed the
+                    card on narrow phones and forced horizontal scrolling. */}
+                <div className="w-full max-w-[380px] min-w-0">
+                  <GoogleLogin
+                    onSuccess={handleGoogleSuccess}
+                    onError={() => setError('Google sign-in failed')}
+                    text="continue_with"
+                    shape="rectangular"
+                    width="100%"
+                  />
+                </div>
               </div>
 
               <div className="flex items-center gap-3">
