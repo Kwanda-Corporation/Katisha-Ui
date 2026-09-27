@@ -1,14 +1,14 @@
-# CD: build the SPA with production env baked in, push to GHCR, and deploy to the VPS over SSH.
+# CD: build the SPA with production env baked in, push to Docker Hub, and deploy to the VPS over SSH.
 # Triggers: push to main, version tags (v*), or manual dispatch.
 #
 # Required GitHub repository secrets:
 #   SSH_HOST          — VPS hostname/IP
 #   SSH_USERNAME      — SSH user (must be able to run docker)
-#   SSH_PRIVATE_KEY   — SSH private key (ed25519 or RSA)
+#   SSH_PRIVATE_KEY   — *** UPDATED: Put your plain text password here ***
 # Optional secrets:
 #   SSH_PORT          — default 22
 #   DEPLOY_PATH       — directory on the server, default /opt/katisha-web
-#   GHCR_PAT          — PAT with `read:packages` ONLY if the repo is private
+#   DOCKERHUB_TOKEN  — Docker Hub personal access token for pushing images
 #   GHCR_USERNAME     — GitHub username owning that PAT
 #   VITE_API_URL      — API base URL baked into the bundle, default https://api.katisha.today/api
 #   VITE_GOOGLE_CLIENT_ID — Google OAuth client ID (falls back to frontend/.env if set)
@@ -33,28 +33,39 @@ permissions:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    outputs:
+      image: ${{ steps.full-image.outputs.image }}
     steps:
       - uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Compute image name (GHCR requires lowercase)
+      - name: Compute image name (Docker Hub)
         id: image
-        run: echo "name=$(echo ghcr.io/${{ github.repository }} | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
+        run: echo "name=docker.io/ashraftuyubahe001160/katisha-ui" >> "$GITHUB_OUTPUT"
 
-      - name: Log in to GitHub Container Registry
+      - name: Compute full image reference
+        id: full-image
+        run: |
+          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            echo "image=docker.io/ashraftuyubahe001160/katisha-ui:${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
+          else
+            echo "image=docker.io/ashraftuyubahe001160/katisha-ui:latest" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: docker.io
+          username: ashraftuyubahe001160
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Extract image metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ steps.image.outputs.name }}
+          images: docker.io/ashraftuyubahe001160/katisha-ui
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
             type=semver,pattern={{version}}
@@ -81,6 +92,7 @@ jobs:
     env:
       DEPLOY_PATH: ${{ secrets.DEPLOY_PATH || '/opt/katisha-web' }}
       SSH_PORT: ${{ secrets.SSH_PORT || '22' }}
+      FRONTEND_IMAGE: ${{ needs.build-and-push.outputs.image }}
     steps:
       - uses: actions/checkout@v4
 
@@ -90,7 +102,7 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           port: ${{ env.SSH_PORT }}
           username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          password: ${{ secrets.SSH_PRIVATE_KEY }}  # <-- Uses value as password
           source: "docker-compose.web.yml,deploy.sh"
           target: ${{ env.DEPLOY_PATH }}
 
@@ -100,18 +112,55 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           port: ${{ env.SSH_PORT }}
           username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          envs: GHCR_PAT,GHCR_USERNAME,DEPLOY_PATH
+          password: ${{ secrets.SSH_PRIVATE_KEY }}  # <-- Uses value as password
+          envs: DOCKERHUB_TOKEN,GHCR_USERNAME,DEPLOY_PATH,FRONTEND_IMAGE
           script: |
             set -euo pipefail
             cd "$DEPLOY_PATH"
-            # Authenticate to GHCR when the image is private (skip for public repos).
-            if [ -n "${GHCR_PAT:-}" ]; then
-              echo "$GHCR_PAT" | docker login ghcr.io -u "$GHCR_USERNAME" --password-stdin
+            echo "========================================="
+            echo ">>> FRONTEND DEPLOY START"
+            echo ">>> HOST=$(hostname)"
+            echo ">>> DATE=$(date -Is)"
+            echo ">>> WHOAMI=$(whoami)"
+            echo ">>> DEPLOY_PATH=$DEPLOY_PATH"
+            echo ">>> GHCR_USERNAME=$GHCR_USERNAME"
+            echo ">>> FRONTEND_IMAGE=$FRONTEND_IMAGE"
+            echo ">>> DOCKER_VERSION=$(docker --version)"
+            echo ">>> COMPOSE_VERSION=$(docker compose version || echo 'compose plugin missing')"
+            echo ">>> GHCR_PAT length=${#DOCKERHUB_TOKEN}"
+            echo "========================================="
+
+            echo ">>> Pre-login docker info:"
+            docker info 2>&1 | grep -i 'Username\|Registry\|Server' || true
+
+            echo ">>> Compose config dump:"
+            docker compose -f "docker-compose.web.yml" config 2>&1 || true
+
+            # Authenticate to Docker Hub when the image is private (skip for public repos).
+            if [ -n "${DOCKERHUB_TOKEN:-}" ]; then
+              echo ">>> Attempting docker logout (clean slate)..."
+              echo "$DOCKERHUB_TOKEN" | docker logout docker.io || true
+              echo ">>> Attempting docker login with retry..."
+              for i in 1 2 3; do
+                echo ">>> Docker login attempt $i/3"
+                if echo "$DOCKERHUB_TOKEN" | docker login docker.io -u "$GHCR_USERNAME" --password-stdin; then
+                  echo ">>> Docker Hub login succeeded on attempt $i"
+                  break
+                fi
+                echo ">>> Docker login attempt $i failed, retrying in 15s..."
+                sleep 15
+              done
+              echo ">>> Post-login docker info:"
+              docker info 2>&1 | grep -i 'Username\|Registry\|Server' || true
+            else
+              echo ">>> No DOCKERHUB_TOKEN provided, skipping docker login"
             fi
+            echo "========================================="
+            export FRONTEND_IMAGE="${FRONTEND_IMAGE}"
             chmod +x deploy.sh
             bash deploy.sh
         env:
-          GHCR_PAT: ${{ secrets.GHCR_PAT }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
           GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
           DEPLOY_PATH: ${{ env.DEPLOY_PATH }}
+          FRONTEND_IMAGE: ${{ env.FRONTEND_IMAGE }}
