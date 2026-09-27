@@ -26,25 +26,44 @@ async function ensureLocaleLoaded(lang: string): Promise<void> {
   }
 }
 
-const getStoredLang = (): string =>
-  typeof window !== 'undefined' ? (localStorage.getItem('vdk_lang') || 'en') : 'en';
+const getStoredLang = (): string => {
+  if (typeof window === 'undefined') return 'en';
+  try {
+    return localStorage.getItem('vdk_lang') || 'en';
+  } catch {
+    return 'en';
+  }
+};
 
+// The pre-rendered HTML is always generated in English (there is no `window`
+// during the build). If i18n booted with the visitor's stored language the very
+// first client render would emit Kinyarwanda/French text against English
+// markup, which React reports as a hydration mismatch. So always start in
+// English — matching the pre-render — and switch to the stored language once
+// the document has hydrated.
 i18n.use(initReactI18next).init({
   resources: {
     en: { translation: en },
   },
-  lng: getStoredLang(),
+  lng: 'en',
   fallbackLng: 'en',
   interpolation: { escapeValue: false },
   react: { useSuspense: false },
 });
 
-// Load the stored language on startup if it isn't English.
+// Apply the stored language after hydration, never during the first render.
 const initialLang = getStoredLang();
 if (typeof window !== 'undefined' && initialLang !== 'en') {
-  void ensureLocaleLoaded(initialLang).then(() => {
-    if (i18n.language !== initialLang) i18n.changeLanguage(initialLang);
-  });
+  const applyStoredLang = () => {
+    void ensureLocaleLoaded(initialLang).then(() => {
+      if (i18n.language !== initialLang) i18n.changeLanguage(initialLang);
+    });
+  };
+  if (document.readyState === 'complete') {
+    applyStoredLang();
+  } else {
+    window.addEventListener('load', applyStoredLang, { once: true });
+  }
 }
 
 // Defer locale loading until the first switch to that language.

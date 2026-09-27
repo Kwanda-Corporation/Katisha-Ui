@@ -11,11 +11,16 @@ interface OnlineContextValue {
 const OnlineContext = createContext<OnlineContextValue>({ isOnline: true, justBackOnline: false });
 
 export function OnlineProvider({ children }: { children: React.ReactNode }) {
-  const [isOnline, setIsOnline] = useState<boolean>(() =>
-    typeof navigator !== 'undefined' ? navigator.onLine : true
-  );
+  // Start optimistic (the value the pre-render emits) and reconcile with the
+  // real browser state in an effect, so hydration always matches the server.
+  const [isOnline, setIsOnline] = useState<boolean>(true);
   const [justBackOnline, setJustBackOnline] = useState(false);
   const lastStateRef = useRef(isOnline);
+
+  useEffect(() => {
+    setIsOnline(navigator.onLine);
+    lastStateRef.current = navigator.onLine;
+  }, []);
 
   useEffect(() => {
     const handleOnline = () => {

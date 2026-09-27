@@ -7,15 +7,31 @@ interface IntroOverlayProps {
 }
 
 export default function IntroOverlay({ children, minDisplayMs = 800 }: IntroOverlayProps) {
-  const [showIntro, setShowIntro] = useState(() =>
-    typeof window !== 'undefined' && !sessionStorage.getItem('vdk_intro_seen')
-  );
+  // Must start at the same value the pre-render produced (no `window` there),
+  // otherwise a first-time visitor hydrates English/markup that contains no
+  // overlay against a client tree that renders one -> React hydration error.
+  // The real check runs in an effect, i.e. after hydration has committed.
+  const [showIntro, setShowIntro] = useState(false);
+
+  useEffect(() => {
+    let seen: string | null = null;
+    try {
+      seen = sessionStorage.getItem('vdk_intro_seen');
+    } catch {
+      seen = '1'; // storage blocked — never show the overlay
+    }
+    setShowIntro(!seen);
+  }, []);
 
   useEffect(() => {
     if (showIntro) {
       const timer = setTimeout(() => {
         setShowIntro(false);
-        sessionStorage.setItem('vdk_intro_seen', '1');
+        try {
+          sessionStorage.setItem('vdk_intro_seen', '1');
+        } catch {
+          /* storage blocked — nothing to persist */
+        }
       }, minDisplayMs);
       return () => clearTimeout(timer);
     }

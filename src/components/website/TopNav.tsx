@@ -40,11 +40,44 @@ export default function TopNav() {
     return () => document.removeEventListener('mousedown', handleOutside);
   }, []);
 
-  const isLoggedIn = typeof window !== 'undefined' && !!localStorage.getItem('vdk_access_token');
-  let user: { name?: string; email?: string } | null = null;
-  if (typeof window !== 'undefined') {
-    try { user = JSON.parse(localStorage.getItem('vdk_user') || 'null'); } catch {}
-  }
+  // Auth state is read from localStorage *after* mount rather than during
+  // render. The pre-rendered HTML always contains the signed-out nav (there is
+  // no `window` while pre-rendering), so reading storage during render made
+  // every signed-in visitor hydrate the avatar/name against "Sign in" markup,
+  // which React reports as a hydration mismatch. Starting signed-out and
+  // flipping in an effect also keeps the nav reactive when auth changes.
+  const [auth, setAuth] = useState<{
+    isLoggedIn: boolean;
+    user: { name?: string; email?: string } | null;
+  }>({ isLoggedIn: false, user: null });
+
+  useEffect(() => {
+    const read = () => {
+      let token: string | null = null;
+      let user: { name?: string; email?: string } | null = null;
+      try {
+        token = localStorage.getItem('vdk_access_token');
+        user = JSON.parse(localStorage.getItem('vdk_user') || 'null');
+      } catch {
+        token = null;
+      }
+      setAuth({ isLoggedIn: !!token, user });
+    };
+    read();
+    // The AuthProvider clears these keys and dispatches this event on a
+    // rejected/expired session, so the nav updates without a reload.
+    window.addEventListener('auth-cleared', read);
+    window.addEventListener('storage', read);
+    window.addEventListener('vdk-auth-changed', read);
+    return () => {
+      window.removeEventListener('auth-cleared', read);
+      window.removeEventListener('storage', read);
+      window.removeEventListener('vdk-auth-changed', read);
+    };
+  }, []);
+
+  const isLoggedIn = auth.isLoggedIn;
+  const user = auth.user;
 
   const switchLang = (code: string) => {
     i18n.changeLanguage(code);
