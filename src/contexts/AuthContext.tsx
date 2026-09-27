@@ -1,3 +1,4 @@
+import { API_BASE } from '../config/apiBase';
 import React, {
   createContext, useContext, useState,
   useEffect, useCallback, useRef,
@@ -5,7 +6,6 @@ import React, {
 import { enqueueSync } from '../services/syncQueue';
 import { clearAllTickets } from '../services/ticketCache';
 
-const API_BASE = import.meta.env?.VITE_API_URL ?? 'http://localhost:5001/api';
 
 export const UserRole = {
   SYSTEM_ADMIN: 'system_admin',
@@ -119,6 +119,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem(REFRESH_KEY, refreshToken);
     localStorage.setItem(USER_KEY,    JSON.stringify(user));
     setState({ user, accessToken, refreshToken, isLoading: false });
+    // TopNav reads the session from storage after mount, so nudge it to
+    // re-read now that the tokens have changed.
+    window.dispatchEvent(new Event('vdk-auth-changed'));
   }
 
   function clearSession() {
@@ -126,6 +129,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem(REFRESH_KEY);
     localStorage.removeItem(USER_KEY);
     setState({ user: null, accessToken: null, refreshToken: null, isLoading: false });
+    window.dispatchEvent(new Event('vdk-auth-changed'));
   }
 
   // ── Token refresh ────────────────────────────────────────────────────────────

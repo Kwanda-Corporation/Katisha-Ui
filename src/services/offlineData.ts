@@ -1,10 +1,10 @@
+import { API_BASE } from '../config/apiBase';
 import api from '../api';
 import {
   getRecord, putRecord, setVersionStamp, getVersionStamp,
   VersionStamp, getAllRecords, deleteRecord, OfflineStoreName,
 } from './offlineStore';
 
-const API_BASE = import.meta.env?.VITE_API_URL ?? 'http://localhost:5001/api';
 
 export interface CachedResult<T> {
   data: T;

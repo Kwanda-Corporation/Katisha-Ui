@@ -1,6 +1,6 @@
+import { API_BASE } from '../config/apiBase';
 import { deleteRecord, getAllRecords, putRecord, SyncQueueItem } from './offlineStore';
 
-const API_BASE = import.meta.env?.VITE_API_URL ?? 'http://localhost:5001/api';
 
 export async function enqueueSync(type: string, payload: any): Promise<void> {
   const item: SyncQueueItem = {

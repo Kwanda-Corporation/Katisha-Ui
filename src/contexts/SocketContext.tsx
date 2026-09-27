@@ -1,10 +1,9 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useAuth } from './AuthContext';
+import { SERVER_ORIGIN } from '../config/apiBase';
 
-const SOCKET_URL = import.meta.env?.VITE_API_URL
-  ? (import.meta.env.VITE_API_URL as string).replace(/\/api\/?$/, '')
-  : 'http://localhost:5001';
+const SOCKET_URL = SERVER_ORIGIN;
 
 interface SocketContextType {
   socket: Socket | null;

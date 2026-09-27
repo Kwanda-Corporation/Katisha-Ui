@@ -1,5 +1,6 @@
-const API_BASE = import.meta.env?.VITE_API_URL ?? 'http://localhost:5001/api';
-const SERVER_ORIGIN = API_BASE.replace(/\/api\/?$/, '');
+import { API_BASE, SERVER_ORIGIN } from '../config/apiBase';
+
+export { API_BASE, SERVER_ORIGIN };
 
 export function resolveImageUrl(path?: string): string | undefined {
   if (!path) return undefined;

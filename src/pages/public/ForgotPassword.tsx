@@ -1,3 +1,4 @@
+import { API_BASE } from '../../config/apiBase';
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router'
 import { Mail, ArrowLeft, CheckCircle, AlertCircle } from 'lucide-react'
@@ -7,7 +8,6 @@ import { useToast } from '../../components/ui/Toast'
 import AuthLayout from '../../components/AuthLayout'
 import SEO from '../../components/seo/SEO'
 
-const API_BASE = import.meta.env?.VITE_API_URL ?? 'http://localhost:5001/api'
 
 export default function ForgotPassword() {
   const { t } = useTranslation()

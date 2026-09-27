@@ -8,6 +8,7 @@ import './i18n'
 import { AppProviders } from './App'
 import AppRoutes from './routes'
 import { ssrData } from './ssrData'
+import { SERVER_ORIGIN } from './config/apiBase'
 
 // Rehydrate server-side-rendered data so the first client render matches the
 // pre-rendered HTML (avoids hydration mismatch / flash) on route & agency
@@ -22,8 +23,6 @@ try {
 } catch {}
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || ''
-const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:5001/api'
-const SERVER_ORIGIN = API_BASE.replace(/\/api\/?$/, '')
 
 // The service worker is only registered in production builds — in dev it would
 // intercept Vite's live module/HMR requests and break hot reload + offline.

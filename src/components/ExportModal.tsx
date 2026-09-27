@@ -1,3 +1,4 @@
+import { API_BASE } from '../config/apiBase';
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -9,7 +10,6 @@ import { useAuth } from "../contexts/AuthContext";
 // ── Constants ──────────────────────────────────────────────────────────────────
 const GREEN = "#1D4ED8";
 const BLUE  = "#1D4ED8";
-const API_BASE = import.meta.env?.VITE_API_URL ?? "http://localhost:5001/api";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 

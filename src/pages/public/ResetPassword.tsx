@@ -1,3 +1,4 @@
+import { API_BASE } from '../../config/apiBase';
 import { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
 import { Lock, CheckCircle, AlertCircle } from 'lucide-react'
@@ -5,7 +6,6 @@ import { Button, Card } from '../../components/ui'
 import AuthLayout from '../../components/AuthLayout'
 import SEO from '../../components/seo/SEO'
 
-const API_BASE = import.meta.env?.VITE_API_URL ?? 'http://localhost:5001/api'
 
 function getStrength(value: string): { label: string; score: number; color: string } {
   let score = 0

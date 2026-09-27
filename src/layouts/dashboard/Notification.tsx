@@ -1,3 +1,4 @@
+import { API_BASE } from '../../config/apiBase';
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -79,7 +80,6 @@ interface AnnouncementForm {
 
 // ── Constants ──────────────────────────────────────────────────────────────────
 
-const API_BASE = import.meta.env?.VITE_API_URL ?? 'http://localhost:5001/api';
 const PRIMARY  = '#1D4ED8';
 const DANGER   = '#DC2626';
 const BLUE     = '#1D4ED8';
