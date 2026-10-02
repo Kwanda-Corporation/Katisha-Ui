@@ -7,12 +7,17 @@ interface EmptyStateProps {
   description?: string
   actionLabel?: string
   onAction?: () => void
+  svgSrc?: string
+  svgAlt?: string
 }
 
-export default function EmptyState({ icon: Icon, title, description, actionLabel, onAction }: EmptyStateProps) {
+export default function EmptyState({ icon: Icon, title, description, actionLabel, onAction, svgSrc, svgAlt }: EmptyStateProps) {
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4">
-      {Icon && (
+      {svgSrc && (
+        <img src={svgSrc} alt={svgAlt || title} className="w-48 h-48 sm:w-64 sm:h-64 object-contain mb-6" />
+      )}
+      {!svgSrc && Icon && (
         <Icon size={48} color="var(--text-muted)" strokeWidth={1.5} />
       )}
       <h3 className="font-[var(--font-body)] font-medium text-[1.3125rem] text-[var(--text)] text-center mt-6">

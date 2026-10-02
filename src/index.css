@@ -72,6 +72,16 @@
   --status-completed: #1E40AF;
   --status-cancelled: #52525B;
 
+  /* Studio (YouTube Studio-inspired) tokens */
+  --studio-bg: var(--bg);
+  --studio-surface: #FFFFFF;
+  --studio-surface-sub: #F8FAFC;
+  --studio-sidebar-bg: #F8FAFC;
+  --studio-border: var(--border);
+  --studio-topbar-height: 56px;
+  --studio-sidebar-width-open: 230px;
+  --studio-sidebar-width-closed: 64px;
+
   --spacing-xs: 4px;
   --spacing-sm: 8px;
   --spacing-md: 16px;
