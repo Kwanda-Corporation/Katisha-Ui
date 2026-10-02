@@ -16,7 +16,7 @@ export default function PromoterSetup() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const toast = useToast()
-  const { user, isAuthenticated } = useAuth()
+  const { user, isAuthenticated, login, authFetch } = useAuth()
 
   const [path, setPath] = useState<Path>(null)
   const [loading, setLoading] = useState(false)
@@ -34,6 +34,10 @@ export default function PromoterSetup() {
   const isPromoter = user?.roles?.includes('promoter') ?? user?.role === 'promoter'
   const set = (key: keyof typeof form) => (e: { target: { value: string } }) =>
     setForm((f) => ({ ...f, [key]: e.target.value }))
+
+  /** The API's error envelope is `{ ok, message }`, older handlers used `error`. */
+  const readError = (data: any, fallback: string) =>
+    data?.message || data?.error?.message || fallback
 
   const submitNewAccount = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -61,8 +65,19 @@ export default function PromoterSetup() {
       })
       if (!res.ok) {
         const data = await res.json().catch(() => ({}))
-        setError(data.error?.message || t('promoter.setupFailed'))
+        setError(readError(data, t('promoter.setupFailed')))
         return
+      }
+      const data = await res.json().catch(() => ({}))
+      // The account was just created, so there is no session yet. Sign in with
+      // the submitted credentials to hydrate AuthContext before navigating to
+      // the dashboard, otherwise the protected route bounces back to login.
+      if (data?.data?.accessToken) {
+        const signedIn = await login(form.phone, form.password)
+        if (!signedIn.ok) {
+          setError(signedIn.error || t('auth.loginFailed'))
+          return
+        }
       }
       toast.success(t('promoter.applyToBecome'), t('promoter.promoterDashboard'))
       navigate('/dashboard/promoter', { replace: true })
@@ -82,18 +97,17 @@ export default function PromoterSetup() {
     setLoading(true)
     setError('')
     try {
-      const res = await fetch(`${API_BASE}/promoter/setup`, {
+      // authFetch attaches the bearer token and transparently refreshes it.
+      const data = await authFetch('/promoter/setup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify({
           payoutPhone: payoutMode === 'different' ? form.payoutPhone : undefined,
           acceptTerms,
         }),
       })
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}))
-        setError(data.error?.message || t('promoter.setupFailed'))
+      if (!data?.ok) {
+        setError(readError(data, t('promoter.setupFailed')))
         return
       }
       toast.success(t('promoter.applyToBecome'), t('promoter.promoterDashboard'))
