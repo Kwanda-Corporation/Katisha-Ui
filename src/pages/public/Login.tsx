@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router'
+import { Link, useLocation, useNavigate } from 'react-router'
 import { Lock, Eye, EyeOff, AlertCircle } from 'lucide-react'
 import { GoogleLogin } from '@react-oauth/google'
-import { Button, Card, PhoneInput } from '../../components/ui'
+import { PhoneInput, Spinner } from '../../components/ui'
 import { useAuth } from '../../contexts/AuthContext'
 import { useTranslation } from '../../../node_modules/react-i18next'
 import { useToast } from '../../components/ui/Toast'
@@ -14,7 +14,11 @@ export default function Login() {
   const { t } = useTranslation()
   const { login, googleLogin } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
   const toast = useToast()
+  // Where to return after signing in. Set by flows that need auth first
+  // (e.g. "Earn from Katisha" → promoter setup).
+  const redirectTo = (location.state as { from?: string } | null)?.from
   const [identifier, setIdentifier] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -38,7 +42,7 @@ export default function Login() {
       return
     }
     toast.success(t('auth.signIn'), t('auth.signInDesc'))
-    navigate('/')
+    navigate(redirectTo || '/')
   }
 
   const handleGoogleSuccess = async (response: any) => {
@@ -48,7 +52,7 @@ export default function Login() {
     const result = await googleLogin(response.credential)
     setLoading(false)
     if (!result.ok) {
-      const msg = result.error || 'Google sign-in failed'
+      const msg = result.error || t('auth.googleSignInFailed')
       setError(msg)
       toast.error(t('auth.signIn'), msg)
       return
@@ -58,102 +62,100 @@ export default function Login() {
       return
     }
     toast.success(t('auth.signIn'), t('auth.signInDesc'))
-    navigate('/')
+    navigate(redirectTo || '/')
   }
 
   const handleProfileComplete = () => {
     setShowProfileComplete(false)
     toast.success(t('auth.signIn'), t('auth.signInDesc'))
+    if (redirectTo) navigate(redirectTo)
   }
 
   return (
     <>
-    <AuthLayout title={t('auth.signIn')} subtitle={t('auth.signInDesc')}
+    <AuthLayout
+      headline={t('auth.signIn')}
+      subline={t('auth.signInDesc')}
     >
-      <SEO title="Sign In" noindex />
-      <div className="w-full max-w-[440px]">
-        <div className="animate-in">
-          <div className="text-center mb-8">
-            <h1 className="font-[var(--font-body)] text-[1.75rem] font-semibold text-[var(--text)]">{t('auth.signIn')}</h1>
-            <p className="font-[var(--font-body)] text-sm text-[var(--text-sub)] mt-2">{t('auth.signInDesc')}</p>
+      <SEO title={t('auth.signIn')} noindex />
+      <div className="animate-in">
+        <div className="space-y-4">
+          {/* Fluid width: the previous fixed width={380} overflowed the
+              card on narrow phones and forced horizontal scrolling. */}
+          <div className="w-full min-w-0">
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={() => setError(t('auth.googleSignInFailed'))}
+              text="continue_with"
+              shape="rectangular"
+              width="100%"
+            />
           </div>
 
-          <Card padding="lg">
-            <div className="space-y-5">
-              <div className="flex justify-center">
-                {/* Fluid width: the previous fixed width={380} overflowed the
-                    card on narrow phones and forced horizontal scrolling. */}
-                <div className="w-full max-w-[380px] min-w-0">
-                  <GoogleLogin
-                    onSuccess={handleGoogleSuccess}
-                    onError={() => setError('Google sign-in failed')}
-                    text="continue_with"
-                    shape="rectangular"
-                    width="100%"
-                  />
-                </div>
-              </div>
+          <div className="auth-divider">
+            <span>{t('auth.or') || 'or'}</span>
+          </div>
 
-              <div className="flex items-center gap-3">
-                <div className="flex-1 h-px bg-[var(--border)]" />
-                <span className="text-xs text-[var(--text-muted)] font-[var(--font-body)]">{t('auth.or') || 'or'}</span>
-                <div className="flex-1 h-px bg-[var(--border)]" />
-              </div>
-
-              <form onSubmit={(e) => { e.preventDefault(); handleLogin() }} className="space-y-5">
-                <PhoneInput
-                  label={t('auth.phoneNumber')}
-                  value={identifier}
-                  onChange={setIdentifier}
-                  required
-                />
-                <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <label className="font-[var(--font-body)] text-sm font-medium text-[var(--text)]">{t('auth.password')}</label>
-                    <Link to="/forgot-password" className="font-[var(--font-body)] text-xs text-[var(--blue)] no-underline hover:underline">
-                      {t('auth.forgotPassword')}
-                    </Link>
-                  </div>
-                  <div className="relative">
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      placeholder={t('auth.enterPassword')}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                      className="w-full h-12 px-4 pr-10 rounded-md border border-[var(--border)] bg-white font-[var(--font-body)] text-base text-[var(--text)] placeholder:text-[var(--text-muted)] placeholder:font-light focus:outline-none focus:border-[var(--blue)] focus:shadow-none transition-all"
-                    />
-                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer bg-none border-none">
-                      {showPassword ? <EyeOff size={18} color="var(--text-muted)" /> : <Eye size={18} color="var(--text-muted)" />}
-                    </button>
-                  </div>
-                </div>
-
-                {error && (
-                  <div className="flex items-start gap-2.5 p-3.5 rounded-md" style={{ background: '#FEE2E2', border: '1px solid #FCA5A5' }}>
-                    <AlertCircle size={15} className="flex-shrink-0 mt-0.5" style={{ color: '#DC2626' }} />
-                    <p className="font-[var(--font-body)] text-xs font-medium" style={{ color: '#DC2626' }}>{error}</p>
-                  </div>
-                )}
-
-                <Button fullWidth type="submit" loading={loading}>
-                  <Lock size={16} />
-                  {t('auth.signIn')}
-                </Button>
-              </form>
+          <form onSubmit={(e) => { e.preventDefault(); handleLogin() }} className="space-y-4">
+            <div>
+              <label className="auth-label" htmlFor="login-identifier">{t('auth.phoneNumber')}</label>
+              <PhoneInput
+                id="login-identifier"
+                value={identifier}
+                onChange={setIdentifier}
+                required
+                size="lg"
+              />
             </div>
-          </Card>
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="auth-label !mb-0" htmlFor="login-password">{t('auth.password')}</label>
+                <Link to="/forgot-password" className="text-xs font-medium text-[var(--text-sub)] hover:text-[var(--text)]">
+                  {t('auth.forgotPassword')}
+                </Link>
+              </div>
+              <div className="auth-input-wrap">
+                <input
+                  id="login-password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder={t('auth.enterPassword')}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  autoComplete="current-password"
+                  className="auth-input"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="auth-reveal"
+                  aria-label={showPassword ? t('auth.hidePassword') : t('auth.showPassword')}
+                >
+                  {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
+                </button>
+              </div>
+            </div>
 
-          <div className="mt-6 text-center">
-            <p className="font-[var(--font-body)] text-sm text-[var(--text-sub)]">
-              {t('auth.dontHaveAccount')}{' '}
-              <Link to="/register" className="text-[var(--blue)] font-medium no-underline hover:underline">
-                {t('auth.register')}
-              </Link>
-            </p>
-          </div>
+            {error && (
+              <div className="auth-alert">
+                <AlertCircle size={15} />
+                <p>{error}</p>
+              </div>
+            )}
 
+            <button type="submit" className="auth-primary" disabled={loading}>
+              {loading ? <Spinner size={16} /> : <Lock size={16} />}
+              {t('auth.signIn')}
+            </button>
+          </form>
         </div>
+
+        <p className="auth-hint mt-6">
+          {t('auth.dontHaveAccount')}{' '}
+          <Link to="/register" className="auth-link">
+            {t('auth.register')}
+          </Link>
+        </p>
       </div>
     </AuthLayout>
     {showProfileComplete && <GoogleProfileCompletion onComplete={handleProfileComplete} />}

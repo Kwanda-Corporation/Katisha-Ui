@@ -46,6 +46,11 @@ const DepartureManagement = lazy(() => import('./pages/dashboards/DepartureManag
 const ScheduleManagement = lazy(() => import('./pages/dashboards/ScheduleManagement'));
 const AgentBookingsPage = lazy(() => import('./pages/website/AgentBookings'));
 const StudioPreview = lazy(() => import('./pages/promoter/StudioPreview'));
+const PromoterSetup = lazy(() => import('./pages/promoter/PromoterSetup'));
+const PromoterDashboard = lazy(() => import('./pages/promoter/PromoterDashboard'));
+const PromoterReferrals = lazy(() => import('./pages/promoter/PromoterReferrals'));
+const PromoterEarnings = lazy(() => import('./pages/promoter/PromoterEarnings'));
+const PromoterSettings = lazy(() => import('./pages/promoter/PromoterSettings'));
 
 const ROLE_HOME: Record<UserRole, string> = {
   [UserRole.SYSTEM_ADMIN]: '/dashboard/overview-admin',
@@ -234,6 +239,32 @@ export default function AppRoutes() {
       </Route>
 
       <Route path="/unauthorized" element={<ForbiddenPage />} />
+
+      {/* Promoter. Deliberately outside the legacy DashboardLayout: these pages
+          render their own shell. `/setup` stays reachable while signed out so the
+          "Earn from Katisha" pill can be tapped before authenticating. */}
+      <Route path="/dashboard/promoter/setup" element={<PromoterSetup />} />
+      <Route path="/dashboard/promoter" element={
+        <ProtectedRoute roles={[UserRole.PROMOTER]}>
+          <PromoterDashboard />
+        </ProtectedRoute>
+      } />
+      <Route path="/dashboard/promoter/referrals" element={
+        <ProtectedRoute roles={[UserRole.PROMOTER]}>
+          <PromoterReferrals />
+        </ProtectedRoute>
+      } />
+      <Route path="/dashboard/promoter/earnings" element={
+        <ProtectedRoute roles={[UserRole.PROMOTER]}>
+          <PromoterEarnings />
+        </ProtectedRoute>
+      } />
+      <Route path="/dashboard/promoter/settings" element={
+        <ProtectedRoute roles={[UserRole.PROMOTER]}>
+          <PromoterSettings />
+        </ProtectedRoute>
+      } />
+
       {/* Dev-only design-system preview. Not present in production builds. */}
       {import.meta.env.DEV && (
         <Route path="/studio-preview" element={<ProtectedRoute><StudioPreview /></ProtectedRoute>} />

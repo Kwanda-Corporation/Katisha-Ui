@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router'
 import { UserPlus, Eye, EyeOff, AlertCircle } from 'lucide-react'
 import { GoogleLogin } from '@react-oauth/google'
-import { Button, Input, Card, PhoneInput } from '../../components/ui'
+import { PhoneInput, Spinner } from '../../components/ui'
 import { useAuth } from '../../contexts/AuthContext'
 import { useTranslation } from '../../../node_modules/react-i18next'
 import { useToast } from '../../components/ui/Toast'
@@ -42,7 +42,7 @@ export default function Register() {
       return
     }
     if (!result.ok) {
-      const msg = result.error || 'Registration failed'
+      const msg = result.error || t('auth.registrationFailed')
       setError(msg)
       toast.error(t('auth.register'), msg)
       return
@@ -58,7 +58,7 @@ export default function Register() {
     const result = await googleLogin(response.credential)
     setLoading(false)
     if (!result.ok) {
-      const msg = result.error || 'Google sign-in failed'
+      const msg = result.error || t('auth.googleSignInFailed')
       setError(msg)
       toast.error(t('auth.register'), msg)
       return
@@ -79,94 +79,94 @@ export default function Register() {
   return (
     <>
     <AuthLayout
-      title={t('auth.register')}
-      subtitle={t('auth.createAccountDesc')}
-      hideSidebar
+      headline={t('auth.register')}
+      subline={t('auth.createAccountDesc')}
     >
-      <SEO title="Create Account" noindex />
-      <div className="w-full max-w-[440px]">
-        <div className="animate-in">
-          <div className="text-center mb-8">
-            <h1 className="font-[var(--font-body)] text-[1.75rem] font-semibold text-[var(--text)]">{t('auth.register')}</h1>
-            <p className="font-[var(--font-body)] text-sm text-[var(--text-sub)] mt-2">{t('auth.createAccountDesc')}</p>
+      <SEO title={t('auth.register')} noindex />
+      <div className="animate-in">
+        <div className="space-y-4">
+          <div className="w-full min-w-0">
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={() => setError(t('auth.googleSignInFailed'))}
+              text="continue_with"
+              shape="rectangular"
+              width="100%"
+            />
           </div>
 
-          <Card padding="lg">
-            <div className="space-y-4">
-              <div className="flex justify-center">
-                <div className="w-full max-w-[380px] min-w-0">
-                  <GoogleLogin
-                    onSuccess={handleGoogleSuccess}
-                    onError={() => setError('Google sign-in failed')}
-                    text="continue_with"
-                    shape="rectangular"
-                    width="100%"
-                  />
-                </div>
-              </div>
+          <div className="auth-divider">
+            <span>{t('auth.or') || 'or'}</span>
+          </div>
 
-              <div className="flex items-center gap-3">
-                <div className="flex-1 h-px bg-[var(--border)]" />
-                <span className="text-xs text-[var(--text-muted)] font-[var(--font-body)]">{t('auth.or') || 'or'}</span>
-                <div className="flex-1 h-px bg-[var(--border)]" />
-              </div>
-
-              <form onSubmit={(e) => { e.preventDefault(); handleSubmit() }} className="space-y-4">
-                <Input
-                  label={t('auth.name')}
-                  placeholder={t('auth.namePlaceholder')}
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                />
-                <PhoneInput
-                  label={t('auth.phone')}
-                  value={phone}
-                  onChange={setPhone}
-                  required
-                />
-                <div>
-                  <label className="font-[var(--font-body)] text-sm font-medium text-[var(--text)] mb-1.5 block">{t('auth.password')}</label>
-                  <div className="relative">
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      placeholder={t('auth.passwordMin')}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                      className="w-full h-12 px-4 pr-10 rounded-md border border-[var(--border)] bg-white font-[var(--font-body)] text-base text-[var(--text)] placeholder:text-[var(--text-muted)] placeholder:font-light focus:outline-none focus:border-[var(--blue)] focus:shadow-none transition-all"
-                    />
-                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer bg-none border-none">
-                      {showPassword ? <EyeOff size={18} color="var(--text-muted)" /> : <Eye size={18} color="var(--text-muted)" />}
-                    </button>
-                  </div>
-                </div>
-
-                {error && (
-                  <div className="flex items-start gap-2.5 p-3.5 rounded-md" style={{ background: '#FEE2E2', border: '1px solid #FCA5A5' }}>
-                    <AlertCircle size={15} className="flex-shrink-0 mt-0.5" style={{ color: '#DC2626' }} />
-                    <p className="font-[var(--font-body)] text-xs font-medium" style={{ color: '#DC2626' }}>{error}</p>
-                  </div>
-                )}
-
-                <Button fullWidth type="submit" loading={loading}>
-                  <UserPlus size={16} />
-                  {t('auth.register')}
-                </Button>
-              </form>
+          <form onSubmit={(e) => { e.preventDefault(); handleSubmit() }} className="space-y-4">
+            <div>
+              <label className="auth-label" htmlFor="register-name">{t('auth.name')}</label>
+              <input
+                id="register-name"
+                type="text"
+                placeholder={t('auth.namePlaceholder')}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                autoComplete="name"
+                className="auth-input"
+              />
             </div>
-          </Card>
+            <div>
+              <label className="auth-label" htmlFor="register-phone">{t('auth.phone')}</label>
+              <PhoneInput
+                id="register-phone"
+                value={phone}
+                onChange={setPhone}
+                required
+                size="lg"
+              />
+            </div>
+            <div>
+              <label className="auth-label" htmlFor="register-password">{t('auth.password')}</label>
+              <div className="auth-input-wrap">
+                <input
+                  id="register-password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder={t('auth.passwordMin')}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  autoComplete="new-password"
+                  className="auth-input"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="auth-reveal"
+                  aria-label={showPassword ? t('auth.hidePassword') : t('auth.showPassword')}
+                >
+                  {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
+                </button>
+              </div>
+            </div>
 
-          <div className="mt-6 text-center">
-            <p className="font-[var(--font-body)] text-sm text-[var(--text-sub)]">
-              {t('auth.alreadyHaveAccount')}{' '}
-              <Link to="/login" className="text-[var(--blue)] font-medium no-underline hover:underline">
-                {t('auth.signIn')}
-              </Link>
-            </p>
-          </div>
+            {error && (
+              <div className="auth-alert">
+                <AlertCircle size={15} />
+                <p>{error}</p>
+              </div>
+            )}
 
+            <button type="submit" className="auth-primary" disabled={loading}>
+              {loading ? <Spinner size={16} /> : <UserPlus size={16} />}
+              {t('auth.register')}
+            </button>
+          </form>
         </div>
+
+        <p className="auth-hint mt-6">
+          {t('auth.alreadyHaveAccount')}{' '}
+          <Link to="/login" className="auth-link">
+            {t('auth.signIn')}
+          </Link>
+        </p>
       </div>
     </AuthLayout>
     {showProfileComplete && <GoogleProfileCompletion onComplete={handleProfileComplete} />}

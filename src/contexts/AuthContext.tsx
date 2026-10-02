@@ -25,6 +25,8 @@ export interface AuthUser {
   email?: string;
   phone?: string;
   role: UserRole;
+  /** All roles granted to this account. Phase 4 populates this alongside `role`. */
+  roles?: UserRole[];
   organization?: string;
   loyaltyPoints?: number;
   freeTickets?: number;

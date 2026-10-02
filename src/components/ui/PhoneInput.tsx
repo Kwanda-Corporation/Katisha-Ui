@@ -33,6 +33,10 @@ interface PhoneInputProps {
   required?: boolean
   error?: string
   id?: string
+  /** `lg` matches the Claude-style auth surfaces (larger radius + height). */
+  size?: 'default' | 'lg'
+  /** Translated "no matches" text for the country picker. */
+  noResultsLabel?: string
 }
 
 export default function PhoneInput({
@@ -44,7 +48,10 @@ export default function PhoneInput({
   required,
   error,
   id,
+  size = 'default',
+  noResultsLabel = 'No countries found',
 }: PhoneInputProps) {
+  const isLg = size === 'lg'
   const defaultEntry = COUNTRY_CODES.find(c => c.code === defaultCountry) || COUNTRY_CODES[0]
 
   const [countryCode, setCountryCode] = useState(defaultCountry)
@@ -138,7 +145,7 @@ export default function PhoneInput({
           <button
             type="button"
             onClick={() => { setDropdownOpen(o => !o); setSearch('') }}
-            className="h-12 flex items-center gap-1.5 pl-2.5 pr-3 rounded-l-md border border-[var(--border)] border-r-0 bg-white focus:outline-none focus:border-[var(--blue)] transition-colors cursor-pointer hover:bg-[#F9FAFB]"
+            className={`${isLg ? 'h-12' : 'h-12'} flex items-center gap-1.5 pl-2.5 pr-3 ${isLg ? 'rounded-l-[12px]' : 'rounded-l-md'} border border-[var(--border)] border-r-0 bg-white focus:outline-none focus:border-[var(--blue)] transition-colors cursor-pointer hover:bg-[#F9FAFB]`}
           >
             <ReactCountryFlag
               countryCode={selected.countryCode}
@@ -157,13 +164,13 @@ export default function PhoneInput({
                   type="text"
                   value={search}
                   onChange={e => setSearch(e.target.value)}
-                  placeholder="Search country..."
+                  placeholder={noResultsLabel}
                   className="w-full h-9 px-3 rounded-sm border border-[var(--border)] bg-[#F9FAFB] text-sm focus:outline-none focus:border-[var(--blue)] placeholder:text-[var(--text-muted)]"
                 />
               </div>
               <div className="max-h-52 overflow-y-auto">
                 {filtered.length === 0 ? (
-                  <div className="px-3 py-4 text-center text-xs text-[var(--text-muted)]">No countries found</div>
+                  <div className="px-3 py-4 text-center text-xs text-[var(--text-muted)]">{noResultsLabel}</div>
                 ) : (
                   filtered.map(c => (
                     <button
@@ -197,7 +204,7 @@ export default function PhoneInput({
           placeholder={placeholder}
           required={required}
           className={`
-            flex-1 h-12 px-4 rounded-r-md
+            flex-1 h-12 px-4 ${isLg ? 'rounded-r-[12px] border-[var(--auth-border)]' : 'rounded-r-md'}
             border border-[var(--border)] bg-white
             font-[var(--font-body)] text-base font-normal text-[var(--text)]
             placeholder:text-[var(--text-muted)] placeholder:font-light

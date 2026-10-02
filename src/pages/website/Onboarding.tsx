@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useTranslation } from '../../../node_modules/react-i18next'
 import { useNavigate } from 'react-router'
 import { motion, AnimatePresence } from 'framer-motion'
+import { Banknote } from 'lucide-react'
 import SEO from '../../components/seo/SEO'
 import Logo from '../../components/ui/Logo'
 import { useAuth } from '../../contexts/AuthContext'
@@ -135,6 +136,25 @@ export default function Onboarding() {
             </motion.div>
           </AnimatePresence>
         </div>
+      </div>
+
+      {/* Persistent promoter entry point. Anchored bottom-right so it never
+          competes with the language choices, and hidden from crawlers. */}
+      <div className="fixed bottom-5 right-5 z-20 group">
+        <span
+          role="tooltip"
+          className="pointer-events-none absolute bottom-[calc(100%+8px)] right-0 w-max max-w-[240px] rounded-lg bg-[var(--text)] px-3 py-2 text-xs text-white opacity-0 shadow-lg transition-opacity duration-150 group-hover:opacity-100 group-focus-within:opacity-100"
+        >
+          {t('promoter.earnTooltip')}
+        </span>
+        <button
+          type="button"
+          onClick={() => navigate('/dashboard/promoter/setup')}
+          className="inline-flex items-center gap-2 h-11 px-5 rounded-full bg-[var(--text)] text-white text-sm font-semibold shadow-[0_8px_24px_rgba(15,23,42,0.18)] hover:opacity-90 transition-opacity cursor-pointer"
+        >
+          <Banknote size={16} />
+          {t('promoter.earnFromKatisha')}
+        </button>
       </div>
     </div>
   )

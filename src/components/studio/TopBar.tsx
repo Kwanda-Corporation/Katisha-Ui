@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router'
-import { Menu, Search, HelpCircle, Bell, ChevronDown, LogOut, Settings, Check, Globe } from 'lucide-react'
+import { Menu, Search, HelpCircle, Bell, ChevronDown, LogOut, Settings, Check } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../contexts/AuthContext'
+import LanguageMenu from '../LanguageSwitcher'
 import Logo from '../ui/Logo'
 
 export interface QuickAction {
@@ -25,13 +26,6 @@ interface TopBarProps {
   notificationCount?: number
 }
 
-const LANGS: Array<{ code: string; label: string }> = [
-  { code: 'en', label: 'English' },
-  { code: 'kin', label: 'Kinyarwanda' },
-  { code: 'fr', label: 'Français' },
-  { code: 'sw', label: 'Kiswahili' },
-]
-
 export default function TopBar({
   onHamburger,
   roleLabel,
@@ -44,7 +38,7 @@ export default function TopBar({
   onOpenSettings,
   notificationCount = 0,
 }: TopBarProps) {
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
   const { logout } = useAuth()
   const navigate = useNavigate()
   const [menuOpen, setMenuOpen] = useState(false)
@@ -63,12 +57,6 @@ export default function TopBar({
       document.removeEventListener('keydown', onKey)
     }
   }, [menuOpen])
-
-  const changeLang = (code: string) => {
-    void i18n.changeLanguage(code)
-    try { localStorage.setItem('vdk_lang', code) } catch { /* ignore */ }
-    setMenuOpen(false)
-  }
 
   return (
     <header
@@ -178,22 +166,11 @@ export default function TopBar({
                 </div>
               )}
 
-              <div className="py-1.5 border-b border-[var(--studio-border)]">
-                <p className="px-4 py-1 text-[11px] uppercase tracking-wide text-[var(--studio-text-muted)] flex items-center gap-1">
-                  <Globe size={11} /> {t('studio.language')}
+              <div className="px-1 py-1.5 border-b border-[var(--studio-border)]">
+                <p className="px-3 py-1 text-[11px] uppercase tracking-wide text-[var(--studio-text-muted)]">
+                  {t('studio.language')}
                 </p>
-                {LANGS.map((l) => (
-                  <button
-                    key={l.code}
-                    role="menuitem"
-                    type="button"
-                    onClick={() => changeLang(l.code)}
-                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-[var(--studio-text)] hover:bg-[var(--studio-muted-fill)] cursor-pointer"
-                  >
-                    {l.label}
-                    {i18n.language === l.code && <Check size={14} />}
-                  </button>
-                ))}
+                <LanguageMenu align="left" onSelected={() => setMenuOpen(false)} />
               </div>
 
               <button
