@@ -21,13 +21,25 @@ export function scorePassword(value: string): PasswordStrengthResult {
 
 const SEGMENTS = 5
 
+/** Label/color are indexed 0–4; the raw score can reach 5. */
+const STRENGTH_LABELS = ['TooShort', 'Weak', 'Fair', 'Good', 'Strong'] as const
+const STRENGTH_COLORS = [
+  'var(--error)',
+  'var(--error)',
+  'var(--warning)',
+  'var(--blue)',
+  'var(--blue)',
+]
+
 export default function PasswordStrength({ value }: { value: string }) {
   const { t } = useTranslation()
   if (!value) return null
 
-  const { score, color } = scorePassword(value)
+  const { score } = scorePassword(value)
+  const index = Math.min(score, STRENGTH_LABELS.length - 1)
+  const color = STRENGTH_COLORS[index]
   const filled = Math.round((score / SEGMENTS) * SEGMENTS)
-  const label = t(`auth.strength${['TooShort', 'Weak', 'Fair', 'Good', 'Strong'][score]}`)
+  const label = t(`auth.strength${STRENGTH_LABELS[index]}`)
 
   return (
     <div className="mt-2">

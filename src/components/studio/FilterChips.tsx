@@ -1,4 +1,5 @@
 import { ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Filter, X, ChevronDown } from 'lucide-react'
 
 export interface AppliedFilter {
@@ -45,6 +46,7 @@ export default function FilterChips({
   className = '',
   children,
 }: FilterChipsProps) {
+  const { t } = useTranslation()
   const hasClearable = applied.length > 0 || (query ?? '') !== ''
 
   return (
@@ -74,7 +76,7 @@ export default function FilterChips({
           <button
             type="button"
             onClick={f.onRemove}
-            aria-label={`Remove filter ${f.label}`}
+            aria-label={t('studio.removeFilter', { label: f.label })}
             className="p-0.5 rounded-full hover:bg-black/5 cursor-pointer"
           >
             <X size={13} />

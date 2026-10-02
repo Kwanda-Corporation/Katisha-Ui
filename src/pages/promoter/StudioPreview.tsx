@@ -34,7 +34,7 @@ export default function StudioPreview() {
     <StudioShell
       quickActions={[{ key: 'share', label: t('promoter.copyLink'), icon: <Share2 size={15} />, onClick: () => {} }]}
       settingsSections={[
-        { id: 'account', label: t('studio.settings'), content: <div className="text-sm text-[var(--studio-text-sub)]">{t('common.email') || 'Account'}</div> },
+        { id: 'account', label: t('studio.settings'), content: <div className="text-sm text-[var(--studio-text-sub)]">{t('common.email')}</div> },
       ]}
       settingsDirty={false}
     >

@@ -1,4 +1,5 @@
 import { ReactNode, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { ArrowUp, ArrowDown, ChevronsUpDown } from 'lucide-react'
 
 export interface Column<T> {
@@ -29,6 +30,8 @@ interface DataTableProps<T> {
   /** Row click handler; if provided the row is keyboard-focusable. */
   onRowClick?: (row: T) => void
   loading?: boolean
+  /** Placeholder rows rendered while `loading` is true. */
+  skeletonRows?: number
 }
 
 function rowIdOf<T>(row: T, index: number, getRowId?: (row: T, index: number) => string): string {
@@ -48,7 +51,9 @@ export default function DataTable<T>({
   onSelectionChange,
   onRowClick,
   loading = false,
+  skeletonRows = 5,
 }: DataTableProps<T>) {
+  const { t } = useTranslation()
   const [sortKey, setSortKey] = useState<string | null>(null)
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc')
   const [selected, setSelected] = useState<string[]>([])
@@ -115,7 +120,7 @@ export default function DataTable<T>({
                 <th className="w-10 px-4 py-3">
                   <input
                     type="checkbox"
-                    aria-label="Select all rows"
+                    aria-label={t('studio.selectAllRows')}
                     checked={allSelected}
                     ref={(el) => { if (el) el.indeterminate = someSelected }}
                     onChange={(e) => emitSelection(e.target.checked ? allIds : [])}
@@ -136,7 +141,7 @@ export default function DataTable<T>({
                         type="button"
                         onClick={() => toggleSort(column.key)}
                         className={`inline-flex items-center gap-1 cursor-pointer bg-transparent border-none p-0 ${alignClass(column.align)}`}
-                        aria-label={`Sort by ${column.header}`}
+                        aria-label={t('studio.sortBy', { column: column.header })}
                       >
                         {column.header}
                         {active
@@ -152,41 +157,57 @@ export default function DataTable<T>({
             </tr>
           </thead>
           <tbody className="divide-y divide-[var(--studio-border)] bg-white">
-            {rows.map((row, index) => {
-              const id = rowIdOf(row, index, getRowId)
-              const checked = selected.includes(id)
-              return (
-                <tr
-                  key={id}
-                  className={`hover:bg-[var(--studio-surface-sub)] ${onRowClick ? 'cursor-pointer' : ''} ${checked ? 'bg-[var(--studio-accent-soft)]' : ''}`}
-                  onClick={onRowClick ? () => onRowClick(row) : undefined}
-                  tabIndex={onRowClick ? 0 : undefined}
-                  onKeyDown={onRowClick ? (e) => { if (e.key === 'Enter') onRowClick(row) } : undefined}
-                >
-                  {selectable && (
-                    <td className="w-10 px-4 py-3" onClick={(e) => e.stopPropagation()}>
-                      <input
-                        type="checkbox"
-                        aria-label="Select row"
-                        checked={checked}
-                        onChange={(e) => {
-                          emitSelection(e.target.checked ? [...selected, id] : selected.filter((s) => s !== id))
-                        }}
-                        className="cursor-pointer accent-[var(--studio-accent)]"
-                      />
-                    </td>
-                  )}
-                  {columns.map((column) => (
-                    <td
-                      key={column.key}
-                      className={`px-4 py-3 text-sm text-[var(--studio-text)] ${alignClass(column.align)} ${column.className || ''}`}
+            {loading
+              ? Array.from({ length: skeletonRows }).map((_, rowIndex) => (
+                  <tr key={`skeleton-${rowIndex}`}>
+                    {columns.map((column) => (
+                      <td
+                        key={column.key}
+                        className={`px-4 py-3 ${alignClass(column.align)} ${column.className || ''}`}
+                      >
+                        <span
+                          className="block h-4 rounded bg-[var(--studio-muted-fill)] animate-pulse"
+                          style={{ width: `${55 + ((rowIndex + column.key.length) % 3) * 15}%` }}
+                        />
+                      </td>
+                    ))}
+                  </tr>
+                ))
+              : rows.map((row, index) => {
+                  const id = rowIdOf(row, index, getRowId)
+                  const checked = selected.includes(id)
+                  return (
+                    <tr
+                      key={id}
+                      className={`hover:bg-[var(--studio-surface-sub)] ${onRowClick ? 'cursor-pointer' : ''} ${checked ? 'bg-[var(--studio-accent-soft)]' : ''}`}
+                      onClick={onRowClick ? () => onRowClick(row) : undefined}
+                      tabIndex={onRowClick ? 0 : undefined}
+                      onKeyDown={onRowClick ? (e) => { if (e.key === 'Enter') onRowClick(row) } : undefined}
                     >
-                      {column.render ? column.render(row) : ((row as Record<string, unknown>)[column.key] as ReactNode)}
-                    </td>
-                  ))}
-                </tr>
-              )
-            })}
+                      {selectable && (
+                        <td className="w-10 px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                          <input
+                            type="checkbox"
+                            aria-label={t('studio.selectRow')}
+                            checked={checked}
+                            onChange={(e) => {
+                              emitSelection(e.target.checked ? [...selected, id] : selected.filter((s) => s !== id))
+                            }}
+                            className="cursor-pointer accent-[var(--studio-accent)]"
+                          />
+                        </td>
+                      )}
+                      {columns.map((column) => (
+                        <td
+                          key={column.key}
+                          className={`px-4 py-3 text-sm text-[var(--studio-text)] ${alignClass(column.align)} ${column.className || ''}`}
+                        >
+                          {column.render ? column.render(row) : ((row as Record<string, unknown>)[column.key] as ReactNode)}
+                        </td>
+                      ))}
+                    </tr>
+                  )
+                })}
           </tbody>
         </table>
       </div>
