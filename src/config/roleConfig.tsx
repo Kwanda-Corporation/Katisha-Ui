@@ -95,4 +95,19 @@ export const ROLE_CONFIG: Record<UserRole, RoleConfig> = {
     nav: [],
     systemNav: [],
   },
+
+  [UserRole.PROMOTER]: {
+    label: 'Promoter',
+    color: '#1D4ED8',
+    bgColor: '#F4F4F5',
+    subtitle: 'Manage referrals and earnings.',
+    nav: [
+      { id: 1, name: 'Dashboard', path: '/dashboard/promoter', icon: <AppWindow size={iconSize} /> },
+      { id: 2, name: 'Referrals', path: '/dashboard/promoter/referrals', icon: <Users size={iconSize} /> },
+      { id: 3, name: 'Earnings', path: '/dashboard/promoter/earnings', icon: <DollarSign size={iconSize} /> },
+    ],
+    systemNav: [
+      { id: 1, name: 'Settings', path: '/dashboard/promoter/settings', icon: <Settings size={iconSize} /> },
+    ],
+  },
 };

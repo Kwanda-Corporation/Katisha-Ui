@@ -13,6 +13,7 @@ export const UserRole = {
   AGENT:        'agent',
   PICKUP_AGENT: 'pickup_agent',
   USER:         'user',
+  PROMOTER:     'promoter',
 } as const;
 
 export type UserRole = typeof UserRole[keyof typeof UserRole];
