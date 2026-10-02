@@ -35,7 +35,7 @@ export default function AuthChoice() {
       <SEO title="Sign In or Register - Katisha Bus Booking" noindex />
 
       {/* Top-left logo only */}
-      <div className="px-6 sm:px-8 pt-6 sm:pt-8 pb-4">
+      <div className="px-6 sm:px-8 pt-6 sm:pt-8 pb-4 flex justify-between items-start">
         <Logo />
       </div>
 
@@ -98,6 +98,16 @@ export default function AuthChoice() {
             </div>
           </motion.div>
         </div>
+      </div>
+      {/* Bottom-right pill for promoter signup */}
+      <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-10">
+        <button
+          onClick={() => navigate('/promoter/setup')}
+          className="flex items-center gap-2 px-4 py-2 rounded-full border border-[var(--border)] bg-white text-[var(--text)] shadow-sm font-[var(--font-body)] text-sm font-medium transition-all hover:border-[var(--blue)] hover:bg-[var(--blue-bg)]"
+        >
+          { /* translated via i18n if needed; keep simple */ }
+          Earn from Katisha
+        </button>
       </div>
     </div>
   );
