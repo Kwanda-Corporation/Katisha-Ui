@@ -617,5 +617,37 @@
     "kin": "Kinyarwanda",
     "sw": "Kiswahili",
     "fr": "Français"
+  },
+  "promoter": {
+    "role": "Promoteur",
+    "earnFromKatisha": "Gagnez avec Katisha",
+    "promoterDashboard": "Tableau de bord promoteur",
+    "dashboard": "Tableau de bord",
+    "referrals": "Parrainages",
+    "earnings": "Gains",
+    "setup": "Configuration du promoteur",
+    "setupDescription": "Créez votre compte promoteur pour commencer à gagner des commissions",
+    "payoutNumber": "Numéro de paiement Mobile Money",
+    "totalEarnings": "Total des gains",
+    "pendingEarnings": "Gains en attente",
+    "paidEarnings": "Gains payés",
+    "noReferrals": "Aucun parrainage pour le moment",
+    "noEarnings": "Aucun gain pour le moment",
+    "startSearching": "Commencez à parrainer",
+    "referralCode": "Code de parrainage",
+    "copyLink": "Copier le lien",
+    "copied": "Copié",
+    "selfReferralBlocked": "Auto-parrainage non autorisé",
+    "promoters": "Promoteurs",
+    "auditLogs": "Journaux d'audit"
+  },
+  "studio": {
+    "settings": "Paramètres",
+    "dashboard": "Tableau de bord",
+    "search": "Rechercher",
+    "filter": "Filtrer",
+    "noResultsFound": "Aucun résultat trouvé",
+    "noContent": "Aucun contenu pour le moment",
+    "startSearchingDescription": "Essayez d'ajuster votre recherche ou vos filtres"
   }
 }

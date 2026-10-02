@@ -617,5 +617,37 @@
     "kin": "Kinyarwanda",
     "sw": "Kiswahili",
     "fr": "French"
+  },
+  "promoter": {
+    "role": "Promoter",
+    "earnFromKatisha": "Earn from Katisha",
+    "promoterDashboard": "Promoter Dashboard",
+    "dashboard": "Dashboard",
+    "referrals": "Referrals",
+    "earnings": "Earnings",
+    "setup": "Promoter Setup",
+    "setupDescription": "Create promoter account",
+    "payoutNumber": "Mobile Money Payout Number",
+    "totalEarnings": "Total Earnings",
+    "pendingEarnings": "Pending Earnings",
+    "paidEarnings": "Paid Earnings",
+    "noReferrals": "No referrals yet",
+    "noEarnings": "No earnings yet",
+    "startSearching": "Start referring",
+    "referralCode": "Referral Code",
+    "copyLink": "Copy Link",
+    "copied": "Copied",
+    "selfReferralBlocked": "Self-referral not allowed",
+    "promoters": "Promoters",
+    "auditLogs": "Audit Logs"
+  },
+  "studio": {
+    "settings": "Settings",
+    "dashboard": "Dashboard",
+    "search": "Search",
+    "filter": "Filter",
+    "noResultsFound": "No results found",
+    "noContent": "No content yet",
+    "startSearchingDescription": "Try adjusting your search or filters"
   }
 }
