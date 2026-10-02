@@ -231,11 +231,16 @@ export const api = {
   updateSettings: (settings: Record<string, any>) =>
     request('/settings/bulk', { method: 'PUT', body: JSON.stringify({ settings }) }),
 
-  // Accounting (system payouts)
+  // Accounting (manual, PIN-gated payouts)
   getPayoutSummary: () => request('/accounting/payouts/summary'),
+  getPayableBookings: () => request('/accounting/payouts/payable'),
   updatePayoutPhone: (phone: string, method?: string) =>
     request('/accounting/payouts/phone', { method: 'PUT', body: JSON.stringify({ phone, method }) }),
-  runPayoutNow: () => request('/accounting/payouts/run', { method: 'POST' }),
+  executePayout: (bookingIds: string[], phoneNumber: string, pin: string) =>
+    request('/accounting/payouts/execute', {
+      method: 'POST',
+      body: JSON.stringify({ bookingIds, phoneNumber, pin }),
+    }),
 };
 
 export default api;
