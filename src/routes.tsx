@@ -45,6 +45,7 @@ const AgencySettings = lazy(() => import('./pages/dashboards/AgencySettings'));
 const DepartureManagement = lazy(() => import('./pages/dashboards/DepartureManagement'));
 const ScheduleManagement = lazy(() => import('./pages/dashboards/ScheduleManagement'));
 const AgentBookingsPage = lazy(() => import('./pages/website/AgentBookings'));
+const StudioPreview = lazy(() => import('./pages/promoter/StudioPreview'));
 
 const ROLE_HOME: Record<UserRole, string> = {
   [UserRole.SYSTEM_ADMIN]: '/dashboard/overview-admin',
@@ -52,6 +53,7 @@ const ROLE_HOME: Record<UserRole, string> = {
   [UserRole.AGENT]:        '/dashboard/agent',
   [UserRole.PICKUP_AGENT]: '/login',
   [UserRole.USER]:         '/book',
+  [UserRole.PROMOTER]:     '/dashboard/promoter',
 };
 
 function ForbiddenPage() {
@@ -232,6 +234,10 @@ export default function AppRoutes() {
       </Route>
 
       <Route path="/unauthorized" element={<ForbiddenPage />} />
+      {/* Dev-only design-system preview. Not present in production builds. */}
+      {import.meta.env.DEV && (
+        <Route path="/studio-preview" element={<ProtectedRoute><StudioPreview /></ProtectedRoute>} />
+      )}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
     </Suspense>

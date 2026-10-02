@@ -81,6 +81,16 @@
   --studio-topbar-height: 56px;
   --studio-sidebar-width-open: 230px;
   --studio-sidebar-width-closed: 64px;
+  --studio-text: var(--text);
+  --studio-text-sub: var(--text-sub);
+  --studio-text-muted: var(--text-muted);
+  --studio-muted-fill: #F1F5F9;
+  --studio-hover: var(--blue-light);
+  --studio-active: #E4E4E7;
+  --studio-radius-card: 24px;
+  --studio-radius-pill: 9999px;
+  --studio-accent: var(--blue);
+  --studio-accent-soft: var(--blue-bg);
 
   --spacing-xs: 4px;
   --spacing-sm: 8px;

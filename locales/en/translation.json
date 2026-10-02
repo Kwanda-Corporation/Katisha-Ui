@@ -371,7 +371,7 @@
     "choosePaymentOption": "Choose the payment option that works best for you.",
     "payWithMerchantCode": "Pay with MoMo Merchant Code",
     "merchantCodeDesc": "Lower cost · Payment confirmation may take longer",
-    "payOnlineDesc": "Fast confirmation · Additional payment fee applies",
+    "payOnlineDesc": "Fast confirmation • Additional payment fee applies",
     "or": "OR",
     "fee": "fee",
     "merchantCodeInstructions": "Dial the USSD code below on your phone to complete the payment.",
@@ -402,7 +402,9 @@
     "downloadReceipt": "Download Receipt",
     "paymentUnderReview": "Payment Under Review",
     "viewReceipt": "View Receipt",
-    "receiptDesc": "Your payment is being verified. We will send your ticket once confirmed."
+    "receiptDesc": "Your payment is being verified. We will send your ticket once confirmed.",
+    "payOnline": "Pay Online",
+    "namesOnCode": "Names on the code"
   },
   "status": {
     "pending": "Pending",
@@ -500,7 +502,24 @@
     "bookTicket": "Book Ticket",
     "trackBooking": "My Trips",
     "howItWorks": "How It Works",
-    "home": "Home"
+    "home": "Home",
+    "overview": "Overview",
+    "users": "Users",
+    "organizations": "Organizations",
+    "routes": "Routes",
+    "schedules": "Schedules",
+    "accounting": "Accounting",
+    "promoters": "Promoters",
+    "notifications": "Notifications",
+    "announcements": "Announcements",
+    "reports": "Reports",
+    "bookings": "Bookings",
+    "departures": "Departures",
+    "agents": "Agents",
+    "settings": "Settings",
+    "dashboard": "Dashboard",
+    "referrals": "Referrals",
+    "earnings": "Earnings"
   },
   "footer": {
     "description": "Rwanda's leading bus ticket booking platform. Book intercity and cross-border bus routes online from Kigali. Pay with MTN Mobile Money, Airtel Money & M-Pesa. Real-time tracking, instant e-tickets.",
@@ -648,6 +667,28 @@
     "filter": "Filter",
     "noResultsFound": "No results found",
     "noContent": "No content yet",
-    "startSearchingDescription": "Try adjusting your search or filters"
+    "startSearchingDescription": "Try adjusting your search or filters",
+    "yourAccount": "Your account",
+    "main": "Main",
+    "system": "System",
+    "sendFeedback": "Send feedback",
+    "feedbackPlaceholder": "Tell us what's working or what we can improve",
+    "send": "Send",
+    "help": "Help",
+    "notifications": "Notifications",
+    "toggleSidebar": "Toggle sidebar",
+    "switchRole": "Switch account",
+    "language": "Language",
+    "signOut": "Sign out",
+    "discardChanges": "Discard unsaved changes?",
+    "discard": "Discard"
+  },
+  "roles": {
+    "system_admin": "System Admin",
+    "agency_admin": "Agency Admin",
+    "agent": "Agent",
+    "pickup_agent": "Pickup Agent",
+    "user": "User",
+    "promoter": "Promoter"
   }
 }

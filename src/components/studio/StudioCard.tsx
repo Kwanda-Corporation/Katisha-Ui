@@ -3,21 +3,29 @@ import { ReactNode } from 'react'
 interface StudioCardProps {
   children: ReactNode
   className?: string
-  padding?: 'sm' | 'md' | 'lg'
+  padding?: 'none' | 'sm' | 'md' | 'lg'
+  as?: 'div' | 'section' | 'article'
 }
 
-export default function StudioCard({ children, className = '', padding = 'md' }: StudioCardProps) {
-  const paddingClasses = {
-    sm: 'p-3',
-    md: 'p-4 sm:p-6',
-    lg: 'p-6 sm:p-8',
-  }
+const paddingClasses: Record<NonNullable<StudioCardProps['padding']>, string> = {
+  none: '',
+  sm: 'p-4',
+  md: 'p-5 sm:p-6',
+  lg: 'p-6 sm:p-8',
+}
 
+export default function StudioCard({
+  children,
+  className = '',
+  padding = 'md',
+  as: Tag = 'div',
+}: StudioCardProps) {
   return (
-    <div
-      className={g-[var(--studio-surface)] border border-[var(--studio-border)] rounded-lg shadow-sm  }
+    <Tag
+      className={`bg-[var(--studio-surface)] border border-[var(--studio-border)] rounded-2xl ${paddingClasses[padding]} ${className}`}
+      style={{ borderRadius: 'var(--studio-radius-card)' }}
     >
       {children}
-    </div>
+    </Tag>
   )
 }

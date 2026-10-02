@@ -371,7 +371,7 @@
     "choosePaymentOption": "Choisissez l'option de paiement qui vous convient le mieux.",
     "payWithMerchantCode": "Payer avec le code marchand MoMo",
     "merchantCodeDesc": "Coût inférieur · La confirmation du paiement peut prendre plus de temps",
-    "payOnlineDesc": "Confirmation rapide · Des frais de paiement supplémentaires s'appliquent",
+    "payOnlineDesc": "Confirmation rapide • Des frais de paiement supplémentaires s’appliquent",
     "or": "OU",
     "fee": "frais",
     "merchantCodeInstructions": "Composez le code USSD ci-dessous sur votre téléphone pour effectuer le paiement.",
@@ -402,7 +402,9 @@
     "downloadReceipt": "Télécharger le reçu",
     "paymentUnderReview": "Paiement en cours de vérification",
     "viewReceipt": "Voir le reçu",
-    "receiptDesc": "Votre paiement est en cours de vérification. Nous vous enverrons votre billet une fois confirmé."
+    "receiptDesc": "Votre paiement est en cours de vérification. Nous vous enverrons votre billet une fois confirmé.",
+    "payOnline": "Payer en ligne",
+    "namesOnCode": "Noms sur le code"
   },
   "status": {
     "pending": "En attente",
@@ -500,7 +502,24 @@
     "bookTicket": "Réserver",
     "trackBooking": "Mes Voyages",
     "howItWorks": "Comment ça marche",
-    "home": "Accueil"
+    "home": "Accueil",
+    "overview": "Aperçu",
+    "users": "Utilisateurs",
+    "organizations": "Organisations",
+    "routes": "Itinéraires",
+    "schedules": "Horaires",
+    "accounting": "Comptabilité",
+    "promoters": "Promoteurs",
+    "notifications": "Notifications",
+    "announcements": "Annonces",
+    "reports": "Rapports",
+    "bookings": "Réservations",
+    "departures": "Départs",
+    "agents": "Agents",
+    "settings": "Paramètres",
+    "dashboard": "Tableau de bord",
+    "referrals": "Parrainages",
+    "earnings": "Gains"
   },
   "footer": {
     "description": "La plateforme leader de réservation de billets de bus au Rwanda. Réservez des itinéraires interurbains et en Afrique de l'Est en ligne avec MTN Mobile Money, Airtel Money et M-Pesa. Suivi en temps réel, e-billets instantanés.",
@@ -648,6 +667,28 @@
     "filter": "Filtrer",
     "noResultsFound": "Aucun résultat trouvé",
     "noContent": "Aucun contenu pour le moment",
-    "startSearchingDescription": "Essayez d'ajuster votre recherche ou vos filtres"
+    "startSearchingDescription": "Essayez d’ajuster votre recherche ou vos filtres",
+    "yourAccount": "Votre compte",
+    "main": "Principal",
+    "system": "Système",
+    "sendFeedback": "Envoyer vos commentaires",
+    "feedbackPlaceholder": "Dites-nous ce qui fonctionne ou ce que nous pouvons améliorer",
+    "send": "Envoyer",
+    "help": "Aide",
+    "notifications": "Notifications",
+    "toggleSidebar": "Afficher/masquer le menu",
+    "switchRole": "Changer de compte",
+    "language": "Langue",
+    "signOut": "Se déconnecter",
+    "discardChanges": "Abandonner les modifications non enregistrées ?",
+    "discard": "Abandonner"
+  },
+  "roles": {
+    "system_admin": "Administrateur système",
+    "agency_admin": "Administrateur d'agence",
+    "agent": "Agent",
+    "pickup_agent": "Agent de ramassage",
+    "user": "Utilisateur",
+    "promoter": "Promoteur"
   }
 }

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import Logo from '../../components/ui/Logo'
-import SEO from '../../components/ui/SEO'
+import SEO from '../../components/seo/SEO'
 
 export default function PromoterSetup() {
   const navigate = useNavigate()
