@@ -22,7 +22,7 @@ export default function StudioCard({
 }: StudioCardProps) {
   return (
     <Tag
-      className={`bg-[var(--studio-surface)] border border-[var(--studio-border)] rounded-2xl ${paddingClasses[padding]} ${className}`}
+      className={`bg-[var(--studio-surface)] border border-[var(--studio-card-border)] rounded-2xl ${paddingClasses[padding]} ${className}`}
       style={{ borderRadius: 'var(--studio-radius-card)' }}
     >
       {children}

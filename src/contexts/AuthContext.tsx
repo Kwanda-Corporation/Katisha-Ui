@@ -57,6 +57,13 @@ interface AuthContextValue extends AuthState {
   logout: () => Promise<void>;
   hasRole: (...roles: UserRole[]) => boolean;
   updateUser: (patch: Partial<AuthUser>) => void;
+  /**
+   * Adopt a freshly issued token pair without touching the stored user. Used
+   * after a password change, which rotates the refresh token server-side: the
+   * old one is already dead, so keeping it would sign the user out on the next
+   * silent refresh.
+   */
+  setTokens: (accessToken: string, refreshToken?: string) => void;
   isAuthenticated: boolean;
   authFetch: (path: string, options?: RequestInit) => Promise<any>;
   authFetchBlob: (path: string, options?: RequestInit) => Promise<Blob | null>;
@@ -100,7 +107,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // pre-rendered routes (/, /welcome, /my-bookings, /track). The stored session
   // is restored in an effect below, after hydration has committed.
   const [state, setState] = useState<AuthState>({
-    user: null, accessToken: null, refreshToken: null, isLoading: false,
+    user: null, accessToken: null, refreshToken: null, isLoading: true,
   });
 
   // Restore an existing session after mount (client only).
@@ -115,10 +122,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           refreshToken: localStorage.getItem(REFRESH_KEY),
           isLoading: false,
         });
+        return;
       }
     } catch {
       // Corrupt value in storage - fall back to logged out.
     }
+    // No stored session: stop the guard loading state so ProtectedRoute can
+    // send the visitor to the login page instead of waiting forever.
+    setState((prev) => (prev.isLoading ? { ...prev, isLoading: false } : prev));
   }, []);
 
   // Keep a ref so callbacks always see the latest tokens without stale closures
@@ -442,7 +453,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   function hasRole(...roles: UserRole[]) {
-    return !!state.user && roles.includes(state.user.role);
+    if (!state.user) return false;
+    // `role` is only the primary role. An account can hold several (a promoter
+    // is also a `user`), and the API authorizes on `roles[]`, so checking the
+    // primary field alone locked multi-role accounts out of their own pages.
+    const granted = new Set<UserRole>([state.user.role, ...(state.user.roles ?? [])]);
+    return roles.some((role) => granted.has(role));
   }
 
   function updateUser(patch: Partial<AuthUser>) {
@@ -452,6 +468,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       localStorage.setItem(USER_KEY, JSON.stringify(updated));
       return { ...prev, user: updated };
     });
+  }
+
+  function setTokens(accessToken: string, refreshToken?: string) {
+    setState(prev => {
+      const nextRefresh = refreshToken ?? prev.refreshToken ?? localStorage.getItem(REFRESH_KEY);
+      localStorage.setItem(TOKEN_KEY, accessToken);
+      if (nextRefresh) localStorage.setItem(REFRESH_KEY, nextRefresh);
+      return { ...prev, accessToken, refreshToken: nextRefresh };
+    });
+    window.dispatchEvent(new Event('vdk-auth-changed'));
   }
 
   return (
@@ -464,6 +490,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       logout,
       hasRole,
       updateUser,
+      setTokens,
       isAuthenticated: !!state.user && !!state.accessToken,
       authFetch,
       authFetchBlob,

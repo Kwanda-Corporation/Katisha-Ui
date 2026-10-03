@@ -4,7 +4,7 @@ import {
   Check, Search, TicketCheck, Calendar, Loader, Activity, RefreshCw, Ticket,
   Smartphone, Globe,
 } from 'lucide-react';
-import { useTranslation } from '../../../node_modules/react-i18next';
+import { useTranslation } from 'react-i18next';
 import { api } from '../../api';
 import { viaLabel } from '../../utils/via';
 

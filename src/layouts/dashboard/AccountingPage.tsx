@@ -349,7 +349,7 @@ export default function AccountingPage() {
           </div>
         ) : (
           <>
-            <div className="flex items-center justify-between px-5 py-2.5" style={{ background: '#F9FAFB', borderBottom: '1px solid var(--border)' }}>
+            <div className="flex items-center justify-between px-5 py-2.5 bg-[var(--studio-surface-sub)] border-b border-[var(--studio-border)]">
               <button onClick={toggleAll}
                 className="flex items-center gap-2 text-xs font-semibold text-zinc-600 hover:text-[var(--text)] cursor-pointer"
               >
@@ -512,7 +512,7 @@ export default function AccountingPage() {
         )}
       </div>
 
-      <div className="bg-[#F9FAFB] border border-[var(--border)] rounded-md p-5">
+      <div className="bg-[var(--studio-surface-sub)] border border-[var(--studio-border)] rounded-md p-5">
         <h4 className="text-sm font-bold text-[var(--text)] mb-2">How it works</h4>
         <ul className="text-sm text-[var(--text-sub)] space-y-1 list-disc pl-5">
           <li>A flat system fee is added per seat on top of the route price.</li>
@@ -534,7 +534,7 @@ export default function AccountingPage() {
         maxWidth={520}
       >
         <div className="space-y-5">
-          <div className="rounded-md p-4" style={{ background: '#F9FAFB', border: '1px solid var(--border)' }}>
+          <div className="rounded-md p-4 bg-[var(--studio-surface-sub)] border border-[var(--studio-border)]">
             <div className="flex items-baseline justify-between">
               <span className="text-xs uppercase tracking-wider font-semibold text-zinc-600">Total</span>
               <span className="text-2xl font-bold text-[var(--text)]">{fmt(selectedTotal)} RWF</span>

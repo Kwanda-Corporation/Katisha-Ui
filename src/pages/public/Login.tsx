@@ -4,7 +4,7 @@ import { Lock, Eye, EyeOff, AlertCircle } from 'lucide-react'
 import { GoogleLogin } from '@react-oauth/google'
 import { PhoneInput, Spinner } from '../../components/ui'
 import { useAuth } from '../../contexts/AuthContext'
-import { useTranslation } from '../../../node_modules/react-i18next'
+import { useTranslation } from 'react-i18next'
 import { useToast } from '../../components/ui/Toast'
 import AuthLayout from '../../components/AuthLayout'
 import SEO from '../../components/seo/SEO'
@@ -81,8 +81,11 @@ export default function Login() {
       <div className="animate-in">
         <div className="space-y-4">
           {/* Fluid width: the previous fixed width={380} overflowed the
-              card on narrow phones and forced horizontal scrolling. */}
-          <div className="w-full min-w-0">
+              card on narrow phones and forced horizontal scrolling. Google
+              renders the button in a cross-origin iframe, so its own corners
+              cannot be styled — clipping the wrapper is what applies
+              rounded-md to the button as a whole. */}
+          <div className="w-full min-w-0 rounded-md overflow-hidden border border-[var(--auth-border)]">
             <GoogleLogin
               onSuccess={handleGoogleSuccess}
               onError={() => setError(t('auth.googleSignInFailed'))}

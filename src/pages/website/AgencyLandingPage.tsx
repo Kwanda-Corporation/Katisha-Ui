@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router';
-import { useTranslation } from '../../../node_modules/react-i18next';
+import { useTranslation } from 'react-i18next';
 import { ArrowRight, Clock, MapPin, Phone, Bus } from 'lucide-react';
 import { api, resolveImageUrl } from '../../api';
 import { ssrData } from '../../ssrData';

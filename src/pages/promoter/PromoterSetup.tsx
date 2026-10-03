@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router'
-import { AlertCircle, ArrowRight, BadgeCheck, Banknote, UserPlus, LogIn } from 'lucide-react'
+import { AlertCircle, ArrowLeft, ArrowRight, BadgeCheck, Banknote, Check, LogIn, UserPlus } from 'lucide-react'
 import { PhoneInput, Spinner } from '../../components/ui'
 import { useTranslation } from 'react-i18next'
 import { useToast } from '../../components/ui/Toast'
@@ -12,6 +12,9 @@ import { PasswordField } from '../../components/auth/PasswordStrength'
 
 type Path = 'new' | 'existing' | null
 
+const MIN_PASSWORD_LENGTH = 6
+const TOTAL_STEPS = 3
+
 export default function PromoterSetup() {
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -19,16 +22,19 @@ export default function PromoterSetup() {
   const { user, isAuthenticated, login, authFetch } = useAuth()
 
   const [path, setPath] = useState<Path>(null)
+  const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [acceptTerms, setAcceptTerms] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [payoutMode, setPayoutMode] = useState<'same' | 'different'>('same')
   const [form, setForm] = useState({
     name: '',
     phone: '',
     payoutPhone: '',
     password: '',
+    confirmPassword: '',
   })
 
   const isPromoter = user?.roles?.includes('promoter') ?? user?.role === 'promoter'
@@ -39,14 +45,53 @@ export default function PromoterSetup() {
   const readError = (data: any, fallback: string) =>
     data?.message || data?.error?.message || fallback
 
+  const stepLabels = [
+    t('promoter.stepBasics'),
+    t('promoter.stepPayout'),
+    t('promoter.stepSecurity'),
+  ]
+
+  const detailsValid = form.name.trim().length > 0 && form.phone.trim().length > 0
+  const payoutValid = payoutMode === 'same' || form.payoutPhone.trim().length > 0
+  const passwordsMatch = form.password === form.confirmPassword
+  const passwordValid = form.password.length >= MIN_PASSWORD_LENGTH && passwordsMatch
+
+  const canSubmit = passwordValid && acceptTerms && detailsValid && payoutValid
+
+  /** Step changes always drop the previous server error so it cannot linger. */
+  const goToStep = (next: number) => {
+    setError('')
+    setStep(next)
+  }
+
+  const goBackToOptions = () => {
+    setPath(null)
+    setStep(1)
+    setError('')
+  }
+
   const submitNewAccount = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!form.name || !form.phone || !form.password) {
+    if (!detailsValid) {
       setError(t('auth.allFieldsRequired'))
+      goToStep(1)
       return
     }
-    if (payoutMode === 'different' && !form.payoutPhone) {
+    if (!payoutValid) {
       setError(t('auth.allFieldsRequired'))
+      goToStep(2)
+      return
+    }
+    if (!passwordsMatch) {
+      setError(t('auth.passwordsDoNotMatch'))
+      return
+    }
+    if (form.password.length < MIN_PASSWORD_LENGTH) {
+      setError(t('auth.passwordMin'))
+      return
+    }
+    if (!acceptTerms) {
+      setError(t('promoter.termsSelfReferral'))
       return
     }
     setLoading(true)
@@ -178,6 +223,34 @@ export default function PromoterSetup() {
     </div>
   )
 
+  const stepIndicator = (
+    <div className="space-y-2">
+      <div className="flex items-baseline justify-between gap-3">
+        <p className="text-xs font-semibold text-[var(--text)]">{stepLabels[step - 1]}</p>
+        <p className="text-xs text-[var(--text-muted)]">
+          {t('promoter.stepOf', { current: step, total: TOTAL_STEPS })}
+        </p>
+      </div>
+      <ol className="flex items-center gap-1.5" aria-hidden>
+        {Array.from({ length: TOTAL_STEPS }, (_, i) => (
+          <li
+            key={i}
+            className={`h-1 flex-1 rounded-full transition-colors duration-200 ${
+              i + 1 <= step ? 'bg-[var(--blue)]' : 'bg-[var(--auth-border)]'
+            }`}
+          />
+        ))}
+      </ol>
+    </div>
+  )
+
+  const confirmedMatch = form.confirmPassword.length > 0 && passwordsMatch && (
+    <p className="flex items-center gap-1.5 text-xs text-[var(--text-muted)]">
+      <Check size={13} className="text-[var(--blue)]" />
+      {t('auth.passwordsMatch')}
+    </p>
+  )
+
   /* Already a promoter: nothing to do, send them to the dashboard. */
   if (isAuthenticated && isPromoter) {
     return (
@@ -230,7 +303,7 @@ export default function PromoterSetup() {
             {t('promoter.continueWithAccount')}
           </button>
           <p className="auth-hint">
-            <button type="button" className="auth-link bg-transparent border-none p-0 cursor-pointer" onClick={() => setPath(null)}>
+            <button type="button" className="auth-link bg-transparent border-none p-0 cursor-pointer" onClick={goBackToOptions}>
               {t('common.back')}
             </button>
           </p>
@@ -303,7 +376,7 @@ export default function PromoterSetup() {
             </Link>
           </div>
           <p className="auth-hint">
-            <button type="button" className="auth-link bg-transparent border-none p-0 cursor-pointer" onClick={() => setPath(null)}>
+            <button type="button" className="auth-link bg-transparent border-none p-0 cursor-pointer" onClick={goBackToOptions}>
               {t('common.back')}
             </button>
           </p>
@@ -318,49 +391,133 @@ export default function PromoterSetup() {
       subline={t('promoter.newAccountDesc')}
     >
       <SEO title={t('promoter.newAccount')} noindex />
-      <form onSubmit={submitNewAccount} className="space-y-4 animate-in">
-        <div>
-          <label className="auth-label" htmlFor="promoter-name">{t('auth.name')}</label>
-          <input
-            id="promoter-name"
-            type="text"
-            value={form.name}
-            onChange={set('name')}
-            autoComplete="name"
-            className="auth-input"
-          />
-        </div>
-        <div>
-          <label className="auth-label" htmlFor="promoter-phone">{t('auth.phone')}</label>
-          <PhoneInput
-            id="promoter-phone"
-            value={form.phone}
-            onChange={(v) => setForm((f) => ({ ...f, phone: v }))}
-            required
-            size="lg"
-            noResultsLabel={t('auth.noCountriesFound')}
-          />
-        </div>
-        <PasswordField
-          id="promoter-password"
-          label={t('auth.password')}
-          placeholder={t('auth.passwordMin')}
-          value={form.password}
-          onChange={(v) => setForm((f) => ({ ...f, password: v }))}
-          showPassword={showPassword}
-          onToggle={() => setShowPassword((v) => !v)}
-          autoComplete="new-password"
-        />
-        {payoutField}
-        {terms}
-        {errorBox}
-        <button type="submit" className="auth-primary" disabled={loading || !acceptTerms}>
-          {loading ? <Spinner size={16} /> : <Banknote size={16} />}
-          {t('common.submit')}
-        </button>
+      <form onSubmit={submitNewAccount} className="space-y-5 animate-in">
+        {stepIndicator}
+
+        {step === 1 && (
+          <div className="space-y-4">
+            <div>
+              <label className="auth-label" htmlFor="promoter-name">{t('auth.name')}</label>
+              <input
+                id="promoter-name"
+                type="text"
+                value={form.name}
+                onChange={set('name')}
+                autoComplete="name"
+                className="auth-input"
+              />
+            </div>
+            <div>
+              <label className="auth-label" htmlFor="promoter-phone">{t('auth.phone')}</label>
+              <PhoneInput
+                id="promoter-phone"
+                value={form.phone}
+                onChange={(v) => setForm((f) => ({ ...f, phone: v }))}
+                required
+                size="lg"
+                noResultsLabel={t('auth.noCountriesFound')}
+              />
+            </div>
+            {errorBox}
+            <div className="flex justify-end pt-1">
+              <button
+                type="button"
+                className="auth-primary"
+                disabled={!detailsValid}
+                onClick={() => goToStep(2)}
+              >
+                {t('common.next')}
+                <ArrowRight size={16} />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {step === 2 && (
+          <div className="space-y-4">
+            {payoutField}
+            {errorBox}
+            <div className="flex items-center justify-between gap-3 pt-1">
+              <button
+                type="button"
+                className="auth-secondary !w-auto px-5"
+                onClick={() => goToStep(1)}
+              >
+                <ArrowLeft size={16} />
+                {t('common.back')}
+              </button>
+              <button
+                type="button"
+                className="auth-primary !w-auto px-5"
+                disabled={!payoutValid}
+                onClick={() => goToStep(3)}
+              >
+                {t('common.next')}
+                <ArrowRight size={16} />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {step === 3 && (
+          <div className="space-y-4">
+            <div>
+              <PasswordField
+                id="promoter-password"
+                label={t('auth.password')}
+                placeholder={t('auth.passwordMin')}
+                value={form.password}
+                onChange={(v) => setForm((f) => ({ ...f, password: v }))}
+                showPassword={showPassword}
+                onToggle={() => setShowPassword((v) => !v)}
+                autoComplete="new-password"
+              />
+            </div>
+            <div className="space-y-2">
+              <PasswordField
+                id="promoter-confirm-password"
+                label={t('auth.confirmPassword')}
+                placeholder={t('auth.confirmPassword')}
+                value={form.confirmPassword}
+                onChange={(v) => setForm((f) => ({ ...f, confirmPassword: v }))}
+                showPassword={showConfirmPassword}
+                onToggle={() => setShowConfirmPassword((v) => !v)}
+                autoComplete="new-password"
+              />
+              {confirmedMatch}
+            </div>
+
+            <div className="space-y-2 pt-1">
+              <p className="auth-label !mb-0">{t('promoter.finalAgreements')}</p>
+              {terms}
+            </div>
+
+            {errorBox}
+
+            <div className="flex items-center justify-between gap-3 pt-1">
+              <button
+                type="button"
+                className="auth-secondary !w-auto px-5"
+                onClick={() => goToStep(2)}
+              >
+                <ArrowLeft size={16} />
+                {t('common.back')}
+              </button>
+              <button
+                type="submit"
+                className="auth-primary !w-auto px-5"
+                disabled={loading || !canSubmit}
+              >
+                {loading ? <Spinner size={16} /> : <Banknote size={16} />}
+                {t('promoter.finishSetup')}
+              </button>
+            </div>
+          </div>
+        )}
+
         <p className="auth-hint">
-          <button type="button" className="auth-link bg-transparent border-none p-0 cursor-pointer" onClick={() => setPath(null)}>
-            {t('common.back')}
+          <button type="button" className="auth-link bg-transparent border-none p-0 cursor-pointer" onClick={goBackToOptions}>
+            {t('common.backToOptions')}
           </button>
         </p>
       </form>

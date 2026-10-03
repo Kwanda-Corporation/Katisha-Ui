@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import {
   X, Smartphone, User, Loader, Copy, Check, Phone, ArrowRight,
 } from 'lucide-react';
-import { useTranslation } from '../../../node_modules/react-i18next';
+import { useTranslation } from 'react-i18next';
 import { ModalFrame } from './PaymentModal';
 
 interface MerchantCodeModalProps {

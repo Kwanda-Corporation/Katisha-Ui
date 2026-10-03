@@ -1,10 +1,12 @@
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router'
-import { Menu, Search, HelpCircle, Bell, ChevronDown, LogOut, Settings, Check } from 'lucide-react'
+import { Menu, Search, HelpCircle, Bell, ChevronDown, LogOut, Check, Sun, Moon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../contexts/AuthContext'
+import { useTheme } from '../../contexts/ThemeContext'
 import LanguageMenu from '../LanguageSwitcher'
 import Logo from '../ui/Logo'
+import ThemeToggle from './ThemeToggle'
 
 export interface QuickAction {
   key: string
@@ -22,7 +24,6 @@ interface TopBarProps {
   roles?: string[]
   roleLabelFor?: (role: string) => string
   onSwitchRole?: (role: string) => void
-  onOpenSettings: () => void
   notificationCount?: number
 }
 
@@ -35,12 +36,12 @@ export default function TopBar({
   roles = [],
   roleLabelFor,
   onSwitchRole,
-  onOpenSettings,
   notificationCount = 0,
 }: TopBarProps) {
   const { t } = useTranslation()
   const { logout } = useAuth()
   const navigate = useNavigate()
+  const { scheme, toggleScheme, setScheme } = useTheme()
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
 
@@ -60,7 +61,7 @@ export default function TopBar({
 
   return (
     <header
-      className="shrink-0 w-full bg-white border-b border-[var(--studio-border)] flex items-center justify-between px-3 sm:px-4 z-[960]"
+      className="shrink-0 w-full bg-[var(--studio-topbar-bg)] flex items-center justify-between px-3 sm:px-4 z-[960]"
       style={{ height: 'var(--studio-topbar-height)' }}
     >
       {/* Left */}
@@ -111,13 +112,20 @@ export default function TopBar({
             key={action.key}
             type="button"
             onClick={action.onClick}
-            className="hidden md:inline-flex items-center gap-2 h-9 px-3.5 border border-[var(--studio-border)] bg-white text-[var(--studio-text)] text-sm font-medium hover:bg-[var(--studio-muted-fill)] cursor-pointer"
+            className="hidden md:inline-flex items-center gap-2 h-9 px-3.5 border border-[var(--studio-border)] bg-[var(--studio-surface)] text-[var(--studio-text)] text-sm font-medium hover:bg-[var(--studio-muted-fill)] cursor-pointer"
             style={{ borderRadius: 'var(--studio-radius-pill)' }}
           >
             {action.icon}
             {action.label}
           </button>
         ))}
+
+        <ThemeToggle
+          isDark={scheme === 'dark'}
+          onToggle={toggleScheme}
+          lightLabel={t('studio.lightMode')}
+          darkLabel={t('studio.darkMode')}
+        />
 
         {/* Avatar menu */}
         <div className="relative" ref={menuRef}>
@@ -141,7 +149,7 @@ export default function TopBar({
           {menuOpen && (
             <div
               role="menu"
-              className="absolute right-0 top-[calc(100%+8px)] w-64 bg-white border border-[var(--studio-border)] rounded-2xl overflow-hidden py-1.5 z-[970]"
+              className="absolute right-0 top-[calc(100%+8px)] w-64 bg-[var(--studio-surface)] border border-[var(--studio-border)] rounded-2xl overflow-hidden py-1.5 z-[970]"
             >
               <div className="px-4 py-3 border-b border-[var(--studio-border)]">
                 <p className="text-sm font-semibold text-[var(--studio-text)] truncate">{userName}</p>
@@ -174,12 +182,24 @@ export default function TopBar({
               </div>
 
               <button
-                role="menuitem"
+                role="menuitemradio"
                 type="button"
-                onClick={() => { setMenuOpen(false); onOpenSettings() }}
+                aria-checked={scheme === 'light'}
+                onClick={() => setScheme('light')}
                 className="flex items-center gap-2.5 w-full px-4 py-2 text-sm text-left text-[var(--studio-text)] hover:bg-[var(--studio-muted-fill)] cursor-pointer"
               >
-                <Settings size={15} /> {t('nav.settings')}
+                <Sun size={15} /> {t('studio.lightMode')}
+                {scheme === 'light' && <Check size={14} className="ml-auto" />}
+              </button>
+              <button
+                role="menuitemradio"
+                type="button"
+                aria-checked={scheme === 'dark'}
+                onClick={() => setScheme('dark')}
+                className="flex items-center gap-2.5 w-full px-4 py-2 text-sm text-left text-[var(--studio-text)] hover:bg-[var(--studio-muted-fill)] cursor-pointer"
+              >
+                <Moon size={15} /> {t('studio.darkMode')}
+                {scheme === 'dark' && <Check size={14} className="ml-auto" />}
               </button>
               <button
                 role="menuitem"

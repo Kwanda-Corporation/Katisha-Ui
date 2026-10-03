@@ -74,9 +74,12 @@
 
   /* Studio (YouTube Studio-inspired) tokens */
   --studio-bg: var(--bg);
-  --studio-surface: #FFFFFF;
-  --studio-surface-sub: #F8FAFC;
-  --studio-sidebar-bg: #F8FAFC;
+  /* Cards/sections are borderless, so the zinc fill is what separates them
+     from the white page behind. */
+  --studio-surface: #F4F4F5;
+  --studio-surface-sub: #E4E4E7;
+  --studio-sidebar-bg: #FFFFFF;
+  --studio-topbar-bg: #FFFFFF;
   --studio-border: var(--border);
   --studio-topbar-height: 56px;
   --studio-sidebar-width-open: 230px;
@@ -91,13 +94,20 @@
   --studio-radius-pill: 9999px;
   --studio-accent: var(--blue);
   --studio-accent-soft: var(--blue-bg);
+  /* Cards and sections are borderless; only form controls keep an outline. */
+  --studio-card-border: transparent;
+  --studio-divider: var(--border);
+  /* Highlighter marker behind the dashboard headings. */
+  --studio-marker: #DBEAFE;
+  --studio-marker-dot: #38BDF8;
 
-  /* Auth: calm warm canvas, large soft-radius fields, quiet dividers. */
-  --auth-canvas: #F7F6F3;
+  /* Auth: white canvas to match the rest of the site, 10px (rounded-md) field
+     and button radius, quiet dividers. */
+  --auth-canvas: #FFFFFF;
   --auth-surface: #FFFFFF;
   --auth-border: #E3E1DC;
   --auth-field: #FFFFFF;
-  --auth-radius: 12px;
+  --auth-radius: 10px;
 
   --spacing-xs: 4px;
   --spacing-sm: 8px;
@@ -114,6 +124,116 @@
   --radius-xl: 14px;
   --radius-full: 9999px;
 }
+
+/* Dark theme — scoped to the Studio shell (`.studio-shell[data-theme="dark"]`)
+   so dashboards can switch independently of the marketing/booking pages. */
+.studio-shell[data-theme='dark'] {
+  --bg: #000000;
+  --text: #F1F5F9;
+  --text-sub: #CBD5E1;
+  --text-muted: #94A3B8;
+  --border: #1F2937;
+  --white: #000000;
+
+  --blue: #7DA8FB;
+  --blue-dark: #6D97EA;
+  --blue-light: #111827;
+  --blue-bg: #0B1220;
+  --blue-border: #1E3A8A;
+  --blue-ink: #BFDBFE;
+
+  --error: #F87171;
+  --error-bg: #2C1519;
+  --error-border: #7F1D1D;
+  --warning: #FBBF24;
+  --warning-bg: #2A2013;
+  --success: #7DA8FB;
+  --success-bg: #0B1220;
+
+  --overlay: #000000;
+
+  /* Chrome (page canvas, sidebar, top bar) is pure black; content surfaces sit
+     slightly above it so cards keep a visible edge. */
+  --studio-bg: #000000;
+  --studio-sidebar-bg: #000000;
+  --studio-topbar-bg: #000000;
+  --studio-surface: #111114;
+  --studio-surface-sub: #17171B;
+  --studio-border: #1F2937;
+  --studio-text: #F1F5F9;
+  --studio-text-sub: #CBD5E1;
+  --studio-text-muted: #94A3B8;
+  --studio-muted-fill: #121317;
+  --studio-hover: #121317;
+  --studio-active: #1A1D24;
+  --studio-accent: #7DA8FB;
+  --studio-accent-soft: #0B1220;
+  --studio-card-border: transparent;
+  --studio-divider: #1F2937;
+  /* Deep blue keeps the near-white heading legible on black. */
+  --studio-marker: #14337A;
+  --studio-marker-dot: #60A5FA;
+}
+
+/* Borderless cards and sections. The dashboards predate theming and draw
+   frames with plain `border` utilities, so the frame is neutralised here
+   instead of rewriting ~270 call sites. Layout width is preserved (the 1px
+   border stays, only its colour is transparent).
+
+   `!important` is required: `@layer base` sets `* { border-color: var(--border) }`,
+   which would otherwise repaint these frames.
+
+   Kept on purpose: form controls and buttons (an input with no outline is
+   unfillable, and `border-b-2` is how the active tab is marked), table cells
+   and anything inside them, plus the `divide-y` row separators. */
+.studio-shell :where(div, section, article, ul, ol, li, header, aside, figure, table, thead, tbody, tfoot, tr)
+  :not(input):not(select):not(textarea):not(button):not(a):not(td):not(th):not(:where(td, th) *)[class*='border'] {
+  border-color: transparent !important;
+}
+
+.studio-shell .recharts-tooltip-wrapper,
+.studio-shell .recharts-default-tooltip {
+  border-color: transparent !important;
+}
+
+/* Light mode + dark mode: the white boxes these dashboards hand-roll as cards
+   take the surface fill so they read as panels. The app chrome (top bar,
+   sidebar) uses its own token and stays white / pure black. */
+.studio-shell .bg-white {
+  background-color: var(--studio-surface);
+}
+
+/* The shell markup predates theming and still uses literal white/soft-tint
+   utilities, so remap them onto the dark surfaces above. Unlayered rules win
+   over Tailwind's utilities layer without needing !important. */
+.studio-shell[data-theme='dark'] .bg-gray-50,
+.studio-shell[data-theme='dark'] .bg-slate-50,
+.studio-shell[data-theme='dark'] .bg-neutral-50 { background-color: #121215; }
+.studio-shell[data-theme='dark'] .border-gray-100,
+.studio-shell[data-theme='dark'] .border-gray-200,
+.studio-shell[data-theme='dark'] .border-gray-300 { border-color: #1F2937; }
+.studio-shell[data-theme='dark'] .text-black { color: #F1F5F9; }
+
+.studio-shell[data-theme='dark'] .bg-red-50 { background-color: #2C1519; }
+.studio-shell[data-theme='dark'] .bg-green-50 { background-color: #0F2416; }
+.studio-shell[data-theme='dark'] .bg-amber-50 { background-color: #2A2013; }
+.studio-shell[data-theme='dark'] .bg-blue-50 { background-color: #0B1220; }
+.studio-shell[data-theme='dark'] .bg-blue-100 { background-color: #14337A; }
+.studio-shell[data-theme='dark'] .text-red-800,
+.studio-shell[data-theme='dark'] .text-red-900,
+.studio-shell[data-theme='dark'] .text-amber-800,
+.studio-shell[data-theme='dark'] .text-amber-900,
+.studio-shell[data-theme='dark'] .text-green-800,
+.studio-shell[data-theme='dark'] .text-green-900,
+.studio-shell[data-theme='dark'] .text-blue-900 { color: #E2E8F0; }
+
+.studio-shell[data-theme='dark'] input,
+.studio-shell[data-theme='dark'] select,
+.studio-shell[data-theme='dark'] textarea {
+  background-color: #0B0B0D;
+  color: #F1F5F9;
+}
+.studio-shell[data-theme='dark'] img { opacity: 0.92; }
 
 /* Photo scrim for the destination cards: dark bottom edge for text legibility,
    fading to transparent towards the top. Built from the --overlay token. */
@@ -735,16 +855,16 @@ p {
   height: 48px;
   border: 0;
   border-radius: var(--auth-radius);
-  background: var(--text);
+  background: var(--blue);
   color: #FFFFFF;
   font-family: var(--font-body);
   font-size: 0.9375rem;
   font-weight: 600;
   cursor: pointer;
-  transition: opacity 150ms ease-out, background 150ms ease-out;
+  transition: background 150ms ease-out;
 }
 .auth-primary:hover:not(:disabled) {
-  opacity: 0.88;
+  background: var(--blue-dark);
 }
 .auth-primary:disabled {
   opacity: 0.6;
@@ -769,7 +889,8 @@ p {
   transition: background 150ms ease-out;
 }
 .auth-secondary:hover {
-  background: #FBFAF8;
+  background: var(--auth-field);
+  border-color: var(--blue);
 }
 
 .auth-divider {

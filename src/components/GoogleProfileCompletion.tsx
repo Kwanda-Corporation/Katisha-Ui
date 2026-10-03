@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Smartphone, AlertCircle } from 'lucide-react';
 import { Button, Card, PhoneInput } from './ui';
 import { useAuth, UserRole } from '../contexts/AuthContext';
-import { useTranslation } from '../../node_modules/react-i18next';
+import { useTranslation } from 'react-i18next';
 import { useToast } from './ui/Toast';
 
 interface GoogleProfileCompletionProps {

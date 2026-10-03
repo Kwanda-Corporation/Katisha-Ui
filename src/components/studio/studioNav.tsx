@@ -69,8 +69,11 @@ export const STUDIO_NAV: Record<string, StudioNavConfig> = {
       { id: 'dashboard', labelKey: 'nav.dashboard', path: '/dashboard/promoter', icon: <LayoutDashboard size={size} /> },
       { id: 'referrals', labelKey: 'nav.referrals', path: '/dashboard/promoter/referrals', icon: <Share2 size={size} /> },
       { id: 'earnings', labelKey: 'nav.earnings', path: '/dashboard/promoter/earnings', icon: <Wallet size={size} /> },
+      { id: 'payouts', labelKey: 'nav.payouts', path: '/dashboard/promoter/payouts', icon: <HandCoins size={size} /> },
     ],
-    system: [],
+    system: [
+      { id: 'settings', labelKey: 'nav.settings', path: '/dashboard/promoter/settings', icon: <Settings size={size} /> },
+    ],
   },
 }
 

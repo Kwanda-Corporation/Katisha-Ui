@@ -9,6 +9,12 @@ import { AppProviders } from './App'
 import AppRoutes from './routes'
 import { ssrData } from './ssrData'
 import { SERVER_ORIGIN } from './config/apiBase'
+import { captureReferralCode } from './utils/referral'
+
+// Latch any promoter `?ref=` code on the very first load. A shared link points at
+// the marketing home page, so this must run before any routing so the code is
+// still in localStorage by the time the booking wizard mounts.
+captureReferralCode()
 
 // Rehydrate server-side-rendered data so the first client render matches the
 // pre-rendered HTML (avoids hydration mismatch / flash) on route & agency

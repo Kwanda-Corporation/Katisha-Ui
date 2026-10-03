@@ -6,13 +6,12 @@ import {
 import {
   DollarSign, Ticket, Route, Users, Building2,
   Download, RefreshCw, Clock, Wallet,
-  Smartphone, Globe, CheckCircle2, XCircle, ReceiptText, Loader2,
+  Smartphone, Globe,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
-import { api, resolveImageUrl } from '../../api'
+import { api } from '../../api'
 import { useAuth } from '../../contexts/AuthContext'
-import { useToast } from '../../components/ui/Toast'
 import { viaLabel } from '../../utils/via'
 import StudioCard from '../../components/studio/StudioCard'
 import StudioHeading from '../../components/studio/StudioHeading'
@@ -83,24 +82,11 @@ function shortDate(iso: string): string {
 export default function SystemDashboard() {
   const { user } = useAuth()
   const { t } = useTranslation()
-  const toast = useToast()
   const [data, setData] = useState<any>(null)
   const [adminData, setAdminData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
   const [recentPage, setRecentPage] = useState(1)
-  const [pendingMomo, setPendingMomo] = useState<any[]>([])
-  const [momoBusyId, setMomoBusyId] = useState<string | null>(null)
-
-  const loadPendingMomo = useCallback(async () => {
-    try {
-      const res = await api.getPendingMomoPayments()
-      setPendingMomo(res.data?.bookings || [])
-    } catch {
-      // Non-critical: panel just stays empty.
-      setPendingMomo([])
-    }
-  }, [])
 
   const loadAnalytics = useCallback(async () => {
     try {
@@ -118,53 +104,13 @@ export default function SystemDashboard() {
 
   const refreshAll = useCallback(() => {
     loadAnalytics()
-    loadPendingMomo()
-  }, [loadAnalytics, loadPendingMomo])
+  }, [loadAnalytics])
 
   useEffect(() => {
     refreshAll()
     const interval = setInterval(refreshAll, 30000)
     return () => clearInterval(interval)
   }, [refreshAll])
-
-  const handleMomoApprove = async (b: any) => {
-    setMomoBusyId(b._id)
-    try {
-      await api.approveMomoPayment(b._id)
-      toast.success(
-        t('dashboard.ops.paymentApproved'),
-        t('dashboard.ops.paymentApprovedDesc', { ref: b.referenceCode })
-      )
-      await refreshAll()
-    } catch (err: any) {
-      toast.error(
-        t('dashboard.ops.approvalFailed'),
-        err?.message || t('dashboard.ops.approvalFailedDesc')
-      )
-    } finally {
-      setMomoBusyId(null)
-    }
-  }
-
-  const handleMomoReject = async (b: any) => {
-    if (!window.confirm(t('dashboard.ops.rejectConfirm', { ref: b.referenceCode }))) return
-    setMomoBusyId(b._id)
-    try {
-      await api.rejectMomoPayment(b._id)
-      toast.info(
-        t('dashboard.ops.paymentRejected'),
-        t('dashboard.ops.paymentRejectedDesc', { ref: b.referenceCode })
-      )
-      await refreshAll()
-    } catch (err: any) {
-      toast.error(
-        t('dashboard.ops.rejectionFailed'),
-        err?.message || t('dashboard.ops.rejectionFailedDesc')
-      )
-    } finally {
-      setMomoBusyId(null)
-    }
-  }
 
   const overview = data?.overview || {}
   const revenue = data?.revenue || {}
@@ -285,9 +231,6 @@ export default function SystemDashboard() {
   const phoneOf = (b: any) =>
     b.contactPhone || b.passengerDetails?.[0]?.phone || b.guestPhone || b.user?.phone || '—'
 
-  const amountOf = (b: any) =>
-    (b.pricing?.customerTotal ?? ((b.totalAmount || 0) + (b.systemFee || 0))).toLocaleString()
-
   /** Payment channel badge — MoMo (merchant code) vs Online (pawaPay). */
   const paymentChannelBadge = (b: any) => {
     if (!b.paymentChannel) return <span className="text-xs text-[var(--studio-text-muted)]">—</span>
@@ -304,93 +247,6 @@ export default function SystemDashboard() {
       </span>
     )
   }
-
-  const momoColumns: Column<any>[] = useMemo(() => [
-    {
-      key: 'referenceCode',
-      header: t('dashboard.ops.ref'),
-      sortable: true,
-      render: (b) => (
-        <span className="font-mono text-xs font-semibold text-[var(--studio-accent)]">{b.referenceCode}</span>
-      ),
-    },
-    { key: 'agencyName', header: t('dashboard.ops.agency'), sortValue: (b) => b.agency?.name || '', render: (b) => b.agency?.name || '—' },
-    { key: 'passenger', header: t('dashboard.ops.passenger'), render: (b) => passengerOf(b) },
-    { key: 'phone', header: t('dashboard.ops.phone'), render: (b) => <span className="text-[var(--studio-text-sub)]">{phoneOf(b)}</span> },
-    { key: 'route', header: t('dashboard.ops.route'), render: (b) => <span className="text-[var(--studio-text-sub)]">{routeOf(b)}</span> },
-    {
-      key: 'travelDate',
-      header: t('dashboard.ops.date'),
-      sortValue: (b) => b.travelDate || '',
-      render: (b) => (
-        <span className="text-[var(--studio-text-sub)]">
-          {parseLocalDate(b.travelDate)?.toLocaleDateString() || '—'} · {b.travelTime}
-        </span>
-      ),
-    },
-    {
-      key: 'amount',
-      header: t('dashboard.ops.amount'),
-      align: 'right',
-      sortValue: (b) => Number(amountOf(b).replace(/[^\d.]/g, '')) || 0,
-      render: (b) => (
-        <span className="font-semibold">
-          {amountOf(b)} RWF
-          <span className="ml-1.5 inline-flex items-center gap-1 text-[11px] font-semibold px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-700 align-middle">
-            <Smartphone size={10} aria-hidden="true" />
-            {t('dashboard.ops.momoChannel')}
-          </span>
-        </span>
-      ),
-    },
-    {
-      key: 'receipt',
-      header: t('dashboard.ops.receipt'),
-      render: (b) => (b.merchantReceiptImage ? (
-        <a
-          href={resolveImageUrl(b.merchantReceiptImage)}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={(e) => e.stopPropagation()}
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--studio-accent)] hover:underline"
-        >
-          <ReceiptText size={13} aria-hidden="true" />
-          {t('dashboard.ops.viewReceipt')}
-        </a>
-      ) : (
-        <span className="text-xs text-[var(--studio-text-muted)]">—</span>
-      )),
-    },
-    {
-      key: 'actions',
-      header: t('dashboard.ops.actions'),
-      render: (b) => {
-        const busy = momoBusyId === b._id
-        return (
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => handleMomoApprove(b)}
-              disabled={busy}
-              className="inline-flex items-center gap-1.5 h-8 px-3 rounded-full text-xs font-semibold border-none bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer disabled:opacity-50 disabled:cursor-default transition-colors"
-            >
-              {busy ? <Loader2 size={12} className="animate-spin" aria-hidden="true" /> : <CheckCircle2 size={12} aria-hidden="true" />}
-              {t('dashboard.ops.approve')}
-            </button>
-            <button
-              type="button"
-              onClick={() => handleMomoReject(b)}
-              disabled={busy}
-              className="inline-flex items-center gap-1.5 h-8 px-3 rounded-full text-xs font-semibold border border-red-200 bg-red-50 hover:bg-red-100 text-red-700 cursor-pointer disabled:opacity-50 disabled:cursor-default transition-colors"
-            >
-              <XCircle size={12} aria-hidden="true" />
-              {t('dashboard.ops.reject')}
-            </button>
-          </div>
-        )
-      },
-    },
-  ], [momoBusyId, t])
 
   const recentColumns: Column<any>[] = useMemo(() => [
     {
@@ -865,35 +721,6 @@ export default function SystemDashboard() {
           )}
         </StudioCard>
       </div>
-
-      {/* ── MoMo payments pending review ─────────────────────────── */}
-      <StudioCard padding="none" as="section" className="overflow-hidden">
-        <div className="px-5 sm:px-6 py-4 border-b border-[var(--studio-border)] flex flex-wrap items-center justify-between gap-3 bg-amber-50/60">
-          <div className="flex items-center gap-2">
-            <Smartphone size={15} className="text-amber-600" aria-hidden="true" />
-            <StudioHeading size="card" marker={false} as="h2" centered={false}>
-              {t('dashboard.ops.momoPending')}
-            </StudioHeading>
-          </div>
-          <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-800 bg-amber-100 px-2.5 py-1 rounded-full">
-            {t('dashboard.ops.awaitingApproval', { count: pendingMomo.length })}
-          </span>
-        </div>
-        <div className="p-4 sm:p-5">
-          <DataTable
-            columns={momoColumns}
-            data={pendingMomo}
-            getRowId={(b) => String(b._id)}
-            emptyState={
-              <EmptyState
-                icon={CheckCircle2}
-                title={t('dashboard.ops.noPendingMomo')}
-                svgAlt={t('dashboard.ops.noPendingMomo')}
-              />
-            }
-          />
-        </div>
-      </StudioCard>
 
       {/* ── Recent bookings ──────────────────────────────────────── */}
       <StudioCard padding="none" as="section" className="overflow-hidden">

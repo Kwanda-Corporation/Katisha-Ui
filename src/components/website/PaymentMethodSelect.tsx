@@ -1,8 +1,7 @@
-import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Smartphone, CreditCard, ArrowRight, X } from 'lucide-react';
-import { useTranslation } from '../../../node_modules/react-i18next';
-import { ModalFrame } from './PaymentModal';
+import { useTranslation } from 'react-i18next';
+import { ModalFrame, MODAL_VIEWPORT_HEIGHT } from './PaymentModal';
 
 export type PaymentChannel = 'momo_merchant' | 'pawapay_online';
 
@@ -16,22 +15,6 @@ interface PaymentMethodSelectProps {
   onlineTotal: number;
 }
 
-function useIsMobile() {
-  const [isMobile, setIsMobile] = useState(() =>
-    typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches
-  );
-  useEffect(() => {
-    const mq = window.matchMedia('(max-width: 767px)');
-    const update = () => setIsMobile(mq.matches);
-    update();
-    mq.addEventListener('change', update);
-    return () => mq.removeEventListener('change', update);
-  }, []);
-  return isMobile;
-}
-
-import { useState } from 'react';
-
 export default function PaymentMethodSelect({
   open,
   onClose,
@@ -41,17 +24,15 @@ export default function PaymentMethodSelect({
   onlineTotal,
 }: PaymentMethodSelectProps) {
   const { t } = useTranslation();
-  const isMobile = useIsMobile();
   const currency = t('booking.currency');
 
   return (
     <ModalFrame
-      sheet
       open={open}
       onClose={onClose}
       labelledBy="payment-method-select-title"
-      maxWidth={720}
-      height={isMobile ? '85dvh' : 'min(70dvh, 540px)'}
+      maxWidth={760}
+      height={MODAL_VIEWPORT_HEIGHT}
     >
       <div className="relative flex flex-col flex-1 min-h-0">
         <button

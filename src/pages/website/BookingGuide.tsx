@@ -5,7 +5,7 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router';
 import TopNav from '../../components/website/TopNav';
-import { useTranslation } from '../../../node_modules/react-i18next';
+import { useTranslation } from 'react-i18next';
 import SEO from '../../components/seo/SEO';
 import { Reveal } from '../../components/website/ScrollReveal';
 import {

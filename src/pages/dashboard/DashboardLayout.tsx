@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Outlet, useNavigate } from 'react-router'
-import { Settings } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../contexts/AuthContext'
 import { useSocket } from '../../contexts/SocketContext'
@@ -49,7 +48,6 @@ function GlobalNotificationListener({ onNew }: { onNew: () => void }) {
 
 export default function DashboardLayout() {
   const { user, isAuthenticated } = useAuth()
-  const { t } = useTranslation()
   const navigate = useNavigate()
   const [unread, setUnread] = useState(0)
 
@@ -79,41 +77,8 @@ export default function DashboardLayout() {
 
   if (!user) return null
 
-  /* The settings modal is intentionally a launcher: the real per-role settings
-     screens already exist as routes and are rebuilt on their own phase. */
-  const SETTINGS_ROUTE: Record<string, string> = {
-    agency_admin: '/dashboard/agency-settings',
-    promoter: '/dashboard/promoter/settings',
-  }
-  const settingsTarget = SETTINGS_ROUTE[user.role]
-
   return (
-    <StudioShell
-      notificationCount={unread}
-      settingsDirty={false}
-      settingsSections={[
-        {
-          id: 'launcher',
-          label: t('nav.settings'),
-          content: (
-            <div className="space-y-3">
-              <p className="text-sm text-[var(--studio-text-sub)]">{t('studio.settings')}</p>
-              {settingsTarget && (
-                <button
-                  type="button"
-                  onClick={() => navigate(settingsTarget)}
-                  className="inline-flex items-center gap-2 h-10 px-4 text-sm font-medium border border-[var(--studio-border)] bg-white text-[var(--studio-text)] hover:bg-[var(--studio-muted-fill)] cursor-pointer"
-                  style={{ borderRadius: 'var(--studio-radius-pill)' }}
-                >
-                  <Settings size={15} />
-                  {t('nav.settings')}
-                </button>
-              )}
-            </div>
-          ),
-        },
-      ]}
-    >
+    <StudioShell notificationCount={unread}>
       <GlobalNotificationListener onNew={bumpUnread} />
       <Outlet />
     </StudioShell>

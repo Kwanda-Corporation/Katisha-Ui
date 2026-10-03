@@ -55,7 +55,7 @@ export default function LanguageMenu({ className = '', align = 'right', onSelect
     }
   }, [open])
 
-  const current = i18n.language.split('-')[0]
+  const current = (i18n.language || 'en').split('-')[0]
 
   return (
     <div className={`relative ${className}`} ref={ref}>

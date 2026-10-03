@@ -37,7 +37,7 @@ export default function StudioHeading({
     card: 'font-semibold text-base sm:text-lg text-[var(--studio-text)]',
   }
 
-  const dot = 'absolute rounded-full bg-sky-400/70'
+  const dot = 'absolute rounded-full bg-[var(--studio-marker-dot)] opacity-70'
   const wrapClass = centered ? 'flex justify-center items-center' : 'flex items-center'
 
   return (
@@ -51,7 +51,7 @@ export default function StudioHeading({
             <span className="relative inline-block px-2">
               <span
                 aria-hidden="true"
-                className="absolute left-1/2 -translate-x-1/2 top-[6%] h-[52%] w-[85%] sm:w-[105%] -z-10 -rotate-1 rounded-full overflow-hidden bg-blue-100"
+                className="absolute left-1/2 -translate-x-1/2 top-[6%] h-[52%] w-[85%] sm:w-[105%] -z-10 -rotate-1 rounded-full overflow-hidden bg-[var(--studio-marker)]"
               >
                 <span className={`${dot} w-1 h-1 left-[12%] top-[30%]`} />
                 <span className={`${dot} w-1.5 h-1.5 left-[42%] top-[55%]`} />
@@ -60,7 +60,7 @@ export default function StudioHeading({
               </span>
               <span
                 aria-hidden="true"
-                className="absolute left-1/2 -translate-x-1/2 bottom-[6%] h-[40%] w-[55%] sm:w-[70%] -z-10 rotate-2 rounded-full overflow-hidden bg-blue-100"
+                className="absolute left-1/2 -translate-x-1/2 bottom-[6%] h-[40%] w-[55%] sm:w-[70%] -z-10 rotate-2 rounded-full overflow-hidden bg-[var(--studio-marker)]"
               >
                 <span className={`${dot} w-1 h-1 left-[20%] top-[35%]`} />
                 <span className={`${dot} w-1.5 h-1.5 left-[62%] top-[50%]`} />

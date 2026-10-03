@@ -1,5 +1,4 @@
 import { NavLink } from 'react-router'
-import { Settings, MessageSquare } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { StudioNavItem } from './studioNav'
 
@@ -13,8 +12,6 @@ interface SidebarProps {
   userName: string
   roleLabel: string
   avatarColor: string
-  onSettings: () => void
-  onFeedback: () => void
 }
 
 const STYLES = `
@@ -42,8 +39,6 @@ export default function Sidebar({
   userName,
   roleLabel,
   avatarColor,
-  onSettings,
-  onFeedback,
 }: SidebarProps) {
   const { t } = useTranslation()
   const expanded = isMobile ? true : open
@@ -75,24 +70,24 @@ export default function Sidebar({
   const sidebarInner = (
     <div className="flex flex-col h-full">
       {/* Identity */}
-      <div className={`${expanded ? 'px-3 pt-4 pb-5 text-center' : 'py-4 flex justify-center'}`}>
+      <div className={`${expanded ? 'px-3 pt-4 pb-4 text-center' : 'py-4 flex justify-center'}`}>
         {expanded ? (
           <>
             <p className="text-[11px] text-[var(--studio-text-muted)] mb-2">{t('studio.yourAccount')}</p>
             <div
               className="mx-auto flex items-center justify-center text-white font-semibold select-none"
-              style={{ width: 132, height: 132, borderRadius: '9999px', background: avatarColor, fontSize: 52 }}
+              style={{ width: 64, height: 64, borderRadius: '9999px', background: avatarColor, fontSize: 24 }}
               aria-hidden="true"
             >
               {userName.charAt(0).toUpperCase()}
             </div>
-            <p className="mt-3 text-sm font-semibold text-[var(--studio-text)] truncate">{userName}</p>
+            <p className="mt-2.5 text-sm font-semibold text-[var(--studio-text)] truncate">{userName}</p>
             <p className="text-xs text-[var(--studio-text-muted)] truncate">{roleLabel}</p>
           </>
         ) : (
           <div
             className="flex items-center justify-center text-white font-semibold select-none"
-            style={{ width: 36, height: 36, borderRadius: '9999px', background: avatarColor, fontSize: 15 }}
+            style={{ width: 32, height: 32, borderRadius: '9999px', background: avatarColor, fontSize: 13 }}
             title={userName}
             aria-hidden="true"
           >
@@ -113,33 +108,6 @@ export default function Sidebar({
           </>
         )}
       </nav>
-
-      {/* Pinned bottom */}
-      <div className="border-t border-[var(--studio-border)] pt-2 mt-2 flex flex-col gap-0.5 px-1">
-        {expanded ? (
-          <>
-            <button type="button" onClick={onSettings} className="studio-nav-item px-3 gap-3 cursor-pointer bg-transparent">
-              <Settings size={16} className="shrink-0" />
-              <span>{t('nav.settings')}</span>
-            </button>
-            <button type="button" onClick={onFeedback} className="studio-nav-item px-3 gap-3 cursor-pointer bg-transparent">
-              <MessageSquare size={16} className="shrink-0" />
-              <span>{t('studio.sendFeedback')}</span>
-            </button>
-          </>
-        ) : (
-          <>
-            <button type="button" onClick={onSettings} className="studio-rail-item mx-auto cursor-pointer bg-transparent" aria-label={t('nav.settings')}>
-              <Settings size={16} />
-              <span className="studio-tip">{t('nav.settings')}</span>
-            </button>
-            <button type="button" onClick={onFeedback} className="studio-rail-item mx-auto cursor-pointer bg-transparent" aria-label={t('studio.sendFeedback')}>
-              <MessageSquare size={16} />
-              <span className="studio-tip">{t('studio.sendFeedback')}</span>
-            </button>
-          </>
-        )}
-      </div>
     </div>
   )
 
@@ -151,7 +119,7 @@ export default function Sidebar({
           <div className="fixed inset-0 z-[900] bg-black/40" onClick={onCloseMobile} aria-hidden="true" />
         )}
         <aside
-          className="fixed left-0 z-[950] bg-[var(--studio-sidebar-bg)] border-r border-[var(--studio-border)] transition-transform duration-200"
+          className="fixed left-0 z-[950] bg-[var(--studio-sidebar-bg)] transition-transform duration-200"
           style={{
             top: 'var(--studio-topbar-height)',
             bottom: 0,
@@ -170,7 +138,7 @@ export default function Sidebar({
     <>
       <style>{STYLES}</style>
       <aside
-        className="studio-sb shrink-0 bg-[var(--studio-sidebar-bg)] border-r border-[var(--studio-border)]"
+        className="studio-sb shrink-0 bg-[var(--studio-sidebar-bg)]"
         style={{ width: open ? 'var(--studio-sidebar-width-open)' : 'var(--studio-sidebar-width-closed)' }}
         aria-label={t('studio.dashboard')}
       >

@@ -69,7 +69,7 @@ export default function AuthChoice() {
         <button
           type="button"
           onClick={() => navigate('/dashboard/promoter/setup')}
-          className="inline-flex items-center gap-2 h-11 px-5 rounded-full bg-[var(--text)] text-white text-sm font-semibold shadow-[0_8px_24px_rgba(15,23,42,0.18)] hover:opacity-90 transition-opacity cursor-pointer"
+          className="inline-flex items-center gap-2 h-11 px-5 rounded-md bg-[var(--blue)] hover:bg-[var(--blue-dark)] text-white text-sm font-semibold transition-colors cursor-pointer"
         >
           <Banknote size={16} />
           {t('promoter.earnFromKatisha')}

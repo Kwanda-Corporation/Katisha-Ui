@@ -9,7 +9,6 @@ import Spinner from './components/ui/Spinner';
 // Routes are code-split so heavy page-level libraries (mapbox, recharts, etc.)
 // load only when their page is actually visited instead of on first paint.
 const Login = lazy(() => import('./pages/public/Login'));
-const Register = lazy(() => import('./pages/public/Register'));
 const ForgotPassword = lazy(() => import('./pages/public/ForgotPassword'));
 const ResetPassword = lazy(() => import('./pages/public/ResetPassword'));
 const SetPassword = lazy(() => import('./pages/public/SetPassword'));
@@ -38,6 +37,7 @@ const OrganisationsPage = lazy(() => import('./potals/SystemAdmin/Organizations'
 const UsersPage = lazy(() => import('./potals/SystemAdmin/Users'));
 const SystemAdminOverview = lazy(() => import('./layouts/dashboard/SystemDashboard'));
 const RoutePricesPage = lazy(() => import('./potals/SystemAdmin/RoutePricing'));
+const PromotersPage = lazy(() => import('./potals/SystemAdmin/Promoters'));
 const AgencyAgentsPage = lazy(() => import('./potals/Agency/Agents'));
 const TrackingPage = lazy(() => import('./potals/Common/TrackingPage'));
 const AccountingPage = lazy(() => import('./layouts/dashboard/AccountingPage'));
@@ -50,6 +50,7 @@ const PromoterSetup = lazy(() => import('./pages/promoter/PromoterSetup'));
 const PromoterDashboard = lazy(() => import('./pages/promoter/PromoterDashboard'));
 const PromoterReferrals = lazy(() => import('./pages/promoter/PromoterReferrals'));
 const PromoterEarnings = lazy(() => import('./pages/promoter/PromoterEarnings'));
+const PromoterPayouts = lazy(() => import('./pages/promoter/PromoterPayouts'));
 const PromoterSettings = lazy(() => import('./pages/promoter/PromoterSettings'));
 
 const ROLE_HOME: Record<UserRole, string> = {
@@ -114,7 +115,9 @@ export default function AppRoutes() {
       <Route path="/guide" element={<BookingGuide />} />
       <Route path="/redirect" element={<RootRedirect />} />
       <Route path="/login"           element={<GuestRoute><Login /></GuestRoute>} />
-      <Route path="/register"        element={<GuestRoute><Register /></GuestRoute>} />
+      {/* There is no standalone sign-up page any more: promoter signup is the
+          only create-account entry point, so every "Sign up" link lands there. */}
+      <Route path="/register"        element={<Navigate to="/dashboard/promoter/setup" replace />} />
       <Route path="/forgot-password" element={<GuestRoute><ForgotPassword /></GuestRoute>} />
       <Route path="/reset-password"  element={<GuestRoute><ResetPassword /></GuestRoute>} />
       <Route path="/set-password"    element={<SetPassword />} />
@@ -190,6 +193,13 @@ export default function AppRoutes() {
           </ProtectedRoute>
         } />
 
+        {/* Promoter applications (System Admin) */}
+        <Route path="promoters" element={
+          <ProtectedRoute roles={[UserRole.SYSTEM_ADMIN]}>
+            <PromotersPage />
+          </ProtectedRoute>
+        } />
+
         {/* Accounting (System Admin) */}
         <Route path="accounting" element={
           <ProtectedRoute roles={[UserRole.SYSTEM_ADMIN]}>
@@ -257,6 +267,11 @@ export default function AppRoutes() {
       <Route path="/dashboard/promoter/earnings" element={
         <ProtectedRoute roles={[UserRole.PROMOTER]}>
           <PromoterEarnings />
+        </ProtectedRoute>
+      } />
+      <Route path="/dashboard/promoter/payouts" element={
+        <ProtectedRoute roles={[UserRole.PROMOTER]}>
+          <PromoterPayouts />
         </ProtectedRoute>
       } />
       <Route path="/dashboard/promoter/settings" element={

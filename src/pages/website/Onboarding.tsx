@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react'
-import { useTranslation } from '../../../node_modules/react-i18next'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Banknote } from 'lucide-react'
+import { Snowflake } from 'lucide-react'
 import SEO from '../../components/seo/SEO'
-import Logo from '../../components/ui/Logo'
 import { useAuth } from '../../contexts/AuthContext'
 import ReactCountryFlag from 'react-country-flag'
 import { SCRIPT_FONT, Sparkles, SquigglyUnderline } from '../../components/website/HandDrawn'
@@ -23,6 +22,102 @@ const LANGUAGES = [
   { code: 'sw', label: 'Kiswahili', countryCode: 'TZ' },
   { code: 'fr', label: 'Français', countryCode: 'FR' },
 ]
+
+/* Twinkle + snow positions are deterministic so the animation doesn't reshuffle
+   on every render. */
+const STARS = Array.from({ length: 10 }, (_, i) => ({
+  top: (i * 29 + 6) % 96,
+  left: (i * 37 + 4) % 94,
+  size: 3 + ((i * 3) % 5),
+  duration: 1.7 + ((i * 7) % 8) / 10,
+  delay: (i % 5) * 0.36,
+}));
+
+const SNOW = Array.from({ length: 12 }, (_, i) => ({
+  left: (i * 23 + 7) % 92,
+  size: 7 + ((i * 5) % 7),
+  duration: 2.2 + ((i * 11) % 9) / 10,
+  delay: (i % 6) * 0.46,
+  drift: i % 2 === 0 ? 4 + (i % 5) : -(4 + (i % 5)),
+  spin: i % 2 === 0 ? 60 : -60,
+}));
+
+/** Promoter entry point pinned to the top-left corner, with a field of
+ * twinkling stars behind it and snow falling across the button itself. */
+function EarnFromKatishaPill({
+  label,
+  tooltip,
+  onClick,
+}: {
+  label: string;
+  tooltip: string;
+  onClick: () => void;
+}) {
+  return (
+    <div className="group fixed right-14 top-10 z-20">
+      <span
+        role="tooltip"
+        className="pointer-events-none absolute left-0 top-[calc(100%+8px)] w-max max-w-[240px] rounded-lg bg-[var(--text)] px-3 py-2 text-xs text-white opacity-0 shadow-lg transition-opacity duration-150 group-hover:opacity-100 group-focus-within:opacity-100"
+      >
+        {tooltip}
+      </span>
+
+      {/* Stars sit behind the pill so the corner reads as highlighted. */}
+      <div className="pointer-events-none absolute -inset-10" aria-hidden="true">
+        <motion.span
+          className="absolute left-1/2 top-1/2 h-28 w-44 -translate-x-1/2 -translate-y-1/2 rounded-full"
+          style={{ background: 'radial-gradient(closest-side, var(--blue), transparent)' }}
+          animate={{ opacity: [0.1, 0.22, 0.1], scale: [0.95, 1.05, 0.95] }}
+          transition={{ duration: 3.2, repeat: Infinity, ease: 'easeInOut' }}
+        />
+        {STARS.map((s, i) => (
+          <motion.svg
+            key={i}
+            viewBox="0 0 24 24"
+            width={s.size}
+            height={s.size}
+            className="absolute text-[var(--blue)]"
+            style={{ top: `${s.top}%`, left: `${s.left}%` }}
+            animate={{ opacity: [0.1, 0.85, 0.1], scale: [0.7, 1.2, 0.7] }}
+            transition={{ duration: s.duration, delay: s.delay, repeat: Infinity, ease: 'easeInOut' }}
+          >
+            <path
+              d="M12 0 C 12.9 7.4 16.6 11.1 24 12 C 16.6 12.9 12.9 16.6 12 24 C 11.1 16.6 7.4 12.9 0 12 C 7.4 11.1 11.1 7.4 12 0 Z"
+              fill="currentColor"
+            />
+          </motion.svg>
+        ))}
+      </div>
+
+      <div className="relative">
+        <button
+          type="button"
+          className="relative inline-flex items-center gap-2 h-11 px-5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition-colors duration-500 cursor-pointer"
+          onClick={onClick}
+        >
+          
+          {label}
+        </button>
+
+        {/* Snow falls in front of the button, clipped to its rounded box. */}
+        <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-md" aria-hidden="true">
+          {SNOW.map((f, i) => (
+            <motion.span
+              key={i}
+              className="absolute top-0 text-white"
+              style={{ left: `${f.left}%` }}
+              initial={{ y: -18, opacity: 0 }}
+              animate={{ y: [-18, 46], x: [0, f.drift, 0], rotate: [0, f.spin, 0], opacity: [0, 0.9, 0.9, 0] }}
+              transition={{ duration: f.duration, delay: f.delay, repeat: Infinity, ease: 'linear' }}
+            >
+              <Snowflake size={f.size} strokeWidth={2.4} />
+            </motion.span>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function TypewriterText({ text, delay = 40 }: { text: string; delay?: number }) {
   const [displayed, setDisplayed] = useState('')
@@ -88,11 +183,6 @@ export default function Onboarding() {
           }
         }}
       />
-      {/* Top-left logo only */}
-      <div className="px-6 sm:px-8 pt-6 sm:pt-8 pb-4">
-        <Logo />
-      </div>
-
       {/* Centered content */}
       <div className="flex-1 flex items-center justify-center px-6 pb-20">
         <div className="w-full max-w-[440px]">
@@ -138,24 +228,13 @@ export default function Onboarding() {
         </div>
       </div>
 
-      {/* Persistent promoter entry point. Anchored bottom-right so it never
-          competes with the language choices, and hidden from crawlers. */}
-      <div className="fixed bottom-5 right-5 z-20 group">
-        <span
-          role="tooltip"
-          className="pointer-events-none absolute bottom-[calc(100%+8px)] right-0 w-max max-w-[240px] rounded-lg bg-[var(--text)] px-3 py-2 text-xs text-white opacity-0 shadow-lg transition-opacity duration-150 group-hover:opacity-100 group-focus-within:opacity-100"
-        >
-          {t('promoter.earnTooltip')}
-        </span>
-        <button
-          type="button"
-          onClick={() => navigate('/dashboard/promoter/setup')}
-          className="inline-flex items-center gap-2 h-11 px-5 rounded-full bg-[var(--text)] text-white text-sm font-semibold shadow-[0_8px_24px_rgba(15,23,42,0.18)] hover:opacity-90 transition-opacity cursor-pointer"
-        >
-          <Banknote size={16} />
-          {t('promoter.earnFromKatisha')}
-        </button>
-      </div>
+      {/* Persistent promoter entry point. Anchored top-left so it reads as the
+          newest thing on the screen; hidden from crawlers. */}
+      <EarnFromKatishaPill
+        label={t('promoter.earnFromKatisha')}
+        tooltip={t('promoter.earnTooltip')}
+        onClick={() => navigate('/dashboard/promoter/setup')}
+      />
     </div>
   )
 }

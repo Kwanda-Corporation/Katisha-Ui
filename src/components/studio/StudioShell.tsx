@@ -2,12 +2,11 @@ import { ReactNode, useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../contexts/AuthContext'
+import { useTheme } from '../../contexts/ThemeContext'
 import { ROLE_CONFIG } from '../../config/roleConfig'
 import UseIsSmallScreen from '../../Hooks/UseIsSmallScreen'
-import Button from '../ui/Button'
 import TopBar, { type QuickAction } from './TopBar'
 import Sidebar from './Sidebar'
-import SettingsModal, { type SettingsSection } from './SettingsModal'
 import { STUDIO_NAV, ROLE_LABEL_KEY, ROLE_HOME, type StudioNavItem } from './studioNav'
 
 const SIDEBAR_KEY = 'katisha_studio_sidebar'
@@ -17,11 +16,6 @@ interface StudioShellProps {
   /** Override nav items (defaults by role). */
   nav?: StudioNavItem[]
   systemNav?: StudioNavItem[]
-  /** Settings modal sections; when provided, the Settings action opens the modal. */
-  settingsSections?: SettingsSection[]
-  settingsDirty?: boolean
-  settingsSaving?: boolean
-  onSettingsSave?: () => void
   quickActions?: QuickAction[]
   notificationCount?: number
   /** Content rendered at the top of the main area (e.g. a page header). */
@@ -32,21 +26,15 @@ export default function StudioShell({
   children,
   nav,
   systemNav,
-  settingsSections,
-  settingsDirty = false,
-  settingsSaving = false,
-  onSettingsSave,
   quickActions = [],
   notificationCount = 0,
   header,
 }: StudioShellProps) {
   const { user, logout } = useAuth()
   const { t } = useTranslation()
+  const { scheme } = useTheme()
   const navigate = useNavigate()
   const isSmall = UseIsSmallScreen()
-  const [settingsOpen, setSettingsOpen] = useState(false)
-  const [feedbackOpen, setFeedbackOpen] = useState(false)
-  const [feedbackText, setFeedbackText] = useState('')
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [mobileOpen, setMobileOpen] = useState(false)
 
@@ -89,21 +77,12 @@ export default function StudioShell({
     void logout
   }
 
-  const handleFeedback = () => {
-    const subject = encodeURIComponent('Katisha Studio feedback')
-    const body = encodeURIComponent(feedbackText)
-    window.location.href = `mailto:support@katisha.rw?subject=${subject}&body=${body}`
-    setFeedbackOpen(false)
-    setFeedbackText('')
-  }
-
-  const openSettings = () => {
-    if (settingsSections && settingsSections.length > 0) setSettingsOpen(true)
-    else setSettingsOpen(true)
-  }
-
   return (
-    <div className="flex flex-col bg-[var(--studio-bg)]" style={{ height: '100dvh', overflow: 'hidden' }}>
+    <div
+      className="studio-shell flex flex-col bg-[var(--studio-bg)]"
+      data-theme={scheme}
+      style={{ height: '100dvh', overflow: 'hidden', colorScheme: scheme }}
+    >
       <TopBar
         onHamburger={toggleSidebar}
         roleLabel={roleLabel}
@@ -113,7 +92,6 @@ export default function StudioShell({
         roles={roles}
         roleLabelFor={(r) => t(ROLE_LABEL_KEY[r] || 'roles.user')}
         onSwitchRole={switchRole}
-        onOpenSettings={openSettings}
         notificationCount={notificationCount}
       />
 
@@ -128,8 +106,6 @@ export default function StudioShell({
           userName={user.name}
           roleLabel={roleLabel}
           avatarColor={avatarColor}
-          onSettings={openSettings}
-          onFeedback={() => setFeedbackOpen(true)}
         />
 
         <main className="flex-1 min-w-0 overflow-y-auto">
@@ -139,56 +115,6 @@ export default function StudioShell({
           </div>
         </main>
       </div>
-
-      {settingsOpen && (
-        <SettingsModal
-          open={settingsOpen}
-          onClose={() => setSettingsOpen(false)}
-          title={t('studio.settings')}
-          sections={settingsSections ?? []}
-          dirty={settingsDirty}
-          saving={settingsSaving}
-          onSave={onSettingsSave}
-          closeLabel={t('common.close')}
-          saveLabel={t('common.save')}
-          discardLabel={t('studio.discardChanges')}
-          discardConfirmLabel={t('studio.discard')}
-        />
-      )}
-
-      {feedbackOpen && (
-        <div
-          className="fixed inset-0 z-[1000] flex items-center justify-center p-4"
-          style={{ background: 'rgba(15,23,42,0.45)' }}
-          onClick={(e) => { if (e.target === e.currentTarget) setFeedbackOpen(false) }}
-        >
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-label={t('studio.sendFeedback')}
-            className="bg-white w-full max-w-md p-6"
-            style={{ borderRadius: 'var(--studio-radius-card)' }}
-          >
-            <h2 className="text-lg font-semibold text-[var(--studio-text)] mb-3">{t('studio.sendFeedback')}</h2>
-            <textarea
-              value={feedbackText}
-              onChange={(e) => setFeedbackText(e.target.value)}
-              rows={5}
-              placeholder={t('studio.feedbackPlaceholder')}
-              className="w-full p-3 rounded-xl border border-[var(--studio-border)] text-sm outline-none focus:border-[var(--studio-accent)]"
-              style={{ borderRadius: 12 }}
-            />
-            <div className="flex justify-end gap-2 mt-4">
-              <Button variant="secondary" size="sm" onClick={() => setFeedbackOpen(false)} className="!rounded-full">
-                {t('common.cancel')}
-              </Button>
-              <Button size="sm" onClick={handleFeedback} disabled={!feedbackText.trim()} className="!rounded-full">
-                {t('studio.send')}
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
