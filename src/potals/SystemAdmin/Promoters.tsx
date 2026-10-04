@@ -32,9 +32,9 @@ interface ReviewPayload {
 const PAGE_SIZE = 10
 
 const STATUS_META: Record<string, { className: string; dot: string }> = {
-  pending: { className: 'bg-amber-50 text-amber-700', dot: 'bg-amber-500' },
-  active: { className: 'bg-emerald-50 text-emerald-700', dot: 'bg-emerald-500' },
-  suspended: { className: 'bg-red-50 text-red-700', dot: 'bg-red-500' },
+  pending: { className: 'bg-[var(--tone-warning-fill)] text-[var(--tone-warning-ink)]', dot: 'bg-[var(--tone-warning-fill)]0' },
+  active: { className: 'bg-[var(--tone-success-fill)] text-[var(--tone-success-ink)]', dot: 'bg-[var(--tone-success-fill)]0' },
+  suspended: { className: 'bg-[var(--tone-danger-fill)] text-[var(--tone-danger-ink)]', dot: 'bg-[var(--tone-danger-fill)]0' },
 }
 
 export default function Promoters() {
@@ -161,12 +161,12 @@ export default function Promoters() {
           <span className="inline-flex items-center gap-1.5 text-xs text-[var(--studio-text-sub)]">
             {r.termsAcceptedAt ? (
               <>
-                <ShieldCheck size={13} className="text-emerald-600" aria-hidden="true" />
+                <ShieldCheck size={13} className="text-[var(--tone-success-ink)]" aria-hidden="true" />
                 {new Date(r.termsAcceptedAt).toLocaleDateString()}
               </>
             ) : (
               <>
-                <Clock size={13} className="text-amber-600" aria-hidden="true" />
+                <Clock size={13} className="text-[var(--tone-warning-ink)]" aria-hidden="true" />
                 {t('promoterAdmin.termsPending')}
               </>
             )}
@@ -213,7 +213,7 @@ export default function Promoters() {
                   type="button"
                   disabled={busy}
                   onClick={() => review({ id: r.id, status: 'active', name: r.name })}
-                  className="inline-flex items-center gap-1.5 h-8 px-3 rounded-full text-xs font-semibold border-none bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer disabled:opacity-50 disabled:cursor-default transition-colors"
+                  className="inline-flex items-center gap-1.5 h-8 px-3 rounded-full text-xs font-semibold border-none bg-[var(--solid-success)] hover:bg-emerald-700 text-white cursor-pointer disabled:opacity-50 disabled:cursor-default transition-colors"
                 >
                   {busy ? <Loader2 size={12} className="animate-spin" aria-hidden="true" /> : <UserCheck size={12} aria-hidden="true" />}
                   {t('promoterAdmin.approve')}
@@ -224,7 +224,7 @@ export default function Promoters() {
                   type="button"
                   disabled={busy}
                   onClick={() => review({ id: r.id, status: 'suspended', name: r.name })}
-                  className="inline-flex items-center gap-1.5 h-8 px-3 rounded-full text-xs font-semibold border border-red-200 bg-red-50 hover:bg-red-100 text-red-700 cursor-pointer disabled:opacity-50 disabled:cursor-default transition-colors"
+                  className="inline-flex items-center gap-1.5 h-8 px-3 rounded-full text-xs font-semibold border border-[var(--tone-danger-line)] bg-[var(--tone-danger-fill)] hover:bg-[var(--tone-danger-fill)] text-[var(--tone-danger-ink)] cursor-pointer disabled:opacity-50 disabled:cursor-default transition-colors"
                 >
                   <UserX size={12} aria-hidden="true" />
                   {t('promoterAdmin.suspend')}

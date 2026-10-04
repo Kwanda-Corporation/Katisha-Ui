@@ -64,10 +64,10 @@ function RouteChip({ origin, destination, via, size = 'sm' }: { origin: string; 
   const viaStr = viaLabel(via);
   return (
     <div className={`inline-flex items-center gap-1.5 font-[var(--font-body)] font-medium ${text}`}>
-      <span className="text-[var(--text)] font-semibold">{origin}</span>
-      <ArrowRight size={size === 'lg' ? 14 : 11} className="text-[var(--blue)] flex-shrink-0" />
-      <span className="text-[var(--text)] font-semibold">{destination}</span>
-      {viaStr && <span className="text-[var(--text-muted)] font-medium">{viaStr}</span>}
+      <span className="text-[var(--studio-text)] font-semibold">{origin}</span>
+      <ArrowRight size={size === 'lg' ? 14 : 11} className="text-[var(--studio-accent)] flex-shrink-0" />
+      <span className="text-[var(--studio-text)] font-semibold">{destination}</span>
+      {viaStr && <span className="text-[var(--studio-text-muted)] font-medium">{viaStr}</span>}
     </div>
   );
 }
@@ -79,7 +79,7 @@ function DeltaBadge({ delta }: { delta: number }) {
   return (
     <span
       className="inline-flex items-center gap-0.5 text-xs font-semibold px-1.5 py-0.5 rounded-md"
-      style={up ? { background: 'var(--error-bg)', color: 'var(--error)' } : { background: 'rgba(29, 78, 216,0.12)', color: 'var(--blue)' }}
+      style={up ? { background: 'var(--tone-danger-fill)', color: 'var(--tone-danger-ink)' } : { background: 'var(--tone-info-fill)', color: 'var(--tone-info-ink)' }}
     >
       {up ? <ArrowUpRight size={10} /> : <ArrowDownRight size={10} />}
       {Math.abs(delta).toLocaleString()}
@@ -129,7 +129,7 @@ function RowMenu({
       <button
         ref={triggerRef}
         onClick={handleOpen}
-        className="p-1.5 rounded-md hover:bg-[var(--blue-light)] text-[var(--text-muted)] transition-colors"
+        className="p-1.5 rounded-md hover:bg-[var(--studio-muted-fill)] text-[var(--studio-text-muted)] transition-colors"
       >
         <MoreHorizontal size={15} />
       </button>
@@ -140,33 +140,33 @@ function RowMenu({
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ duration: 0.11 }}
-            className="absolute right-0 z-[200] bg-white border border-[var(--border)] rounded-md py-1 w-48"
+            className="absolute right-0 z-[200] bg-white border border-[var(--studio-border)] rounded-md py-1 w-48"
             style={{ [openUpward ? 'bottom' : 'top']: '2.25rem' }}
           >
             <button onClick={() => { onView(); setOpen(false); }}
-              className="flex items-center gap-2 w-full px-3 py-2 text-sm text-[var(--text)] hover:bg-[var(--blue-light)] transition-colors font-[var(--font-body)]">
+              className="flex items-center gap-2 w-full px-3 py-2 text-sm text-[var(--studio-text)] hover:bg-[var(--studio-muted-fill)] transition-colors font-[var(--font-body)]">
               <Eye size={13} /> View details
             </button>
             {route.isActive && (
               <button onClick={() => { onUpdatePrice(); setOpen(false); }}
-                className="flex items-center gap-2 w-full px-3 py-2 text-sm text-[var(--text)] hover:bg-[var(--blue-light)] transition-colors font-[var(--font-body)]">
+                className="flex items-center gap-2 w-full px-3 py-2 text-sm text-[var(--studio-text)] hover:bg-[var(--studio-muted-fill)] transition-colors font-[var(--font-body)]">
                 <Edit3 size={13} /> Update price
               </button>
             )}
             <button onClick={() => { onHistory(); setOpen(false); }}
-              className="flex items-center gap-2 w-full px-3 py-2 text-sm text-[var(--text)] hover:bg-[var(--blue-light)] transition-colors font-[var(--font-body)]">
+              className="flex items-center gap-2 w-full px-3 py-2 text-sm text-[var(--studio-text)] hover:bg-[var(--studio-muted-fill)] transition-colors font-[var(--font-body)]">
               <History size={13} /> Price history
             </button>
-            <div className="border-t border-[var(--border)] my-1" />
+            <div className="border-t border-[var(--studio-border)] my-1" />
             {route.isActive && (
               <button onClick={() => { onDeactivate(); setOpen(false); }}
-                className="flex items-center gap-2 w-full px-3 py-2 text-sm hover:bg-[var(--blue-light)] transition-colors text-[var(--text-sub)] font-[var(--font-body)]">
+                className="flex items-center gap-2 w-full px-3 py-2 text-sm hover:bg-[var(--studio-muted-fill)] transition-colors text-[var(--studio-text-sub)] font-[var(--font-body)]">
                 <Power size={13} /> Deactivate
               </button>
             )}
-            <div className="border-t border-[var(--border)] my-1" />
+            <div className="border-t border-[var(--studio-border)] my-1" />
             <button onClick={() => { onDelete(); setOpen(false); }}
-              className="flex items-center gap-2 w-full px-3 py-2 text-sm hover:bg-red-50 transition-colors text-red-500 font-[var(--font-body)]">
+              className="flex items-center gap-2 w-full px-3 py-2 text-sm hover:bg-[var(--tone-danger-fill)] transition-colors text-[var(--tone-danger-ink)] font-[var(--font-body)]">
               <Trash2 size={13} /> Delete
             </button>
           </motion.div>
@@ -232,11 +232,11 @@ function AddRouteModal({ onClose, onSave, authFetch }: { onClose: () => void; on
         {success ? (
           <motion.div key="ok" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
             className="py-10 text-center">
-            <div className="w-16 h-16 rounded-full bg-[var(--blue-light)] border border-zinc-200 flex items-center justify-center mx-auto mb-4">
-              <Check size={28} className="text-[var(--blue)]" />
+            <div className="w-16 h-16 rounded-full bg-[var(--studio-accent-soft)] border border-[var(--studio-border)] flex items-center justify-center mx-auto mb-4">
+              <Check size={28} className="text-[var(--studio-accent)]" />
             </div>
-            <p className="text-lg font-semibold text-[var(--text)] font-[var(--font-body)]">Route Added!</p>
-            <p className="text-sm text-[var(--text-sub)] mt-1">
+            <p className="text-lg font-semibold text-[var(--studio-text)] font-[var(--font-body)]">Route Added!</p>
+            <p className="text-sm text-[var(--studio-text-sub)] mt-1">
               <RouteChip origin={form.origin} destination={form.destination} /> at {FRW(Number(form.currentPrice))}
             </p>
           </motion.div>
@@ -250,9 +250,9 @@ function AddRouteModal({ onClose, onSave, authFetch }: { onClose: () => void; on
             )}
 
             <div>
-              <label className="block text-xs font-semibold text-[var(--text-sub)] uppercase tracking-wide mb-1.5 font-[var(--font-body)]">Agency <span className="text-[var(--error)]">*</span></label>
+              <label className="block text-xs font-semibold text-[var(--studio-text-sub)] uppercase tracking-wide mb-1.5 font-[var(--font-body)]">Agency <span className="text-[var(--error)]">*</span></label>
               <select
-                className="w-full border border-[var(--border)] rounded-md px-3 py-2.5 text-sm bg-white focus:outline-none focus:border-[var(--blue)] focus:ring-2 focus:ring-[var(--blue)]/15 transition-all cursor-pointer"
+                className="w-full border border-[var(--studio-border)] rounded-md px-3 py-2.5 text-sm bg-white focus:outline-none focus:border-[var(--studio-accent)] focus:ring-2 focus:ring-[var(--blue)]/15 transition-all cursor-pointer"
                 value={form.agencyId}
                 onChange={e => setForm(f => ({ ...f, agencyId: e.target.value }))}
               >
@@ -265,14 +265,14 @@ function AddRouteModal({ onClose, onSave, authFetch }: { onClose: () => void; on
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-semibold text-[var(--text-sub)] uppercase tracking-wide mb-1.5 font-[var(--font-body)]">Origin <span className="text-[var(--error)]">*</span></label>
-                <input className="w-full border border-[var(--border)] rounded-md px-3 py-2.5 text-sm bg-white focus:outline-none focus:border-[var(--blue)] focus:ring-2 focus:ring-[var(--blue)]/15 transition-all placeholder:text-[var(--text-muted)] font-[var(--font-body)]" placeholder="e.g. Kigali"
+                <label className="block text-xs font-semibold text-[var(--studio-text-sub)] uppercase tracking-wide mb-1.5 font-[var(--font-body)]">Origin <span className="text-[var(--error)]">*</span></label>
+                <input className="w-full border border-[var(--studio-border)] rounded-md px-3 py-2.5 text-sm bg-white focus:outline-none focus:border-[var(--studio-accent)] focus:ring-2 focus:ring-[var(--blue)]/15 transition-all placeholder:text-[var(--studio-text-muted)] font-[var(--font-body)]" placeholder="e.g. Kigali"
                   value={form.origin}
                   onChange={e => handleOriginDestChange('origin', e.target.value)} />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-[var(--text-sub)] uppercase tracking-wide mb-1.5 font-[var(--font-body)]">Destination <span className="text-[var(--error)]">*</span></label>
-                <input className="w-full border border-[var(--border)] rounded-md px-3 py-2.5 text-sm bg-white focus:outline-none focus:border-[var(--blue)] focus:ring-2 focus:ring-[var(--blue)]/15 transition-all placeholder:text-[var(--text-muted)] font-[var(--font-body)]" placeholder="e.g. Huye"
+                <label className="block text-xs font-semibold text-[var(--studio-text-sub)] uppercase tracking-wide mb-1.5 font-[var(--font-body)]">Destination <span className="text-[var(--error)]">*</span></label>
+                <input className="w-full border border-[var(--studio-border)] rounded-md px-3 py-2.5 text-sm bg-white focus:outline-none focus:border-[var(--studio-accent)] focus:ring-2 focus:ring-[var(--blue)]/15 transition-all placeholder:text-[var(--studio-text-muted)] font-[var(--font-body)]" placeholder="e.g. Huye"
                   value={form.destination}
                   onChange={e => handleOriginDestChange('destination', e.target.value)} />
               </div>
@@ -280,19 +280,19 @@ function AddRouteModal({ onClose, onSave, authFetch }: { onClose: () => void; on
 
             {form.origin && form.destination && (
               <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }}
-                className="bg-[var(--bg)] rounded-md px-3 py-2.5 flex items-center gap-2 border border-[var(--border)]">
-                <MapPin size={12} className="text-[var(--blue)]" />
+                className="bg-[var(--fill-subtle)] rounded-md px-3 py-2.5 flex items-center gap-2 border border-[var(--studio-border)]">
+                <MapPin size={12} className="text-[var(--studio-accent)]" />
                 <RouteChip origin={form.origin} destination={form.destination} />
               </motion.div>
             )}
 
             <div>
-              <label className="block text-xs font-semibold text-[var(--text-sub)] uppercase tracking-wide mb-1.5 font-[var(--font-body)]">
+              <label className="block text-xs font-semibold text-[var(--studio-text-sub)] uppercase tracking-wide mb-1.5 font-[var(--font-body)]">
                 Corridor Key <span className="text-[var(--error)]">*</span>
-                <span className="text-[var(--text-muted)] font-normal normal-case ml-1">(unique identifier)</span>
+                <span className="text-[var(--studio-text-muted)] font-normal normal-case ml-1">(unique identifier)</span>
               </label>
               <input
-                className="w-full border border-[var(--border)] rounded-md px-3 py-2.5 text-sm bg-white focus:outline-none focus:border-[var(--blue)] focus:ring-2 focus:ring-[var(--blue)]/15 transition-all placeholder:text-[var(--text-muted)] font-mono"
+                className="w-full border border-[var(--studio-border)] rounded-md px-3 py-2.5 text-sm bg-white focus:outline-none focus:border-[var(--studio-accent)] focus:ring-2 focus:ring-[var(--blue)]/15 transition-all placeholder:text-[var(--studio-text-muted)] font-mono"
                 placeholder="e.g. KIGALI_HUYE"
                 value={form.corridorKey}
                 onChange={e => setForm(f => ({ ...f, corridorKey: e.target.value.toUpperCase() }))}
@@ -300,14 +300,14 @@ function AddRouteModal({ onClose, onSave, authFetch }: { onClose: () => void; on
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[var(--text-sub)] uppercase tracking-wide mb-1.5 font-[var(--font-body)]">Base Price (RWF) <span className="text-[var(--error)]">*</span></label>
+              <label className="block text-xs font-semibold text-[var(--studio-text-sub)] uppercase tracking-wide mb-1.5 font-[var(--font-body)]">Base Price (RWF) <span className="text-[var(--error)]">*</span></label>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-[var(--text-muted)] font-[var(--font-body)]">RWF</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-[var(--studio-text-muted)] font-[var(--font-body)]">RWF</span>
                 <input
                   type="number"
                   min="0"
                   step="100"
-                  className="w-full border border-[var(--border)] rounded-md pl-11 pr-3 py-2.5 text-sm bg-white focus:outline-none focus:border-[var(--blue)] focus:ring-2 focus:ring-[var(--blue)]/15 transition-all placeholder:text-[var(--text-muted)] font-[var(--font-body)]"
+                  className="w-full border border-[var(--studio-border)] rounded-md pl-11 pr-3 py-2.5 text-sm bg-white focus:outline-none focus:border-[var(--studio-accent)] focus:ring-2 focus:ring-[var(--blue)]/15 transition-all placeholder:text-[var(--studio-text-muted)] font-[var(--font-body)]"
                   placeholder="e.g. 3000"
                   value={form.currentPrice}
                   onChange={e => setForm(f => ({ ...f, currentPrice: e.target.value }))}
@@ -316,14 +316,14 @@ function AddRouteModal({ onClose, onSave, authFetch }: { onClose: () => void; on
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[var(--text-sub)] uppercase tracking-wide mb-1.5 font-[var(--font-body)]">Via Point <span className="text-[var(--text-muted)] font-normal normal-case">(optional)</span></label>
+              <label className="block text-xs font-semibold text-[var(--studio-text-sub)] uppercase tracking-wide mb-1.5 font-[var(--font-body)]">Via Point <span className="text-[var(--studio-text-muted)] font-normal normal-case">(optional)</span></label>
               <input
-                className="w-full border border-[var(--border)] rounded-md px-3 py-2.5 text-sm bg-white focus:outline-none focus:border-[var(--blue)] focus:ring-2 focus:ring-[var(--blue)]/15 transition-all placeholder:text-[var(--text-muted)] font-[var(--font-body)]"
+                className="w-full border border-[var(--studio-border)] rounded-md px-3 py-2.5 text-sm bg-white focus:outline-none focus:border-[var(--studio-accent)] focus:ring-2 focus:ring-[var(--blue)]/15 transition-all placeholder:text-[var(--studio-text-muted)] font-[var(--font-body)]"
                 placeholder="e.g. Kagitumba"
                 value={form.via}
                 onChange={e => setForm(f => ({ ...f, via: e.target.value }))}
               />
-              <p className="text-[11px] text-[var(--text-muted)] mt-1.5 font-[var(--font-body)]">The route will be shown as e.g. Kigali → Kampala via Kagitumba. Adding another via to the same corridor creates a distinct route.</p>
+              <p className="text-[11px] text-[var(--studio-text-muted)] mt-1.5 font-[var(--font-body)]">The route will be shown as e.g. Kigali → Kampala via Kagitumba. Adding another via to the same corridor creates a distinct route.</p>
             </div>
 
             <div className="flex items-center justify-end gap-3 pt-2">
@@ -375,11 +375,11 @@ function UpdatePriceModal({ route, onClose, onSave, authFetch }: {
         {success ? (
           <motion.div key="ok" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
             className="py-10 text-center">
-            <div className="w-16 h-16 rounded-full bg-[var(--blue-light)] border border-zinc-200 flex items-center justify-center mx-auto mb-4">
-              <Check size={28} className="text-[var(--blue)]" />
+            <div className="w-16 h-16 rounded-full bg-[var(--studio-accent-soft)] border border-[var(--studio-border)] flex items-center justify-center mx-auto mb-4">
+              <Check size={28} className="text-[var(--studio-accent)]" />
             </div>
-            <p className="text-lg font-semibold text-[var(--text)] font-[var(--font-body)]">Price Updated!</p>
-            <p className="text-sm text-[var(--text-sub)] mt-1">{FRW(route.currentPrice)} → <strong>{FRW(parsedNew)}</strong></p>
+            <p className="text-lg font-semibold text-[var(--studio-text)] font-[var(--font-body)]">Price Updated!</p>
+            <p className="text-sm text-[var(--studio-text-sub)] mt-1">{FRW(route.currentPrice)} → <strong>{FRW(parsedNew)}</strong></p>
           </motion.div>
         ) : (
           <motion.div key="form" className="space-y-4">
@@ -394,26 +394,26 @@ function UpdatePriceModal({ route, onClose, onSave, authFetch }: {
               <RouteChip origin={route.origin} destination={route.destination} via={route.via} size="lg" />
             </div>
 
-            <div className="bg-[var(--bg)] rounded-md p-4 border border-[var(--border)] flex items-center justify-between">
+            <div className="bg-[var(--fill-subtle)] rounded-md p-4 border border-[var(--studio-border)] flex items-center justify-between">
               <div>
-                <p className="text-xs text-[var(--text-muted)] mb-0.5 font-[var(--font-body)]">Current price</p>
-                <p className="text-xl font-bold text-[var(--text)] font-[var(--font-body)]">{FRW(route.currentPrice)}</p>
+                <p className="text-xs text-[var(--studio-text-muted)] mb-0.5 font-[var(--font-body)]">Current price</p>
+                <p className="text-xl font-bold text-[var(--studio-text)] font-[var(--font-body)]">{FRW(route.currentPrice)}</p>
               </div>
               <div className="text-right">
-                <p className="text-xs text-[var(--text-muted)] mb-0.5 font-[var(--font-body)]">Price changes</p>
-                <p className="text-sm font-semibold text-[var(--text-sub)] font-[var(--font-body)]">{route.priceHistory.length} times</p>
+                <p className="text-xs text-[var(--studio-text-muted)] mb-0.5 font-[var(--font-body)]">Price changes</p>
+                <p className="text-sm font-semibold text-[var(--studio-text-sub)] font-[var(--font-body)]">{route.priceHistory.length} times</p>
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[var(--text-sub)] uppercase tracking-wide mb-1.5 font-[var(--font-body)]">New Price (RWF) <span className="text-[var(--error)]">*</span></label>
+              <label className="block text-xs font-semibold text-[var(--studio-text-sub)] uppercase tracking-wide mb-1.5 font-[var(--font-body)]">New Price (RWF) <span className="text-[var(--error)]">*</span></label>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-[var(--text-muted)] font-[var(--font-body)]">RWF</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-[var(--studio-text-muted)] font-[var(--font-body)]">RWF</span>
                 <input
                   type="number"
                   min="0"
                   step="100"
-                  className="w-full border border-[var(--border)] rounded-md pl-11 pr-3 py-2.5 text-base bg-white focus:outline-none focus:border-[var(--blue)] focus:ring-2 focus:ring-[var(--blue)]/15 transition-all placeholder:text-[var(--text-muted)] font-semibold font-[var(--font-body)]"
+                  className="w-full border border-[var(--studio-border)] rounded-md pl-11 pr-3 py-2.5 text-base bg-white focus:outline-none focus:border-[var(--studio-accent)] focus:ring-2 focus:ring-[var(--blue)]/15 transition-all placeholder:text-[var(--studio-text-muted)] font-semibold font-[var(--font-body)]"
                   value={newPrice}
                   onChange={e => setNewPrice(e.target.value)}
                 />
@@ -427,8 +427,8 @@ function UpdatePriceModal({ route, onClose, onSave, authFetch }: {
                   <div
                     className="flex items-center gap-3 px-4 py-3 rounded-md border text-sm font-semibold"
                     style={delta > 0
-                      ? { background: 'var(--error-bg)', borderColor: 'var(--error-border)', color: 'var(--error)' }
-                      : { background: 'rgba(29, 78, 216,0.08)', borderColor: 'rgba(29, 78, 216,0.2)', color: 'var(--blue)' }
+                      ? { background: 'var(--tone-danger-fill)', borderColor: 'var(--tone-danger-line)', color: 'var(--tone-danger-ink)' }
+                      : { background: 'var(--tone-info-fill)', borderColor: 'var(--tone-info-line)', color: 'var(--tone-info-ink)' }
                     }
                   >
                     {delta > 0 ? <TrendingUp size={15} /> : <TrendingDown size={15} />}
@@ -442,10 +442,10 @@ function UpdatePriceModal({ route, onClose, onSave, authFetch }: {
             </AnimatePresence>
 
             <div>
-              <label className="block text-xs font-semibold text-[var(--text-sub)] uppercase tracking-wide mb-1.5 font-[var(--font-body)]">Reason <span className="text-[var(--text-muted)] font-normal normal-case">(optional)</span></label>
+              <label className="block text-xs font-semibold text-[var(--studio-text-sub)] uppercase tracking-wide mb-1.5 font-[var(--font-body)]">Reason <span className="text-[var(--studio-text-muted)] font-normal normal-case">(optional)</span></label>
               <textarea
                 rows={2}
-                className="w-full border border-[var(--border)] rounded-md px-3 py-2.5 text-sm bg-white focus:outline-none focus:border-[var(--blue)] focus:ring-2 focus:ring-[var(--blue)]/15 transition-all placeholder:text-[var(--text-muted)] resize-none font-[var(--font-body)]"
+                className="w-full border border-[var(--studio-border)] rounded-md px-3 py-2.5 text-sm bg-white focus:outline-none focus:border-[var(--studio-accent)] focus:ring-2 focus:ring-[var(--blue)]/15 transition-all placeholder:text-[var(--studio-text-muted)] resize-none font-[var(--font-body)]"
                 placeholder="e.g. Fuel price adjustment, seasonal rate..."
                 value={reason}
                 onChange={e => setReason(e.target.value)}
@@ -530,7 +530,7 @@ function RouteDrawer({
           {/* Route card */}
           <div
             className="rounded-md p-5 relative overflow-hidden"
-            style={{ background: 'linear-gradient(135deg, var(--blue) 0%, #1E3A8A 100%)' }}
+            style={{ background: 'linear-gradient(135deg, var(--studio-accent) 0%, var(--studio-accent-soft) 100%)' }}
           >
             <div className="absolute inset-0 opacity-10">
               <div className="absolute -right-8 -top-8 w-32 h-32 rounded-full border-2 border-white" />
@@ -547,7 +547,7 @@ function RouteDrawer({
                     : { background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.5)' }
                   }
                 >
-                  <span className="w-1.5 h-1.5 rounded-full" style={{ background: route.isActive ? '#60A5FA' : '#94a3b8' }} />
+                  <span className="w-1.5 h-1.5 rounded-full" style={{ background: route.isActive ? 'var(--tone-info-dot)' : 'var(--tone-neutral-dot)' }} />
                   {route.isActive ? 'Active' : 'Inactive'}
                 </span>
               </div>
@@ -581,7 +581,7 @@ function RouteDrawer({
           </div>
 
           {/* Meta */}
-          <div className="bg-[var(--bg)] rounded-md p-4 border border-[var(--border)] grid grid-cols-2 gap-4">
+          <div className="bg-[var(--fill-subtle)] rounded-md p-4 border border-[var(--studio-border)] grid grid-cols-2 gap-4">
             {[
               { label: 'Agency', value: route.agency?.name || '—' },
               { label: 'Price changes', value: String(history.length) },
@@ -590,8 +590,8 @@ function RouteDrawer({
               { label: 'Route ID', value: route.id.slice(0, 8) + '...' },
             ].map(({ label, value }) => (
               <div key={label}>
-                <p className="text-xs text-[var(--text-muted)] mb-0.5 font-[var(--font-body)]">{label}</p>
-                <p className="text-sm font-semibold text-[var(--text)] font-[var(--font-body)]">{value}</p>
+                <p className="text-xs text-[var(--studio-text-muted)] mb-0.5 font-[var(--font-body)]">{label}</p>
+                <p className="text-sm font-semibold text-[var(--studio-text)] font-[var(--font-body)]">{value}</p>
               </div>
             ))}
           </div>
@@ -599,12 +599,12 @@ function RouteDrawer({
           {/* Via point */}
           <div>
             <div className="flex items-center justify-between mb-3">
-              <p className="text-xs font-bold text-[var(--text-sub)] uppercase tracking-wide font-[var(--font-body)]">
+              <p className="text-xs font-bold text-[var(--studio-text-sub)] uppercase tracking-wide font-[var(--font-body)]">
                 Via point
               </p>
               <button
                 onClick={editingVia ? () => setEditingVia(false) : startEditVia}
-                className="text-xs font-semibold text-[var(--blue)] hover:underline flex items-center gap-1 font-[var(--font-body)]"
+                className="text-xs font-semibold text-[var(--studio-accent)] hover:underline flex items-center gap-1 font-[var(--font-body)]"
               >
                 {editingVia ? <><X size={12} /> Cancel</> : <><Edit3 size={12} /> {route.via ? 'Edit via' : 'Add via'}</>}
               </button>
@@ -618,7 +618,7 @@ function RouteDrawer({
                   onChange={e => setViaValue(e.target.value)}
                   onKeyDown={e => { if (e.key === 'Enter') handleSaveVia(); }}
                   placeholder="e.g. Kagitumba"
-                  className="w-full border border-[var(--border)] rounded-md px-3 py-2.5 text-sm bg-white focus:outline-none focus:border-[var(--blue)] focus:ring-2 focus:ring-[var(--blue)]/15 transition-all font-[var(--font-body)]"
+                  className="w-full border border-[var(--studio-border)] rounded-md px-3 py-2.5 text-sm bg-white focus:outline-none focus:border-[var(--studio-accent)] focus:ring-2 focus:ring-[var(--blue)]/15 transition-all font-[var(--font-body)]"
                 />
                 {viaError && (
                   <p className="flex items-center gap-1.5 text-xs text-[var(--error)] font-[var(--font-body)]">
@@ -628,14 +628,14 @@ function RouteDrawer({
                 <div className="flex items-center justify-end gap-2">
                   <button
                     onClick={() => setEditingVia(false)}
-                    className="px-3 py-1.5 text-xs font-medium rounded-md border border-[var(--border)] text-[var(--text-sub)] hover:bg-[var(--bg)] transition-colors font-[var(--font-body)]"
+                    className="px-3 py-1.5 text-xs font-medium rounded-md border border-[var(--studio-border)] text-[var(--studio-text-sub)] hover:bg-[var(--fill-subtle)] transition-colors font-[var(--font-body)]"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={handleSaveVia}
                     disabled={savingVia}
-                    className="px-3 py-1.5 text-xs font-medium rounded-md bg-[var(--blue)] text-white hover:bg-[var(--blue-dark)] flex items-center gap-1.5 disabled:opacity-50 transition-colors font-[var(--font-body)]"
+                    className="px-3 py-1.5 text-xs font-medium rounded-md bg-[var(--studio-accent)] text-white hover:bg-[var(--studio-accent)] flex items-center gap-1.5 disabled:opacity-50 transition-colors font-[var(--font-body)]"
                   >
                     {savingVia ? <Loader2 size={12} className="animate-spin" /> : <Check size={12} />}
                     {savingVia ? 'Saving...' : 'Save via'}
@@ -643,14 +643,14 @@ function RouteDrawer({
                 </div>
               </div>
             ) : (
-              <div className="flex items-center gap-2 bg-white rounded-md border border-[var(--border)] px-3 py-2.5">
-                <MapPin size={14} className="text-[var(--blue)] shrink-0" />
-                <span className="text-sm font-medium text-[var(--text)] font-[var(--font-body)]">
+              <div className="flex items-center gap-2 bg-white rounded-md border border-[var(--studio-border)] px-3 py-2.5">
+                <MapPin size={14} className="text-[var(--studio-accent)] shrink-0" />
+                <span className="text-sm font-medium text-[var(--studio-text)] font-[var(--font-body)]">
                   {route.via ? route.via : 'No via point — direct route'}
                 </span>
               </div>
             )}
-            <p className="text-[11px] text-[var(--text-muted)] mt-1.5 font-[var(--font-body)]">
+            <p className="text-[11px] text-[var(--studio-text-muted)] mt-1.5 font-[var(--font-body)]">
               Adding another via to the same corridor creates a distinct route with the same origin, destination and agency but a different via point.
             </p>
           </div>
@@ -658,14 +658,14 @@ function RouteDrawer({
           {/* Price history */}
           <div>
             <div className="flex items-center justify-between mb-3">
-              <p className="text-xs font-bold text-[var(--text-sub)] uppercase tracking-wide font-[var(--font-body)]">Price History</p>
-              {loadingHistory && <Loader2 size={12} className="animate-spin text-[var(--text-muted)]" />}
+              <p className="text-xs font-bold text-[var(--studio-text-sub)] uppercase tracking-wide font-[var(--font-body)]">Price History</p>
+              {loadingHistory && <Loader2 size={12} className="animate-spin text-[var(--studio-text-muted)]" />}
             </div>
 
             {!loadingHistory && history.length === 0 ? (
-              <div className="text-center py-6 bg-[var(--bg)] rounded-md border border-[var(--border)]">
-                <History size={20} className="mx-auto mb-2 text-[var(--text-muted)]" />
-                <p className="text-xs text-[var(--text-muted)] font-[var(--font-body)]">No price changes yet</p>
+              <div className="text-center py-6 bg-[var(--fill-subtle)] rounded-md border border-[var(--studio-border)]">
+                <History size={20} className="mx-auto mb-2 text-[var(--studio-text-muted)]" />
+                <p className="text-xs text-[var(--studio-text-muted)] font-[var(--font-body)]">No price changes yet</p>
               </div>
             ) : (
               <div className="space-y-2">
@@ -677,29 +677,29 @@ function RouteDrawer({
                       initial={{ opacity: 0, x: 8 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: i * 0.04 }}
-                      className="bg-white rounded-md border border-[var(--border)] p-3"
+                      className="bg-white rounded-md border border-[var(--studio-border)] p-3"
                     >
                       <div className="flex items-start gap-3">
                         <div
                           className="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0 mt-0.5"
-                          style={up ? { background: 'var(--error-bg)' } : { background: 'rgba(29, 78, 216,0.12)' }}
+                          style={up ? { background: 'var(--error-bg)' } : { background: 'var(--tone-info-fill)' }}
                         >
                           {up
                             ? <TrendingUp size={13} className="text-[var(--error)]" />
-                            : <TrendingDown size={13} className="text-[var(--blue)]" />
+                            : <TrendingDown size={13} className="text-[var(--studio-accent)]" />
                           }
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-1.5 flex-wrap">
-                            <span className="text-xs text-[var(--text-sub)] line-through">{FRW(entry.oldPrice)}</span>
-                            <ArrowRight size={10} className="text-[var(--text-muted)] flex-shrink-0" />
-                            <span className="text-sm font-bold text-[var(--text)]">{FRW(entry.newPrice)}</span>
+                            <span className="text-xs text-[var(--studio-text-sub)] line-through">{FRW(entry.oldPrice)}</span>
+                            <ArrowRight size={10} className="text-[var(--studio-text-muted)] flex-shrink-0" />
+                            <span className="text-sm font-bold text-[var(--studio-text)]">{FRW(entry.newPrice)}</span>
                             <DeltaBadge delta={entry.newPrice - entry.oldPrice} />
                           </div>
                           {entry.reason && (
-                            <p className="text-xs text-[var(--text-muted)] mt-0.5 italic font-[var(--font-body)]">&ldquo;{entry.reason}&rdquo;</p>
+                            <p className="text-xs text-[var(--studio-text-muted)] mt-0.5 italic font-[var(--font-body)]">&ldquo;{entry.reason}&rdquo;</p>
                           )}
-                          <p className="text-xs text-[var(--text-muted)] mt-1 flex items-center gap-1 font-[var(--font-body)]">
+                          <p className="text-xs text-[var(--studio-text-muted)] mt-1 flex items-center gap-1 font-[var(--font-body)]">
                             <Clock size={10} />
                             {new Date(entry.changedAt).toLocaleString()}
                           </p>
@@ -716,15 +716,15 @@ function RouteDrawer({
           {route.isActive && (
             <div className="pt-2 space-y-2">
               <button onClick={onUpdatePrice}
-                className="w-full flex items-center gap-2 px-4 py-2.5 rounded-md text-sm font-medium bg-[var(--blue)]/5 hover:bg-[var(--blue)]/10 text-[var(--blue)] transition-colors border border-[var(--blue)]/20 font-[var(--font-body)]">
+                className="w-full flex items-center gap-2 px-4 py-2.5 rounded-md text-sm font-medium bg-[var(--studio-accent)]/5 hover:bg-[var(--studio-accent)]/10 text-[var(--studio-accent)] transition-colors border border-[var(--studio-accent)]/20 font-[var(--font-body)]">
                 <Edit3 size={14} /> Update Price
               </button>
               <button onClick={onDeactivate}
-                className="w-full flex items-center gap-2 px-4 py-2.5 rounded-md text-sm font-medium bg-[#F9FAFB] hover:bg-[#F9FAFB] text-[var(--text-sub)] transition-colors border border-[var(--border)] font-[var(--font-body)]">
+                className="w-full flex items-center gap-2 px-4 py-2.5 rounded-md text-sm font-medium bg-[var(--fill-subtle)] hover:bg-[var(--fill-hover)] text-[var(--studio-text-sub)] transition-colors border border-[var(--studio-border)] font-[var(--font-body)]">
                 <Power size={14} /> Deactivate Route
               </button>
               <button onClick={onDelete}
-                className="w-full flex items-center gap-2 px-4 py-2.5 rounded-md text-sm font-medium bg-red-50 hover:bg-red-100 text-red-600 transition-colors border border-red-200 font-[var(--font-body)]">
+                className="w-full flex items-center gap-2 px-4 py-2.5 rounded-md text-sm font-medium bg-[var(--tone-danger-fill)] hover:bg-[var(--tone-danger-fill)] text-[var(--tone-danger-ink)] transition-colors border border-[var(--tone-danger-line)] font-[var(--font-body)]">
                 <Trash2 size={14} /> Delete Route
               </button>
             </div>
@@ -793,7 +793,7 @@ export default function RoutePricesPage() {
         actions={
           <div className="flex items-center gap-2">
             <button onClick={() => { setPage(1); fetchRoutes(); }}
-              className="p-2 rounded-md border border-[var(--border)] hover:bg-[var(--blue-light)] text-[var(--text-muted)] transition-colors" title="Refresh">
+              className="p-2 rounded-md border border-[var(--studio-border)] hover:bg-[var(--studio-muted-fill)] text-[var(--studio-text-muted)] transition-colors" title="Refresh">
               <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
             </button>
             <Button variant="primary" size="sm" onClick={() => setShowAdd(true)}>
@@ -823,15 +823,15 @@ export default function RoutePricesPage() {
             onClick={() => { setActiveFilter(opt.value); setPage(1); }}
             className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-md border transition-all font-[var(--font-body)]"
             style={activeFilter === opt.value
-              ? { background: 'var(--blue)', color: 'white', borderColor: 'var(--blue)' }
-              : { background: 'white', color: 'var(--text-sub)', borderColor: 'var(--border)' }
+              ? { background: 'var(--studio-accent)', color: 'white', borderColor: 'var(--studio-accent)' }
+              : { background: 'var(--studio-surface)', color: 'var(--studio-text-sub)', borderColor: 'var(--studio-border)' }
             }
           >
             {opt.value === 'true' && <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />}
-            {opt.value === 'false' && <span className="w-1.5 h-1.5 rounded-full bg-slate-300" />}
+            {opt.value === 'false' && <span className="w-1.5 h-1.5 rounded-full bg-[var(--fill-strong)]" />}
             {opt.label}
             {opt.value === '' && (
-              <span className={`text-xs px-1 rounded font-bold ${activeFilter === '' ? 'text-white/70' : 'text-[var(--text-muted)]'}`}>
+              <span className={`text-xs px-1 rounded font-bold ${activeFilter === '' ? 'text-white/70' : 'text-[var(--studio-text-muted)]'}`}>
                 {pagination.total}
               </span>
             )}
@@ -841,9 +841,9 @@ export default function RoutePricesPage() {
 
       {/* Search */}
       <div className="relative max-w-sm">
-        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
+        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--studio-text-muted)]" />
         <input
-          className="w-full pl-9 pr-4 py-2.5 text-sm border border-[var(--border)] rounded-md focus:outline-none focus:border-[var(--blue)] focus:ring-2 focus:ring-[var(--blue)]/15 transition-all bg-white placeholder:text-[var(--text-muted)] font-[var(--font-body)]"
+          className="w-full pl-9 pr-4 py-2.5 text-sm border border-[var(--studio-border)] rounded-md focus:outline-none focus:border-[var(--studio-accent)] focus:ring-2 focus:ring-[var(--blue)]/15 transition-all bg-white placeholder:text-[var(--studio-text-muted)] font-[var(--font-body)]"
           placeholder="Search origin, destination, corridor..."
           value={search}
           onChange={e => { setSearch(e.target.value); setPage(1); }}
@@ -851,24 +851,24 @@ export default function RoutePricesPage() {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-md border border-[var(--border)] overflow-hidden">
+      <div className="bg-white rounded-md border border-[var(--studio-border)] overflow-hidden">
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-[var(--bg)] border-b border-[var(--border)]">
+            <tr className="bg-[var(--fill-subtle)] border-b border-[var(--studio-border)]">
               {['Agency', 'Route', 'Corridor Key', 'Current Price', 'Last Change', 'Changes', 'Status', 'Updated', ''].map(h => (
-                <th key={h} className="px-4 py-3 text-left text-xs font-bold text-[var(--text-sub)] uppercase tracking-wider whitespace-nowrap font-[var(--font-body)]">
+                <th key={h} className="px-4 py-3 text-left text-xs font-bold text-[var(--studio-text-sub)] uppercase tracking-wider whitespace-nowrap font-[var(--font-body)]">
                   {h}
                 </th>
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-[var(--border)]">
+          <tbody className="divide-y divide-[var(--studio-border)]">
             {loading ? (
               Array.from({ length: 7 }).map((_, i) => (
                 <tr key={i}>
                   {Array.from({ length: 9 }).map((_, j) => (
                     <td key={j} className="px-4 py-3.5">
-                      <div className={`h-4 bg-[var(--border)] rounded animate-pulse ${j === 0 ? 'w-40' : j === 2 ? 'w-24' : 'w-16'}`} />
+                      <div className={`h-4 bg-[var(--fill-strong)] rounded animate-pulse ${j === 0 ? 'w-40' : j === 2 ? 'w-24' : 'w-16'}`} />
                     </td>
                   ))}
                 </tr>
@@ -876,10 +876,10 @@ export default function RoutePricesPage() {
             ) : routes.length === 0 ? (
               <tr>
                 <td colSpan={9} className="py-16 text-center">
-                  <MapPin size={28} className="mx-auto mb-3 text-[var(--text-muted)]" />
-                  <p className="text-sm text-[var(--text-sub)] font-[var(--font-body)]">No routes found</p>
+                  <MapPin size={28} className="mx-auto mb-3 text-[var(--studio-text-muted)]" />
+                  <p className="text-sm text-[var(--studio-text-sub)] font-[var(--font-body)]">No routes found</p>
                   {search && (
-                    <button onClick={() => setSearch('')} className="mt-2 text-xs text-[var(--blue)] hover:underline font-[var(--font-body)]">
+                    <button onClick={() => setSearch('')} className="mt-2 text-xs text-[var(--studio-accent)] hover:underline font-[var(--font-body)]">
                       Clear search
                     </button>
                   )}
@@ -898,60 +898,60 @@ export default function RoutePricesPage() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.02 * i }}
-                    className="hover:bg-[var(--blue-light)]/50 transition-colors cursor-pointer group"
+                    className="hover:bg-[var(--studio-muted-fill)]/50 transition-colors cursor-pointer group"
                     onClick={() => setDrawerRoute(route)}
                   >
                     <td className="px-4 py-3.5">
                       <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-md bg-[var(--blue)]/8 flex items-center justify-center flex-shrink-0 group-hover:bg-[var(--blue)]/15 transition-colors">
-                          <ArrowRight size={13} className="text-[var(--blue)]" />
+                        <div className="w-8 h-8 rounded-md bg-[var(--studio-accent)]/8 flex items-center justify-center flex-shrink-0 group-hover:bg-[var(--studio-accent)]/15 transition-colors">
+                          <ArrowRight size={13} className="text-[var(--studio-accent)]" />
                         </div>
                         <RouteChip origin={route.origin} destination={route.destination} via={route.via} />
                       </div>
                     </td>
 
                     <td className="px-4 py-3.5">
-                      <span className="inline-flex items-center text-xs font-semibold bg-[var(--bg)] text-[var(--text)] px-2.5 py-1 rounded-md border border-[var(--border)] whitespace-nowrap">
+                      <span className="inline-flex items-center text-xs font-semibold bg-[var(--fill-subtle)] text-[var(--studio-text)] px-2.5 py-1 rounded-md border border-[var(--studio-border)] whitespace-nowrap">
                         {route.agency?.name || '—'}
                       </span>
                     </td>
 
                     <td className="px-4 py-3.5">
-                      <span className="font-mono text-xs bg-[var(--bg)] text-[var(--text-sub)] px-2 py-1 rounded-md">
+                      <span className="font-mono text-xs bg-[var(--fill-subtle)] text-[var(--studio-text-sub)] px-2 py-1 rounded-md">
                         {route.corridorKey}
                       </span>
                     </td>
 
                     <td className="px-4 py-3.5">
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-bold text-[var(--text)] font-[var(--font-body)]">{FRW(route.currentPrice)}</span>
+                        <span className="text-sm font-bold text-[var(--studio-text)] font-[var(--font-body)]">{FRW(route.currentPrice)}</span>
                         {delta !== null && <DeltaBadge delta={delta} />}
                       </div>
                     </td>
 
                     <td className="px-4 py-3.5">
                       {lastEntry ? (
-                        <div className="text-xs text-[var(--text-sub)]">
+                        <div className="text-xs text-[var(--studio-text-sub)]">
                           <div className="flex items-center gap-1">
-                            <span className="line-through text-[var(--text-muted)]">{FRW(lastEntry.oldPrice)}</span>
-                            <ArrowRight size={9} className="text-[var(--text-muted)]" />
+                            <span className="line-through text-[var(--studio-text-muted)]">{FRW(lastEntry.oldPrice)}</span>
+                            <ArrowRight size={9} className="text-[var(--studio-text-muted)]" />
                             <span>{FRW(lastEntry.newPrice)}</span>
                           </div>
                           {lastEntry.reason && (
-                            <p className="text-[var(--text-muted)] mt-0.5 truncate max-w-[140px] italic font-[var(--font-body)]">
+                            <p className="text-[var(--studio-text-muted)] mt-0.5 truncate max-w-[140px] italic font-[var(--font-body)]">
                               &ldquo;{lastEntry.reason}&rdquo;
                             </p>
                           )}
                         </div>
                       ) : (
-                        <span className="text-[var(--text-muted)] text-xs">—</span>
+                        <span className="text-[var(--studio-text-muted)] text-xs">—</span>
                       )}
                     </td>
 
                     <td className="px-4 py-3.5">
                       <div className="flex items-center gap-1.5">
-                        <History size={11} className="text-[var(--text-muted)]" />
-                        <span className="text-sm text-[var(--text-sub)] font-medium">{route.priceHistory.length}</span>
+                        <History size={11} className="text-[var(--studio-text-muted)]" />
+                        <span className="text-sm text-[var(--studio-text-sub)] font-medium">{route.priceHistory.length}</span>
                       </div>
                     </td>
 
@@ -959,16 +959,16 @@ export default function RoutePricesPage() {
                       <span
                         className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-md"
                         style={route.isActive
-                          ? { background: 'rgba(29, 78, 216,0.12)', color: 'var(--blue)' }
+                          ? { background: 'var(--tone-info-fill)', color: 'var(--tone-info-ink)' }
                           : { background: 'var(--bg)', color: 'var(--text-sub)' }
                         }
                       >
-                        <span className="w-1.5 h-1.5 rounded-full" style={{ background: route.isActive ? 'var(--blue)' : '#94a3b8' }} />
+                        <span className="w-1.5 h-1.5 rounded-full" style={{ background: route.isActive ? 'var(--tone-info-dot)' : 'var(--tone-neutral-dot)' }} />
                         {route.isActive ? 'Active' : 'Inactive'}
                       </span>
                     </td>
 
-                    <td className="px-4 py-3.5 text-xs text-[var(--text-muted)] whitespace-nowrap">
+                    <td className="px-4 py-3.5 text-xs text-[var(--studio-text-muted)] whitespace-nowrap">
                       <div className="flex items-center gap-1 font-[var(--font-body)]">
                         <Clock size={10} />
                         {timeAgo(route.updatedAt)}
@@ -994,13 +994,13 @@ export default function RoutePricesPage() {
 
         {/* Pagination */}
         {pagination.totalPages > 1 && (
-          <div className="flex items-center justify-between px-4 py-3 border-t border-[var(--border)] bg-[var(--bg)]/50">
-            <p className="text-xs text-[var(--text-muted)] font-[var(--font-body)]">
+          <div className="flex items-center justify-between px-4 py-3 border-t border-[var(--studio-border)] bg-[var(--fill-subtle)]/50">
+            <p className="text-xs text-[var(--studio-text-muted)] font-[var(--font-body)]">
               Showing {((page - 1) * 20) + 1}–{Math.min(page * 20, pagination.total)} of {pagination.total}
             </p>
             <div className="flex items-center gap-1">
               <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
-                className="px-3 py-1.5 text-xs rounded-md border border-[var(--border)] hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors font-[var(--font-body)]">
+                className="px-3 py-1.5 text-xs rounded-md border border-[var(--studio-border)] hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors font-[var(--font-body)]">
                 Previous
               </button>
               {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
@@ -1009,15 +1009,15 @@ export default function RoutePricesPage() {
                   <button key={p} onClick={() => setPage(p)}
                     className="w-8 h-7 text-xs rounded-md border transition-colors font-[var(--font-body)]"
                     style={p === page
-                      ? { background: 'var(--blue)', color: 'white', borderColor: 'var(--blue)' }
-                      : { background: 'white', color: 'var(--text-sub)', borderColor: 'var(--border)' }
+                      ? { background: 'var(--studio-accent)', color: 'white', borderColor: 'var(--studio-accent)' }
+                      : { background: 'var(--studio-surface)', color: 'var(--studio-text-sub)', borderColor: 'var(--studio-border)' }
                     }>
                     {p}
                   </button>
                 );
               })}
               <button onClick={() => setPage(p => Math.min(pagination.totalPages, p + 1))} disabled={page === pagination.totalPages}
-                className="px-3 py-1.5 text-xs rounded-md border border-[var(--border)] hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors font-[var(--font-body)]">
+                className="px-3 py-1.5 text-xs rounded-md border border-[var(--studio-border)] hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors font-[var(--font-body)]">
                 Next
               </button>
             </div>

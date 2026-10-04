@@ -20,41 +20,41 @@ import DataTable, { Column } from '../../components/studio/DataTable'
 import StudioPagination from '../../components/studio/StudioPagination'
 import EmptyState from '../../components/studio/EmptyState'
 
-const ACCENT = '#1D4ED8'
+const ACCENT = 'var(--studio-accent)'
 const RECENT_PER_PAGE = 8
 
 const STATUS_ORDER = ['pending', 'confirmed', 'issued', 'rejected', 'cancelled'] as const
 const STATUS_META: Record<string, { color: string }> = {
-  pending: { color: '#D97706' },
-  confirmed: { color: '#1D4ED8' },
-  issued: { color: '#059669' },
-  rejected: { color: '#DC2626' },
-  cancelled: { color: '#71717A' },
+  pending: { color: 'var(--tone-warning-dot)' },
+  confirmed: { color: 'var(--tone-info-dot)' },
+  issued: { color: 'var(--tone-success-dot)' },
+  rejected: { color: 'var(--tone-danger-dot)' },
+  cancelled: { color: 'var(--tone-neutral-dot)' },
 }
 
 const STATUS_PILL: Record<string, string> = {
-  pending: 'bg-amber-50 text-amber-700',
-  confirmed: 'bg-blue-50 text-blue-700',
-  issued: 'bg-emerald-50 text-emerald-700',
-  rejected: 'bg-red-50 text-red-700',
+  pending: 'bg-[var(--tone-warning-fill)] text-[var(--tone-warning-ink)]',
+  confirmed: 'bg-[var(--tone-info-fill)] text-[var(--tone-info-ink)]',
+  issued: 'bg-[var(--tone-success-fill)] text-[var(--tone-success-ink)]',
+  rejected: 'bg-[var(--tone-danger-fill)] text-[var(--tone-danger-ink)]',
   cancelled: 'bg-[var(--studio-muted-fill)] text-[var(--studio-text-sub)]',
 }
 
 const PAYMENT_ORDER = ['paid', 'pending', 'processing', 'failed', 'refunded'] as const
 const PAYMENT_META: Record<string, { color: string }> = {
-  paid: { color: '#059669' },
-  pending: { color: '#D97706' },
-  processing: { color: '#1D4ED8' },
-  failed: { color: '#DC2626' },
-  refunded: { color: '#7C3AED' },
+  paid: { color: 'var(--tone-success-dot)' },
+  pending: { color: 'var(--tone-warning-dot)' },
+  processing: { color: 'var(--tone-info-dot)' },
+  failed: { color: 'var(--tone-danger-dot)' },
+  refunded: { color: 'var(--tone-accent-dot)' },
 }
 
 const PAYMENT_PILL: Record<string, string> = {
-  paid: 'bg-emerald-50 text-emerald-700',
-  pending: 'bg-amber-50 text-amber-700',
-  processing: 'bg-blue-50 text-blue-700',
-  failed: 'bg-red-50 text-red-700',
-  refunded: 'bg-purple-50 text-purple-700',
+  paid: 'bg-[var(--tone-success-fill)] text-[var(--tone-success-ink)]',
+  pending: 'bg-[var(--tone-warning-fill)] text-[var(--tone-warning-ink)]',
+  processing: 'bg-[var(--tone-info-fill)] text-[var(--tone-info-ink)]',
+  failed: 'bg-[var(--tone-danger-fill)] text-[var(--tone-danger-ink)]',
+  refunded: 'bg-[var(--tone-accent-fill)] text-[var(--tone-accent-ink)]',
 }
 
 const TOOLTIP_STYLE = {
@@ -238,7 +238,7 @@ export default function SystemDashboard() {
     return (
       <span
         className={`inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full ${
-          isMomo ? 'bg-amber-50 text-amber-700' : 'bg-blue-50 text-blue-700'
+          isMomo ? 'bg-[var(--tone-warning-fill)] text-[var(--tone-warning-ink)]' : 'bg-[var(--tone-info-fill)] text-[var(--tone-info-ink)]'
         }`}
         title={isMomo ? t('dashboard.ops.momoChannelTitle') : t('dashboard.ops.onlineChannelTitle')}
       >
@@ -472,9 +472,9 @@ export default function SystemDashboard() {
                   yAxisId="revenue"
                   type="monotone"
                   dataKey="Revenue"
-                  stroke="#D97706"
+                  stroke="var(--tone-warning-dot)"
                   strokeWidth={2}
-                  dot={{ r: 2, fill: '#D97706', strokeWidth: 0 }}
+                  dot={{ r: 2, fill: 'var(--tone-warning-dot)', strokeWidth: 0 }}
                 />
               </ComposedChart>
             </ResponsiveContainer>
@@ -563,7 +563,7 @@ export default function SystemDashboard() {
               {[
                 { key: 'gross', label: t('dashboard.ops.grossRevenue'), value: revenueTotal, color: 'var(--studio-text)' },
                 { key: 'fees', label: t('dashboard.ops.platformFees'), value: revenueFees, color: ACCENT },
-                { key: 'net', label: t('dashboard.ops.paidToAgencies'), value: revenueNet, color: '#93C5FD' },
+                { key: 'net', label: t('dashboard.ops.paidToAgencies'), value: revenueNet, color: 'var(--tone-info-dot)' },
               ].map((item) => {
                 const max = revenueTotal || 1
                 const pct = Math.min((item.value / max) * 100, 100)
@@ -699,7 +699,7 @@ export default function SystemDashboard() {
                 </p>
                 {[
                   { key: 'registered', label: t('dashboard.ops.registeredUsersLabel'), value: bookingMix.registered || 0, color: ACCENT },
-                  { key: 'guest', label: t('dashboard.ops.guestLabel'), value: bookingMix.guest || 0, color: '#D97706' },
+                  { key: 'guest', label: t('dashboard.ops.guestLabel'), value: bookingMix.guest || 0, color: 'var(--tone-warning-dot)' },
                 ].map((row) => {
                   const pct = mixTotal > 0 ? Math.round((row.value / mixTotal) * 100) : 0
                   return (

@@ -247,37 +247,37 @@ export default function ScheduleManagement() {
       </div>
 
       {!agencyId && (
-        <div className="bg-white rounded-md border border-[var(--border)] p-10 text-center">
-          <Building2 size={40} className="mx-auto text-[var(--text-muted)] mb-3" />
-          <p className="text-sm font-semibold text-[var(--text-sub)]">Select a bus agency to manage its schedules</p>
+        <div className="bg-white rounded-md border border-[var(--studio-border)] p-10 text-center">
+          <Building2 size={40} className="mx-auto text-[var(--studio-text-muted)] mb-3" />
+          <p className="text-sm font-semibold text-[var(--studio-text-sub)]">Select a bus agency to manage its schedules</p>
         </div>
       )}
 
       {agencyId && !routeId && (
-        <div className="bg-white rounded-md border border-[var(--border)] p-10 text-center">
-          <Bus size={40} className="mx-auto text-[var(--text-muted)] mb-3" />
-          <p className="text-sm font-semibold text-[var(--text-sub)]">{loadingRoutes ? 'Loading routes…' : 'Select a route to manage its schedules'}</p>
+        <div className="bg-white rounded-md border border-[var(--studio-border)] p-10 text-center">
+          <Bus size={40} className="mx-auto text-[var(--studio-text-muted)] mb-3" />
+          <p className="text-sm font-semibold text-[var(--studio-text-sub)]">{loadingRoutes ? 'Loading routes…' : 'Select a route to manage its schedules'}</p>
         </div>
       )}
 
       {agencyId && routeId && selectedRoute && (
         <div className="space-y-6">
           {/* Route summary */}
-          <div className="flex items-center justify-between flex-wrap gap-3 bg-white rounded-md border border-[var(--border)] px-4 py-3">
+          <div className="flex items-center justify-between flex-wrap gap-3 bg-white rounded-md border border-[var(--studio-border)] px-4 py-3">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-md bg-[var(--blue-bg)] text-[var(--blue)] flex items-center justify-center">
+              <div className="w-9 h-9 rounded-md bg-[var(--blue-bg)] text-[var(--studio-accent)] flex items-center justify-center">
                 <Bus size={16} />
               </div>
               <div>
-                <p className="text-sm font-bold text-[var(--text)]">{selectedRoute.origin} → {selectedRoute.destination}<span className="text-[var(--text-sub)] font-medium">{viaLabel(selectedRoute.via)}</span></p>
-                <p className="text-xs text-[var(--text-sub)]">{selectedAgency?.name}</p>
+                <p className="text-sm font-bold text-[var(--studio-text)]">{selectedRoute.origin} → {selectedRoute.destination}<span className="text-[var(--studio-text-sub)] font-medium">{viaLabel(selectedRoute.via)}</span></p>
+                <p className="text-xs text-[var(--studio-text-sub)]">{selectedAgency?.name}</p>
               </div>
             </div>
           </div>
 
           {(error || notice) && (
             <div className={`flex items-center gap-2 px-3.5 py-2.5 rounded-md text-sm font-medium border ${
-              error ? 'bg-red-50 text-red-700 border-red-200' : 'bg-[var(--blue-bg)] text-[var(--blue-dark)] border-[var(--blue-border)]'
+              error ? 'bg-[var(--tone-danger-fill)] text-[var(--tone-danger-ink)] border-[var(--tone-danger-line)]' : 'bg-[var(--blue-bg)] text-[var(--studio-accent)] border-[var(--blue-border)]'
             }`}>
               {error ? <Ban size={14} className="shrink-0" /> : <CheckCircle size={14} className="shrink-0" />}
               {error || notice}
@@ -285,13 +285,13 @@ export default function ScheduleManagement() {
           )}
 
           {/* Weekly recurring schedule */}
-          <div className="bg-white rounded-md border border-[var(--border)] overflow-hidden">
-            <div className="px-4 py-3 border-b border-[var(--border)] flex items-center justify-between flex-wrap gap-2">
+          <div className="bg-white rounded-md border border-[var(--studio-border)] overflow-hidden">
+            <div className="px-4 py-3 border-b border-[var(--studio-border)] flex items-center justify-between flex-wrap gap-2">
               <div className="flex items-center gap-2">
-                <Clock size={14} className="text-[var(--blue)]" />
-                <span className="text-sm font-bold text-[var(--text)]">Weekly schedule (recurring)</span>
+                <Clock size={14} className="text-[var(--studio-accent)]" />
+                <span className="text-sm font-bold text-[var(--studio-text)]">Weekly schedule (recurring)</span>
               </div>
-              <span className="text-[11px] text-[var(--text-muted)]">Travel hours that repeat every week</span>
+              <span className="text-[11px] text-[var(--studio-text-muted)]">Travel hours that repeat every week</span>
             </div>
 
             {/* Day tabs */}
@@ -302,10 +302,10 @@ export default function ScheduleManagement() {
                 return (
                   <button key={day.value} onClick={() => setSelectedDay(day.value)}
                     className={`px-3 py-1.5 rounded-md text-xs font-semibold border cursor-pointer transition-colors whitespace-nowrap ${
-                      active ? 'bg-[var(--blue)] text-white border-[var(--blue)]' : 'bg-[#F9FAFB] text-[var(--text-sub)] border-[var(--border)] hover:border-[var(--blue)]'
+                      active ? 'bg-[var(--studio-accent)] text-white border-[var(--studio-accent)]' : 'bg-[var(--fill-subtle)] text-[var(--studio-text-sub)] border-[var(--studio-border)] hover:border-[var(--studio-accent)]'
                     }`}>
                     {day.label}
-                    {count > 0 && <span className={`ml-1.5 text-[10px] font-bold ${active ? 'text-white/80' : 'text-[var(--text-muted)]'}`}>({count})</span>}
+                    {count > 0 && <span className={`ml-1.5 text-[10px] font-bold ${active ? 'text-white/80' : 'text-[var(--studio-text-muted)]'}`}>({count})</span>}
                   </button>
                 );
               })}
@@ -314,13 +314,13 @@ export default function ScheduleManagement() {
             <div className="p-4">
               {loadingSchedule && timeSlotsForDay.length === 0 ? (
                 <div className="text-center py-8">
-                  <Loader size={22} className="mx-auto animate-spin text-[var(--blue)]" />
+                  <Loader size={22} className="mx-auto animate-spin text-[var(--studio-accent)]" />
                 </div>
               ) : timeSlotsForDay.length === 0 ? (
-                <div className="text-center py-6 bg-[#F9FAFB] rounded-md border border-[var(--border)]">
-                  <Clock size={26} className="mx-auto text-[var(--text-muted)] mb-2" />
-                  <p className="text-sm font-semibold text-[var(--text-sub)]">No travel hours on {DAY_NAMES[selectedDay]}</p>
-                  <p className="text-xs text-[var(--text-muted)] mt-0.5">Add the departure hours this route runs on this day.</p>
+                <div className="text-center py-6 bg-[var(--fill-subtle)] rounded-md border border-[var(--studio-border)]">
+                  <Clock size={26} className="mx-auto text-[var(--studio-text-muted)] mb-2" />
+                  <p className="text-sm font-semibold text-[var(--studio-text-sub)]">No travel hours on {DAY_NAMES[selectedDay]}</p>
+                  <p className="text-xs text-[var(--studio-text-muted)] mt-0.5">Add the departure hours this route runs on this day.</p>
                 </div>
               ) : (
                 <div className="flex flex-wrap gap-2 mb-4">
@@ -328,11 +328,11 @@ export default function ScheduleManagement() {
                     const key = `w-rem-${selectedDay}-${time}`;
                     return (
                       <motion.span key={time} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
-                        className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-[var(--blue-bg)] border border-[var(--blue-border)] text-[var(--blue-dark)] text-xs font-bold">
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-[var(--blue-bg)] border border-[var(--blue-border)] text-[var(--studio-accent)] text-xs font-bold">
                         <Clock size={11} />
                         {time}
                         <button onClick={() => handleRemoveWeekly(time)} disabled={actionLoading === key}
-                          className="text-[var(--blue-dark)]/50 hover:text-red-600 cursor-pointer transition-colors border-none bg-transparent p-0 flex items-center" aria-label={`Remove ${time}`}>
+                          className="text-[var(--studio-accent)]/50 hover:text-[var(--tone-danger-ink)] cursor-pointer transition-colors border-none bg-transparent p-0 flex items-center" aria-label={`Remove ${time}`}>
                           {actionLoading === key ? <Loader size={11} className="animate-spin" /> : <X size={11} />}
                         </button>
                       </motion.span>
@@ -354,13 +354,13 @@ export default function ScheduleManagement() {
           </div>
 
           {/* Date overrides */}
-          <div className="bg-white rounded-md border border-[var(--border)] overflow-hidden">
-            <div className="px-4 py-3 border-b border-[var(--border)] flex items-center justify-between flex-wrap gap-2">
+          <div className="bg-white rounded-md border border-[var(--studio-border)] overflow-hidden">
+            <div className="px-4 py-3 border-b border-[var(--studio-border)] flex items-center justify-between flex-wrap gap-2">
               <div className="flex items-center gap-2">
-                <CalendarDays size={14} className="text-[var(--blue)]" />
-                <span className="text-sm font-bold text-[var(--text)]">Date overrides</span>
+                <CalendarDays size={14} className="text-[var(--studio-accent)]" />
+                <span className="text-sm font-bold text-[var(--studio-text)]">Date overrides</span>
               </div>
-              <span className="text-[11px] text-[var(--text-muted)]">One-off changes for a single day</span>
+              <span className="text-[11px] text-[var(--studio-text-muted)]">One-off changes for a single day</span>
             </div>
 
             <div className="p-4">
@@ -374,13 +374,13 @@ export default function ScheduleManagement() {
                 <div className="flex gap-1.5 mb-0.5">
                   <button onClick={() => setOverrideAction('add')}
                     className={`px-3 h-9 rounded-md text-xs font-semibold border cursor-pointer transition-colors ${
-                      overrideAction === 'add' ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-[#F9FAFB] text-[var(--text-sub)] border-[var(--border)] hover:border-emerald-500'
+                      overrideAction === 'add' ? 'bg-[var(--solid-success)] text-white border-emerald-600' : 'bg-[var(--fill-subtle)] text-[var(--studio-text-sub)] border-[var(--studio-border)] hover:border-[var(--tone-success-line)]'
                     }`}>
                     Add departure
                   </button>
                   <button onClick={() => setOverrideAction('remove')}
                     className={`px-3 h-9 rounded-md text-xs font-semibold border cursor-pointer transition-colors ${
-                      overrideAction === 'remove' ? 'bg-red-600 text-white border-red-600' : 'bg-[#F9FAFB] text-[var(--text-sub)] border-[var(--border)] hover:border-red-500'
+                      overrideAction === 'remove' ? 'bg-[var(--solid-danger)] text-white border-red-600' : 'bg-[var(--fill-subtle)] text-[var(--studio-text-sub)] border-[var(--studio-border)] hover:border-[var(--tone-danger-line)]'
                     }`}>
                     Remove departure
                   </button>
@@ -391,27 +391,27 @@ export default function ScheduleManagement() {
               </div>
 
               {overrides.length === 0 ? (
-                <div className="text-center py-5 bg-[#F9FAFB] rounded-md border border-[var(--border)]">
-                  <p className="text-sm font-semibold text-[var(--text-sub)]">No overrides for this date</p>
-                  <p className="text-xs text-[var(--text-muted)] mt-0.5">The weekly schedule applies as-is on {selectedDate}.</p>
+                <div className="text-center py-5 bg-[var(--fill-subtle)] rounded-md border border-[var(--studio-border)]">
+                  <p className="text-sm font-semibold text-[var(--studio-text-sub)]">No overrides for this date</p>
+                  <p className="text-xs text-[var(--studio-text-muted)] mt-0.5">The weekly schedule applies as-is on {selectedDate}.</p>
                 </div>
               ) : (
                 <div className="space-y-2">
                   {overrides.map(o => {
                     const key = `o-rem-${o.travelTime}`;
                     return (
-                      <div key={o._id} className="flex items-center justify-between px-3 py-2 rounded-md border border-[var(--border)] bg-[#F9FAFB]">
-                        <div className="flex items-center gap-2 text-xs font-bold text-[var(--text)]">
-                          <ArrowUpDown size={12} className="text-[var(--text-muted)]" />
+                      <div key={o._id} className="flex items-center justify-between px-3 py-2 rounded-md border border-[var(--studio-border)] bg-[var(--fill-subtle)]">
+                        <div className="flex items-center gap-2 text-xs font-bold text-[var(--studio-text)]">
+                          <ArrowUpDown size={12} className="text-[var(--studio-text-muted)]" />
                           {o.travelTime}
                           <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
-                            o.action === 'add' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'
+                            o.action === 'add' ? 'bg-[var(--tone-success-fill)] text-[var(--tone-success-ink)]' : 'bg-[var(--tone-danger-fill)] text-[var(--tone-danger-ink)]'
                           }`}>
                             {o.action === 'add' ? 'Added' : 'Removed'}
                           </span>
                         </div>
                         <button onClick={() => handleRemoveOverride(o.travelTime)} disabled={actionLoading === key}
-                          className="text-[var(--text-muted)] hover:text-red-600 cursor-pointer transition-colors border-none bg-transparent p-0" aria-label="Clear override">
+                          className="text-[var(--studio-text-muted)] hover:text-[var(--tone-danger-ink)] cursor-pointer transition-colors border-none bg-transparent p-0" aria-label="Clear override">
                           {actionLoading === key ? <Loader size={13} className="animate-spin" /> : <X size={13} />}
                         </button>
                       </div>
@@ -423,11 +423,11 @@ export default function ScheduleManagement() {
           </div>
 
           {/* Effective preview */}
-          <div className="bg-white rounded-md border border-[var(--border)] overflow-hidden">
-            <div className="px-4 py-3 border-b border-[var(--border)] flex items-center gap-2">
-              <Info size={14} className="text-[var(--blue)]" />
-              <span className="text-sm font-bold text-[var(--text)]">Effective schedule — {selectedDate}</span>
-              <span className="text-[11px] text-[var(--text-muted)]">
+          <div className="bg-white rounded-md border border-[var(--studio-border)] overflow-hidden">
+            <div className="px-4 py-3 border-b border-[var(--studio-border)] flex items-center gap-2">
+              <Info size={14} className="text-[var(--studio-accent)]" />
+              <span className="text-sm font-bold text-[var(--studio-text)]">Effective schedule — {selectedDate}</span>
+              <span className="text-[11px] text-[var(--studio-text-muted)]">
                 ({DAY_NAMES[new Date(selectedDate + 'T00:00:00').getDay()]})
               </span>
             </div>
@@ -435,15 +435,15 @@ export default function ScheduleManagement() {
               {effectiveTimes.configured ? (
                 <div className="flex flex-wrap gap-2">
                   {effectiveTimes.times.length > 0 ? effectiveTimes.times.map(t => (
-                    <span key={t} className="px-2.5 py-1.5 rounded-md bg-[#F9FAFB] border border-[var(--border)] text-xs font-bold text-[var(--text)]">
+                    <span key={t} className="px-2.5 py-1.5 rounded-md bg-[var(--fill-subtle)] border border-[var(--studio-border)] text-xs font-bold text-[var(--studio-text)]">
                       {t}
                     </span>
                   )) : (
-                    <p className="text-sm font-semibold text-[var(--text-sub)]">No departures run on this day.</p>
+                    <p className="text-sm font-semibold text-[var(--studio-text-sub)]">No departures run on this day.</p>
                   )}
                 </div>
               ) : (
-                <div className="flex items-center gap-2 text-sm text-[var(--text-sub)]">
+                <div className="flex items-center gap-2 text-sm text-[var(--studio-text-sub)]">
                   <Info size={14} className="shrink-0" />
                   No schedule configured for this route yet — the booking page will keep showing all departure times until you add travel hours.
                 </div>

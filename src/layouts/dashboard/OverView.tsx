@@ -241,7 +241,7 @@ export default function OverviewPage() {
   const revenueRows = [
     { key: 'gross', label: t('dashboard.ops.grossRevenue'), value: revenueTotal, color: 'var(--studio-text)' },
     { key: 'fees', label: t('dashboard.ops.platformFees'), value: revenueFees, color: 'var(--studio-accent)' },
-    { key: 'net', label: t('dashboard.ops.netEarnings'), value: revenueNet, color: '#93C5FD' },
+    { key: 'net', label: t('dashboard.ops.netEarnings'), value: revenueNet, color: 'var(--tone-info-dot)' },
   ]
 
   const sectionPill =

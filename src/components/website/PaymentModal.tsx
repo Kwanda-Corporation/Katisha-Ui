@@ -450,7 +450,7 @@ export default function PaymentModal({
   };
 
   return (
-    <ModalFrame open={open} onClose={onClose} labelledBy="payment-modal-title" maxWidth={900} height={MODAL_VIEWPORT_HEIGHT}>
+    <ModalFrame sheet open={open} onClose={onClose} labelledBy="payment-modal-title" maxWidth={900} height={MODAL_VIEWPORT_HEIGHT}>
       <div className="relative flex flex-col md:flex-row flex-1 min-h-0">
         {/* Close button */}
         <button

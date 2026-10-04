@@ -86,6 +86,16 @@ function RootRedirect() {
   return <Navigate to={ROLE_HOME[user.role]} replace />;
 }
 
+// Opening the site while signed in as a promoter should land on the promoter
+// dashboard, not the booking/onboarding page.
+function HomeEntry() {
+  const { isAuthenticated, user, hasRole } = useAuth();
+  if (isAuthenticated && user && hasRole(UserRole.PROMOTER)) {
+    return <Navigate to="/dashboard/promoter" replace />;
+  }
+  return <Onboarding />;
+}
+
 // ── All routes live here so useNavigate works inside the router ────────────────
 function RouteFallback() {
   return (
@@ -100,8 +110,8 @@ export default function AppRoutes() {
     <Suspense fallback={<RouteFallback />}>
     <Routes>
       {/* Public routes */}
-      <Route path="/" element={<Onboarding />} />
-      <Route path="/welcome" element={<Onboarding />} />
+      <Route path="/" element={<HomeEntry />} />
+      <Route path="/welcome" element={<HomeEntry />} />
       <Route path="/auth-choice" element={<AuthChoice />} />
       <Route path="/book" element={<WebsiteHome />} />
       <Route path="/bus/:slug" element={<RouteLandingPage />} />

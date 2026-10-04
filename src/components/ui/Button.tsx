@@ -38,7 +38,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           font-[var(--font-body)] font-semibold tracking-[0.2px]
           cursor-pointer transition-all duration-200 ease-out
           active:scale-[0.98]
-          focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[rgba(29, 78, 216,0.35)]
+          focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)]
           ${variantStyles[variant]}
           ${sizeStyles[size]}
           ${fullWidth ? 'w-full' : ''}
