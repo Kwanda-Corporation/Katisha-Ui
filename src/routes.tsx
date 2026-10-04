@@ -20,6 +20,7 @@ const Onboarding = lazy(() => import('./pages/website/Onboarding'));
 const MyBookings = lazy(() => import('./pages/website/MyBookings'));
 const TicketView = lazy(() => import('./pages/website/TicketView'));
 const AgencyRoutesPage = lazy(() => import('./pages/website/AgencyRoutes'));
+const PrivacyPolicy = lazy(() => import('./pages/website/PrivacyPolicy'));
 const BookingGuide = lazy(() => import('./pages/website/BookingGuide'));
 const RouteLandingPage = lazy(() => import('./pages/website/RouteLandingPage'));
 const RouteHubPage = lazy(() => import('./pages/website/RouteHubPage'));
@@ -123,6 +124,7 @@ export default function AppRoutes() {
       <Route path="/ticket/:bookingId" element={<TicketView />} />
       <Route path="/payment/:referenceCode" element={<PaymentStatus />} />
       <Route path="/guide" element={<BookingGuide />} />
+      <Route path="/privacy" element={<PrivacyPolicy />} />
       <Route path="/redirect" element={<RootRedirect />} />
       <Route path="/login"           element={<GuestRoute><Login /></GuestRoute>} />
       {/* There is no standalone sign-up page any more: promoter signup is the

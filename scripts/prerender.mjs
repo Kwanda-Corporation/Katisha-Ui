@@ -41,6 +41,7 @@ const STATIC_ROUTES = [
   '/welcome',
   '/book',
   '/guide',
+  '/privacy',
   '/bus/rwanda',
   '/bus/east-africa',
   // Account-area pages: noindex + self-canonical so they never resolve to a
