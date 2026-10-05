@@ -7,6 +7,7 @@ import StudioCard from '../../components/studio/StudioCard'
 import EmptyState from '../../components/studio/EmptyState'
 import Button from '../../components/ui/Button'
 import PromoterSettingsModal from './PromoterSettingsModal'
+import { useSocket } from '../../contexts/SocketContext'
 import api from '../../api'
 
 const rwf = (n: number) => `${Number(n || 0).toLocaleString('en-RW')} RWF`
@@ -19,6 +20,16 @@ export default function PromoterDashboard() {
   const [error, setError] = useState<string | null>(null)
   const [copied, setCopied] = useState<'link' | 'code' | null>(null)
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const { socket } = useSocket()
+
+  // Live link-open updates: a promoter no longer has to refresh to see a new open.
+  useEffect(() => {
+    if (!socket) return
+    const onClick = () =>
+      setStats((s: any) => (s ? { ...s, linkClicks: (s.linkClicks ?? 0) + 1 } : s))
+    socket.on('promoter:link-click', onClick)
+    return () => { socket.off('promoter:link-click', onClick) }
+  }, [socket])
 
   useEffect(() => {
     let alive = true
