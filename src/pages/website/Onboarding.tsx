@@ -54,7 +54,7 @@ function EarnFromKatishaPill({
   onClick: () => void;
 }) {
   return (
-    <div className="group fixed right-14 top-10 z-20">
+    <div className="group fixed right-14 top-12 z-20">
       <span
         role="tooltip"
         className="pointer-events-none absolute left-0 top-[calc(100%+8px)] w-max max-w-[240px] rounded-lg bg-[var(--text)] px-3 py-2 text-xs text-white opacity-0 shadow-lg transition-opacity duration-150 group-hover:opacity-100 group-focus-within:opacity-100"
@@ -92,7 +92,7 @@ function EarnFromKatishaPill({
       <div className="relative">
         <button
           type="button"
-          className="relative inline-flex items-center gap-2 h-11 px-5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition-colors duration-500 cursor-pointer"
+          className="relative inline-flex items-center gap-2 h-11  px-5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-normal transition-colors duration-500 cursor-pointer"
           onClick={onClick}
         >
           
