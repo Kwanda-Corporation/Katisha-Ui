@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { api } from '../../api';
-import { useTranslation } from '../../../node_modules/react-i18next';
+import { useTranslation } from 'react-i18next';
 import { MapPin, Download, Loader2, Search, CalendarDays } from 'lucide-react';
 
 function esc(s: string): string {

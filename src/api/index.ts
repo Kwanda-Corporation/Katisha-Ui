@@ -103,6 +103,8 @@ export const api = {
   resetPassword: (data: any) => request('/auth/reset-password', { method: 'POST', body: JSON.stringify(data) }),
   getProfile: () => request('/auth/profile'),
   updateProfile: (data: any) => request('/auth/profile', { method: 'PATCH', body: JSON.stringify(data) }),
+  changePassword: (data: { currentPassword: string; newPassword: string; confirmPassword: string }) =>
+    request('/auth/change-password', { method: 'PATCH', body: JSON.stringify(data) }),
   createUserWithInvite: (data: any) => request('/auth/create-user', { method: 'POST', body: JSON.stringify(data) }),
   verifySetupToken: (token: string) => request(`/auth/verify-setup?token=${token}`),
   setupAccount: (data: any) => request('/auth/setup-account', { method: 'POST', body: JSON.stringify(data) }),
@@ -146,10 +148,6 @@ export const api = {
   viewTicket: (id: string) => request(`/bookings/${id}/ticket`),
   getTakenSeats: (params: Record<string, string>) => request('/bookings/taken-seats', { params }),
   getPaymentConfig: () => request('/bookings/payment-config'),
-  getPendingMomoPayments: (params?: Record<string, string>) => request('/bookings/payments/momo/pending', { params }),
-  approveMomoPayment: (id: string) => request(`/bookings/${id}/payment/approve`, { method: 'PATCH' }),
-  rejectMomoPayment: (id: string, reason?: string) =>
-    request(`/bookings/${id}/payment/reject`, { method: 'PATCH', body: JSON.stringify({ reason }) }),
 
   // Departure Blocks
   getDepartureSchedule: (params: Record<string, string>) => request('/departure-blocks/schedule', { params }),
@@ -231,11 +229,32 @@ export const api = {
   updateSettings: (settings: Record<string, any>) =>
     request('/settings/bulk', { method: 'PUT', body: JSON.stringify({ settings }) }),
 
-  // Accounting (system payouts)
+  // Promoter
+  getPromoterProfile: () => request('/promoter/profile'),
+  updatePromoterProfile: (data: { payoutPhone: string }) =>
+    request('/promoter/profile', { method: 'PATCH', body: JSON.stringify(data) }),
+  getPromoterStats: () => request('/promoter/stats'),
+  getPromoterReferrals: (params?: Record<string, string>) => request('/promoter/referrals', { params }),
+  getPromoterEarnings: (params?: Record<string, string>) => request('/promoter/earnings', { params }),
+  getPromoterPayouts: (params?: Record<string, string>) => request('/promoter/payouts', { params }),
+  requestPromoterPayout: () => request('/promoter/payouts/request', { method: 'POST' }),
+  validatePromoterCode: (code: string) => request(`/promoter/validate-code?code=${encodeURIComponent(code)}`),
+
+  // Promoter administration (system_admin)
+  getPromoterApplications: (params?: Record<string, string>) => request('/promoter/applications', { params }),
+  reviewPromoterApplication: (id: string, status: 'active' | 'suspended' | 'pending', reason?: string) =>
+    request(`/promoter/applications/${id}`, { method: 'PATCH', body: JSON.stringify({ status, reason }) }),
+
+  // Accounting (manual, PIN-gated payouts)
   getPayoutSummary: () => request('/accounting/payouts/summary'),
+  getPayableBookings: () => request('/accounting/payouts/payable'),
   updatePayoutPhone: (phone: string, method?: string) =>
     request('/accounting/payouts/phone', { method: 'PUT', body: JSON.stringify({ phone, method }) }),
-  runPayoutNow: () => request('/accounting/payouts/run', { method: 'POST' }),
+  executePayout: (bookingIds: string[], phoneNumber: string, pin: string) =>
+    request('/accounting/payouts/execute', {
+      method: 'POST',
+      body: JSON.stringify({ bookingIds, phoneNumber, pin }),
+    }),
 };
 
 export default api;

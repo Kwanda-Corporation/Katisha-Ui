@@ -21,9 +21,9 @@ interface StatCardProps {
 }
 
 const ACCENT_MAP = {
-  default: { bg: 'bg-white', border: 'border-zinc-200', label: 'text-zinc-600', value: 'text-zinc-900', sub: 'text-zinc-500', iconBg: '#F4F4F5', iconColor: '#1D4ED8' },
+  default: { bg: 'bg-white', border: 'border-zinc-200', label: 'text-zinc-600', value: 'text-zinc-900', sub: 'text-zinc-500', iconBg: 'var(--fill-hover)', iconColor: 'var(--studio-accent)' },
   blue: { bg: 'bg-blue-600', border: 'border-blue-600', label: 'text-blue-200', value: 'text-white', sub: 'text-blue-200', iconBg: 'rgba(255,255,255,0.15)', iconColor: '#FFFFFF' },
-  dark: { bg: 'bg-zinc-100', border: 'border-zinc-100', label: 'text-zinc-900', value: 'text-black', sub: 'text-zinc-700', iconBg: 'rgba(255,255,255,0.1)', iconColor: 'black' },
+  dark: { bg: 'bg-zinc-100', border: 'border-zinc-100', label: 'text-zinc-900', value: 'text-black', sub: 'text-zinc-700', iconBg: 'rgba(255,255,255,0.1)', iconColor: 'var(--studio-text)' },
 }
 
 export default function StatCard({ label, value, sub, icon, rows, trend, loading, accent, pulse, delay = 0, variant = 'default' }: StatCardProps) {
@@ -31,7 +31,7 @@ export default function StatCard({ label, value, sub, icon, rows, trend, loading
 
   return (
     <motion.div
-      className={`${colors.bg} rounded-md border ${colors.border} p-5 transition-all duration-200 hover:border-[#D1D5DB]`}
+      className={`${colors.bg} rounded-md border ${colors.border} p-5 transition-all duration-200 hover:border-[var(--studio-border)]`}
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.28, delay }}
@@ -39,7 +39,7 @@ export default function StatCard({ label, value, sub, icon, rows, trend, loading
       {pulse && (
         <motion.div
           className="absolute right-3 top-3 w-1.5 h-1.5 rounded-full"
-          style={{ background: accent || '#1D4ED8' }}
+          style={{ background: accent || 'var(--studio-accent)' }}
           animate={{ opacity: [1, 0.3, 1] }}
           transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
         />

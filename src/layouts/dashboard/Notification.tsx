@@ -80,45 +80,45 @@ interface AnnouncementForm {
 
 // ── Constants ──────────────────────────────────────────────────────────────────
 
-const PRIMARY  = '#1D4ED8';
-const DANGER   = '#DC2626';
-const BLUE     = '#1D4ED8';
+const PRIMARY  = 'var(--studio-accent)';
+const DANGER   = 'var(--tone-danger-dot)';
+const BLUE     = 'var(--studio-accent)';
 
 // ── Type config ────────────────────────────────────────────────────────────────
 
 interface TypeConfig { Icon: LucideIcon; color: string; bg: string; label: string; }
 
 const TYPE_CONFIG: Record<NotificationType, TypeConfig> = {
-  delayed_bus:     { Icon: Bus,           color: '#D97706', bg: '#FEF3C7', label: 'Delayed Bus'       },
-  sick_student:    { Icon: Heart,         color: '#EC4899', bg: '#FCE7F3', label: 'Sick Student'      },
-  missing_student: { Icon: UserX,         color: '#DC2626', bg: '#FEE2E2', label: 'Missing Student'   },
-  incident:        { Icon: AlertTriangle, color: '#EA580C', bg: '#FFEDD5', label: 'Incident'          },
-  safety_violation:{ Icon: Shield,        color: '#7C3AED', bg: '#EDE9FE', label: 'Safety Violation'  },
-  route_change:    { Icon: Navigation,    color: '#1D4ED8', bg: '#F4F4F5', label: 'Route Change'      },
-  weather_alert:   { Icon: CloudRain,     color: '#6366F1', bg: '#EEF2FF', label: 'Weather Alert'     },
-  medical:         { Icon: Stethoscope,   color: '#BE185D', bg: '#FCE7F3', label: 'Medical'           },
-  transport:       { Icon: Truck,         color: '#1D4ED8', bg: '#F4F4F5', label: 'Transport'         },
-  security:        { Icon: Lock,          color: '#374151', bg: '#F3F4F6', label: 'Security'          },
-  discipline:      { Icon: MessageSquare, color: '#B45309', bg: '#FEF3C7', label: 'Discipline'        },
-  info:            { Icon: Info,          color: '#1D4ED8', bg: '#F4F4F5', label: 'Information'       },
-  emergency:       { Icon: Zap,           color: '#DC2626', bg: '#FEE2E2', label: 'Emergency'         },
+  delayed_bus:     { Icon: Bus,           color: 'var(--tone-warning-ink)', bg: 'var(--tone-warning-fill)', label: 'Delayed Bus'       },
+  sick_student:    { Icon: Heart,         color: 'var(--tone-rose-ink)', bg: 'var(--tone-rose-fill)', label: 'Sick Student'      },
+  missing_student: { Icon: UserX,         color: 'var(--tone-danger-ink)', bg: 'var(--tone-danger-fill)', label: 'Missing Student'   },
+  incident:        { Icon: AlertTriangle, color: 'var(--tone-warning-ink)', bg: 'var(--tone-warning-fill)', label: 'Incident'          },
+  safety_violation:{ Icon: Shield,        color: 'var(--tone-accent-ink)', bg: 'var(--tone-accent-fill)', label: 'Safety Violation'  },
+  route_change:    { Icon: Navigation,    color: 'var(--tone-info-ink)', bg: 'var(--tone-neutral-fill)', label: 'Route Change'      },
+  weather_alert:   { Icon: CloudRain,     color: 'var(--tone-accent-ink)', bg: 'var(--tone-accent-fill)', label: 'Weather Alert'     },
+  medical:         { Icon: Stethoscope,   color: 'var(--tone-rose-ink)', bg: 'var(--tone-rose-fill)', label: 'Medical'           },
+  transport:       { Icon: Truck,         color: 'var(--tone-info-ink)', bg: 'var(--tone-neutral-fill)', label: 'Transport'         },
+  security:        { Icon: Lock,          color: 'var(--studio-text)', bg: 'var(--tone-neutral-fill)', label: 'Security'          },
+  discipline:      { Icon: MessageSquare, color: 'var(--tone-warning-ink)', bg: 'var(--tone-warning-fill)', label: 'Discipline'        },
+  info:            { Icon: Info,          color: 'var(--tone-info-ink)', bg: 'var(--tone-neutral-fill)', label: 'Information'       },
+  emergency:       { Icon: Zap,           color: 'var(--tone-danger-ink)', bg: 'var(--tone-danger-fill)', label: 'Emergency'         },
 };
 
 const PRIORITY_CONFIG: Record<NotificationPriority, { color: string; bg: string; dot: string }> = {
-  low:      { color: '#1E40AF', bg: '#F4F4F5', dot: '#1E40AF' },
-  medium:   { color: '#ca8a04', bg: '#fef9c3', dot: '#f59e0b' },
-  high:     { color: '#d97706', bg: '#fef3c7', dot: '#f97316' },
-  critical: { color: '#dc2626', bg: '#fee2e2', dot: '#ef4444' },
+  low:      { color: 'var(--tone-info-ink)', bg: 'var(--tone-neutral-fill)', dot: 'var(--tone-info-dot)' },
+  medium:   { color: 'var(--tone-warning-ink)', bg: 'var(--tone-warning-fill)', dot: 'var(--tone-warning-dot)' },
+  high:     { color: 'var(--tone-warning-ink)', bg: 'var(--tone-warning-fill)', dot: 'var(--tone-warning-dot)' },
+  critical: { color: 'var(--tone-danger-ink)', bg: 'var(--tone-danger-fill)', dot: 'var(--tone-danger-dot)' },
 };
 
 const STATUS_CONFIG: Record<NotificationStatus, { label: string; color: string; bg: string }> = {
-  new:          { label: 'New',          color: '#1D4ED8', bg: '#F4F4F5' },
-  unread:       { label: 'Unread',       color: '#1D4ED8', bg: '#F4F4F5' },
-  read:         { label: 'Read',         color: '#64748b', bg: '#f1f5f9' },
-  viewed:       { label: 'Viewed',       color: '#64748b', bg: '#f1f5f9' },
-  acknowledged: { label: 'Acknowledged', color: '#1E40AF', bg: '#F4F4F5' },
-  resolved:     { label: 'Resolved',     color: '#1E40AF', bg: '#F4F4F5' },
-  escalated:    { label: 'Escalated',    color: '#dc2626', bg: '#fee2e2' },
+  new:          { label: 'New',          color: 'var(--tone-info-ink)', bg: 'var(--tone-neutral-fill)' },
+  unread:       { label: 'Unread',       color: 'var(--tone-info-ink)', bg: 'var(--tone-neutral-fill)' },
+  read:         { label: 'Read',         color: 'var(--studio-text-sub)', bg: 'var(--tone-neutral-fill)' },
+  viewed:       { label: 'Viewed',       color: 'var(--studio-text-sub)', bg: 'var(--tone-neutral-fill)' },
+  acknowledged: { label: 'Acknowledged', color: 'var(--tone-info-ink)', bg: 'var(--tone-neutral-fill)' },
+  resolved:     { label: 'Resolved',     color: 'var(--tone-info-ink)', bg: 'var(--tone-neutral-fill)' },
+  escalated:    { label: 'Escalated',    color: 'var(--tone-danger-ink)', bg: 'var(--tone-danger-fill)' },
 };
 
 const RECIPIENT_OPTIONS = [
@@ -262,15 +262,15 @@ function AnnouncePanel({ onPublished, senderName }: AnnouncePanelProps) {
   const priCfg  = PRIORITY_CONFIG[form.priority];
 
   return (
-    <motion.div layout className="bg-white rounded-md overflow-hidden border" style={{ borderColor: `${PRIMARY}30` }}>
+    <motion.div layout className="bg-white rounded-md overflow-hidden border" style={{ borderColor: 'var(--tone-info-line)' }}>
       {/* Header */}
       <button
         onClick={() => setCollapsed((c) => !c)}
         className="flex items-center justify-between w-full px-5 py-3.5 border-none cursor-pointer font-[var(--font-body)]" 
-        style={{ background: `linear-gradient(135deg, ${PRIMARY}10 0%, ${BLUE}08 100%)`, borderBottom: collapsed ? 'none' : `1px solid ${PRIMARY}18` }}
+        style={{ background: 'linear-gradient(135deg, var(--studio-accent-soft) 0%, var(--fill-subtle) 100%)', borderBottom: collapsed ? 'none' : '1px solid var(--studio-border)' }}
       >
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-md flex items-center justify-center" style={{ background: `${PRIMARY}18` }}>
+          <div className="w-9 h-9 rounded-md flex items-center justify-center" style={{ background: 'var(--studio-accent-soft)' }}>
             <Megaphone size={17} style={{ color: PRIMARY }} />
           </div>
           <div className="text-left">
@@ -386,7 +386,7 @@ function AnnouncePanel({ onPublished, senderName }: AnnouncePanelProps) {
                         key={value}
                         onClick={() => patch('recipientType', value)}
                         className={`flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-xs font-semibold cursor-pointer font-[var(--font-body)] transition-all duration-200 border ${active ? 'bg-[var(--blue-light)] text-[var(--blue)]' : 'bg-[#F9FAFB] text-[var(--text-sub)] border-[var(--border)]'}`}
-                        style={active ? { borderColor: PRIMARY, background: `${PRIMARY}12`, color: PRIMARY } : { borderColor: 'var(--border)', background: '#F8FAFC', color: 'var(--text-sub)' }}
+                        style={active ? { borderColor: PRIMARY, background: 'var(--studio-accent-soft)', color: PRIMARY } : { borderColor: 'var(--border)', background: 'var(--fill-subtle)', color: 'var(--text-sub)' }}
                       >
                         <Ic size={12} />
                         {label}
@@ -407,13 +407,15 @@ function AnnouncePanel({ onPublished, senderName }: AnnouncePanelProps) {
                 />
               </div>
 
-              {/* Acknowledgment toggle */}
-              <div className="flex items-start gap-2.5 p-3 rounded-md border transition-all duration-200" style={{ background: form.requiresAcknowledgment ? `${PRIMARY}08` : '#F8FAFC', borderColor: form.requiresAcknowledgment ? `${PRIMARY}25` : 'var(--border)' }}>
+              {/* Acknowledgment toggle. The tints come from tokens rather than
+                  `${PRIMARY}08`, because an alpha suffix on a var() reference is
+                  not valid CSS. */}
+              <div className="flex items-start gap-2.5 p-3 rounded-md border transition-all duration-200" style={{ background: form.requiresAcknowledgment ? 'var(--studio-accent-soft)' : 'var(--fill-subtle)', borderColor: form.requiresAcknowledgment ? 'var(--tone-info-line)' : 'var(--border)' }}>
                 <button
                   onClick={() => patch('requiresAcknowledgment', !form.requiresAcknowledgment)}
                   className="w-5 h-5 rounded shrink-0 mt-0.5 flex items-center justify-center cursor-pointer transition-all duration-200 border-2"
                   style={{
-                    borderColor: form.requiresAcknowledgment ? PRIMARY : '#cbd5e1',
+                    borderColor: form.requiresAcknowledgment ? PRIMARY : 'var(--studio-border)',
                     background: form.requiresAcknowledgment ? PRIMARY : 'transparent',
                   }}
                 >
@@ -540,15 +542,16 @@ function NotifCard({ notif, isSelected, onSelect, onAcknowledge, onEscalate, onD
       onClick={onSelect}
       className="rounded-md p-3.5 cursor-pointer transition-all duration-200 relative"
       style={{
-        background: isSelected ? '#F0F5FF' : isUnread ? '#FAFEFF' : '#fff',
-        border: `1px solid ${isSelected ? `${PRIMARY}40` : isUnread ? `${PRIMARY}20` : 'var(--border)'}`,
+        background: isSelected ? 'var(--studio-accent-soft)' : isUnread ? 'var(--tone-info-fill)' : 'var(--studio-surface)',
+        // Tokens instead of `${PRIMARY}40` - an alpha suffix on a var() is invalid.
+        border: `1px solid ${isSelected ? 'var(--tone-info-line)' : isUnread ? 'var(--studio-border)' : 'var(--border)'}`,
       }}
     >
       {isUnread && (
         <div className="absolute left-0 top-3 bottom-3 w-[3px] rounded-r-md" style={{ background: isCritical ? DANGER : PRIMARY }} />
       )}
       {isAnnouncement && (
-        <div className="absolute top-2.5 right-11 flex items-center gap-1 text-[9px] font-bold uppercase tracking-[0.06em] px-1.5 py-0.5 rounded-full" style={{ color: BLUE, background: '#F4F4F5' }}>
+        <div className="absolute top-2.5 right-11 flex items-center gap-1 text-[9px] font-bold uppercase tracking-[0.06em] px-1.5 py-0.5 rounded-full" style={{ color: BLUE, background: 'var(--tone-neutral-fill)' }}>
           <Megaphone size={9} /> NESA
         </div>
       )}
@@ -626,7 +629,7 @@ function NotifCard({ notif, isSelected, onSelect, onAcknowledge, onEscalate, onD
               </span>
             )}
             {notif.requiresAction && notif.status !== 'acknowledged' && (
-              <span className="flex items-center gap-1 text-[10px] font-bold rounded-full px-2 py-0.5" style={{ color: DANGER, background: '#fee2e2' }}>
+              <span className="flex items-center gap-1 text-[10px] font-bold rounded-full px-2 py-0.5" style={{ color: DANGER, background: 'var(--tone-danger-fill)' }}>
                 <AlertCircle size={10} /> Action required
               </span>
             )}
@@ -682,9 +685,9 @@ function DetailPanel({ notif, onClose, onAcknowledge, onEscalate, onDelete }: {
         <div className="flex gap-1.5 flex-wrap">
           <StatusPill label={notif.priority} color={priCfg.color} bg={priCfg.bg} />
           <StatusPill label={statCfg.label} color={statCfg.color} bg={statCfg.bg} />
-          {notif.requiresAction && <StatusPill label="Action Required" color="#dc2626" bg="#fee2e2" />}
-          {notif.requiresAcknowledgment && <StatusPill label="Needs Acknowledgment" color="#7c3aed" bg="#ede9fe" />}
-          {notif.source === 'NESA Announcement' && <StatusPill label="NESA Announcement" color={BLUE} bg="#F4F4F5" />}
+          {notif.requiresAction && <StatusPill label="Action Required" color="var(--tone-danger-ink)" bg="var(--tone-danger-fill)" />}
+          {notif.requiresAcknowledgment && <StatusPill label="Needs Acknowledgment" color="var(--tone-accent-ink)" bg="var(--tone-accent-fill)" />}
+          {notif.source === 'NESA Announcement' && <StatusPill label="NESA Announcement" color={BLUE} bg="var(--tone-neutral-fill)" />}
         </div>
 
         <div className="grid grid-cols-2 gap-2.5">
@@ -707,21 +710,21 @@ function DetailPanel({ notif, onClose, onAcknowledge, onEscalate, onDelete }: {
         </div>
 
         {notif.acknowledgmentDeadline && (
-          <div className="flex items-center gap-2 rounded-md px-3.5 py-2.5" style={{ background: '#fef3c7', border: '1px solid #fde68a' }}>
-            <Clock size={14} color="#d97706" />
+          <div className="flex items-center gap-2 rounded-md px-3.5 py-2.5" style={{ background: 'var(--tone-warning-fill)', border: '1px solid var(--tone-warning-line)' }}>
+            <Clock size={14} color="var(--tone-warning-ink)" />
             <div>
-              <p className="font-[var(--font-body)] text-[11px] font-bold" style={{ color: '#92400e' }}>Acknowledgment deadline</p>
-              <p className="font-[var(--font-body)] text-xs" style={{ color: '#b45309' }}>{fmtFull(notif.acknowledgmentDeadline)}</p>
+              <p className="font-[var(--font-body)] text-[11px] font-bold" style={{ color: 'var(--tone-warning-ink)' }}>Acknowledgment deadline</p>
+              <p className="font-[var(--font-body)] text-xs" style={{ color: 'var(--tone-warning-ink)' }}>{fmtFull(notif.acknowledgmentDeadline)}</p>
             </div>
           </div>
         )}
 
         {notif.acknowledgedAt && (
-          <div className="flex items-center gap-2 rounded-md px-3.5 py-2.5" style={{ background: '#F4F4F5', border: '1px solid #E4E4E7' }}>
-            <CheckCircle size={14} color="#1E40AF" />
+          <div className="flex items-center gap-2 rounded-md px-3.5 py-2.5" style={{ background: 'var(--tone-neutral-fill)', border: '1px solid var(--tone-neutral-line)' }}>
+            <CheckCircle size={14} color="var(--tone-info-ink)" />
             <div>
               <p className="font-[var(--font-body)] text-[11px] font-bold text-blue-800">Acknowledged</p>
-              <p className="font-[var(--font-body)] text-xs" style={{ color: '#1E40AF' }}>{fmtFull(notif.acknowledgedAt)}</p>
+              <p className="font-[var(--font-body)] text-xs" style={{ color: 'var(--tone-info-ink)' }}>{fmtFull(notif.acknowledgedAt)}</p>
             </div>
           </div>
         )}
@@ -737,7 +740,7 @@ function DetailPanel({ notif, onClose, onAcknowledge, onEscalate, onDelete }: {
                     <p className="font-[var(--font-body)] text-[11px] text-[var(--text-muted)]">Grade {s.grade} • {s.ticketCode}</p>
                   </div>
                   {s.boardedAt && (
-                    <span className="font-[var(--font-body)] text-[10px] font-semibold px-1.5 py-0.5 rounded-full" style={{ color: '#1E40AF', background: '#F4F4F5' }}>
+                    <span className="font-[var(--font-body)] text-[10px] font-semibold px-1.5 py-0.5 rounded-full" style={{ color: 'var(--tone-info-ink)', background: 'var(--tone-neutral-fill)' }}>
                       {new Date(s.boardedAt).toLocaleTimeString('en-RW', { hour: '2-digit', minute: '2-digit' })}
                     </span>
                   )}
@@ -766,7 +769,7 @@ function DetailPanel({ notif, onClose, onAcknowledge, onEscalate, onDelete }: {
           </Button>
         )}
         {notif.status !== 'escalated' && (
-          <Button variant="secondary" size="sm" onClick={() => onEscalate(notif.id)} className="flex-1" style={{ color: '#d97706', borderColor: '#fde68a', background: '#fef3c7' }}>
+          <Button variant="secondary" size="sm" onClick={() => onEscalate(notif.id)} className="flex-1" style={{ color: 'var(--tone-warning-ink)', borderColor: 'var(--tone-warning-line)', background: 'var(--tone-warning-fill)' }}>
             <TrendingUp size={14} /> Escalate
           </Button>
         )}
@@ -801,10 +804,10 @@ function PublishedHistory({ refreshTrigger }: { refreshTrigger: number }) {
       <button
         onClick={() => setOpen((o) => !o)}
         className="flex items-center justify-between w-full bg-none border-none cursor-pointer font-[var(--font-body)]"
-        style={{ borderBottom: open ? `1px solid ${BLUE}20` : 'none', paddingBottom: open ? '0.75rem' : 0 }}
+        style={{ borderBottom: open ? '1px solid var(--studio-border)' : 'none', paddingBottom: open ? '0.75rem' : 0 }}
       >
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-md flex items-center justify-center" style={{ background: `${BLUE}15` }}>
+          <div className="w-8 h-8 rounded-md flex items-center justify-center" style={{ background: 'var(--studio-accent-soft)' }}>
             <FileText size={15} style={{ color: BLUE }} />
           </div>
           <div className="text-left">
@@ -849,7 +852,7 @@ function PublishedHistory({ refreshTrigger }: { refreshTrigger: number }) {
                       <p className="font-[var(--font-body)] text-[11px] text-[var(--text-sub)] truncate mt-0.5 mb-1">{n.message}</p>
                       <div className="flex gap-1">
                         <StatusPill label={tc.label} color={tc.color} bg={tc.bg} />
-                        {rc && <StatusPill label={rc.label} color={BLUE} bg="#F4F4F5" />}
+                        {rc && <StatusPill label={rc.label} color={BLUE} bg="var(--tone-neutral-fill)" />}
                       </div>
                     </div>
                   </div>
@@ -973,7 +976,7 @@ export default function NotificationsPage() {
       <div className="flex items-start justify-between gap-4 mb-1">
         <div className="flex items-center gap-3">
           <div className="relative">
-            <div className="w-10 h-10 rounded-md flex items-center justify-center bg-[var(--blue-light)]" style={{ background: isNesa ? `${PRIMARY}18` : '#F4F4F5' }}>
+            <div className="w-10 h-10 rounded-md flex items-center justify-center bg-[var(--blue-light)]" style={{ background: isNesa ? 'var(--studio-accent-soft)' : 'var(--tone-neutral-fill)' }}>
               {isNesa ? <Megaphone size={20} style={{ color: PRIMARY }} /> : <Bell size={20} style={{ color: BLUE }} />}
             </div>
             {stats.unread > 0 && (
@@ -1044,7 +1047,7 @@ export default function NotificationsPage() {
         <StatCard label="Total" value={stats.total} accent={PRIMARY} icon={<Bell size={17} color="#fff" />} />
         <StatCard label="Unread" value={stats.unread} accent={BLUE} icon={<Eye size={17} color="#fff" />} />
         <StatCard label="Action Required" value={stats.requiresAction} accent={DANGER} icon={<AlertCircle size={17} color="#fff" />} />
-        <StatCard label="Resolved" value={stats.resolved} accent="#1E40AF" icon={<CheckCircle size={17} color="#fff" />} />
+        <StatCard label="Resolved" value={stats.resolved} accent="var(--tone-info-dot)" icon={<CheckCircle size={17} color="#fff" />} />
       </div>
 
       {/* Filters panel */}

@@ -48,8 +48,8 @@ interface AgencyFormState {
 // ── Shared Components ──────────────────────────────────────────────────────────
 function ActiveBadge({ active }: { active: boolean }) {
   return (
-    <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-md ${active ? 'bg-[var(--blue-light)] text-[var(--blue-dark)]' : 'bg-[#F9FAFB] text-[var(--text-sub)]'}`}>
-      <span className="w-1.5 h-1.5 rounded-full" style={{ background: active ? '#1D4ED8' : '#94a3b8' }} />
+    <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-md ${active ? 'bg-[var(--studio-accent-soft)] text-[var(--studio-accent)]' : 'bg-[var(--fill-subtle)] text-[var(--studio-text-sub)]'}`}>
+      <span className="w-1.5 h-1.5 rounded-full" style={{ background: active ? 'var(--tone-info-dot)' : 'var(--tone-neutral-dot)' }} />
       {active ? 'Active' : 'Inactive'}
     </span>
   );
@@ -83,7 +83,7 @@ function RowMenu({ isActive, onView, onToggle, extras = [] }: {
   return (
     <div className="relative" ref={containerRef}>
       <button ref={triggerRef} onClick={handleOpen}
-        className="p-1.5 rounded-md hover:bg-[#F9FAFB] text-[var(--text-muted)] transition-colors">
+        className="p-1.5 rounded-md hover:bg-[var(--fill-hover)] text-[var(--studio-text-muted)] transition-colors">
         <MoreHorizontal size={15} />
       </button>
       <AnimatePresence>
@@ -93,24 +93,24 @@ function RowMenu({ isActive, onView, onToggle, extras = [] }: {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ duration: 0.11 }}
-            className="absolute right-0 z-[200] bg-white border border-[var(--border)] rounded-md py-1 w-48"
+            className="absolute right-0 z-[200] bg-white border border-[var(--studio-border)] rounded-md py-1 w-48"
             style={{ [openUpward ? 'bottom' : 'top']: '2.25rem' }}
           >
             <button onClick={() => { onView(); setOpen(false); }}
-              className="flex items-center gap-2 w-full px-3 py-2 text-sm text-slate-700 hover:bg-[#F9FAFB] transition-colors">
+              className="flex items-center gap-2 w-full px-3 py-2 text-sm text-[var(--studio-text-sub)] hover:bg-[var(--fill-hover)] transition-colors">
               <Eye size={13} /> View details
             </button>
             {extras.map((ex, i) => (
               <button key={i} onClick={() => { ex.action(); setOpen(false); }}
-                className="flex items-center gap-2 w-full px-3 py-2 text-sm hover:bg-[#F9FAFB] transition-colors"
-                style={{ color: ex.color ?? '#334155' }}>
+                className="flex items-center gap-2 w-full px-3 py-2 text-sm hover:bg-[var(--fill-hover)] transition-colors"
+                style={{ color: ex.color ?? 'var(--studio-text)' }}>
                 {ex.icon} {ex.label}
               </button>
             ))}
-            <div className="border-t border-[var(--border)] my-1" />
+            <div className="border-t border-[var(--studio-border)] my-1" />
             <button onClick={() => { onToggle(); setOpen(false); }}
-              className="flex items-center gap-2 w-full px-3 py-2 text-sm hover:bg-[#F9FAFB] transition-colors"
-              style={{ color: isActive ? '#ea580c' : 'var(--blue)' }}>
+              className="flex items-center gap-2 w-full px-3 py-2 text-sm hover:bg-[var(--fill-hover)] transition-colors"
+              style={{ color: isActive ? 'var(--solid-warning)' : 'var(--studio-accent)' }}>
               <Power size={13} /> {isActive ? 'Deactivate' : 'Activate'}
             </button>
           </motion.div>
@@ -148,16 +148,16 @@ function AddAgencyModal({ open, onClose, onSave }: { open: boolean; onClose: () 
       <AnimatePresence mode="wait">
         {success ? (
           <motion.div key="ok" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-12 text-center">
-            <div className="w-16 h-16 rounded-full bg-[var(--blue-light)] flex items-center justify-center mx-auto mb-4">
-              <Check size={28} className="text-[var(--blue)]" />
+            <div className="w-16 h-16 rounded-full bg-[var(--studio-accent-soft)] flex items-center justify-center mx-auto mb-4">
+              <Check size={28} className="text-[var(--studio-accent)]" />
             </div>
-            <p className="font-[var(--font-body)] text-lg font-semibold text-[var(--text)]">Agency Added!</p>
-            <p className="font-[var(--font-body)] text-sm text-[var(--text-sub)] mt-1">{form.name} has been registered.</p>
+            <p className="font-[var(--font-body)] text-lg font-semibold text-[var(--studio-text)]">Agency Added!</p>
+            <p className="font-[var(--font-body)] text-sm text-[var(--studio-text-sub)] mt-1">{form.name} has been registered.</p>
           </motion.div>
         ) : (
           <motion.div key="form" className="space-y-4">
             {error && (
-              <div className="flex items-center gap-2 text-sm text-[var(--text-sub)] bg-[#F9FAFB] px-3 py-2.5 rounded-md border border-[var(--border)]">
+              <div className="flex items-center gap-2 text-sm text-[var(--studio-text-sub)] bg-[var(--fill-subtle)] px-3 py-2.5 rounded-md border border-[var(--studio-border)]">
                 <AlertCircle size={14} className="flex-shrink-0" /> {error}
               </div>
             )}
@@ -175,7 +175,7 @@ function AddAgencyModal({ open, onClose, onSave }: { open: boolean; onClose: () 
         )}
       </AnimatePresence>
       {!success && (
-        <div className="flex items-center justify-end gap-3 mt-6 pt-4 border-t border-[var(--border)]">
+        <div className="flex items-center justify-end gap-3 mt-6 pt-4 border-t border-[var(--studio-border)]">
           <Button variant="secondary" size="sm" onClick={onClose}>Cancel</Button>
           <Button size="sm" onClick={handleSubmit} loading={saving} disabled={saving || !form.name || !form.contactPhone}>Add Agency</Button>
         </div>
@@ -194,21 +194,21 @@ function AgencyDrawer({ agency, onClose, onToggle }: { agency: Agency; onClose: 
     <Modal open onClose={onClose} title="Agency Details" maxWidth={560}>
       <div className="space-y-5">
           <div className="flex items-start gap-4">
-            <div className="w-12 h-12 rounded-md flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(29,78,216,0.06)' }}>
+            <div className="w-12 h-12 rounded-md flex items-center justify-center flex-shrink-0" style={{ background: 'var(--studio-accent-soft)' }}>
               <Bus size={22} color="var(--info)" />
             </div>
             <div className="min-w-0">
-              <p className="font-[var(--font-body)] font-semibold text-base leading-tight text-[var(--text)]">{agency.name}</p>
-              {agency.contactPerson && <p className="font-[var(--font-body)] text-xs text-[var(--text-sub)] mt-0.5">{agency.contactPerson}</p>}
+              <p className="font-[var(--font-body)] font-semibold text-base leading-tight text-[var(--studio-text)]">{agency.name}</p>
+              {agency.contactPerson && <p className="font-[var(--font-body)] text-xs text-[var(--studio-text-sub)] mt-0.5">{agency.contactPerson}</p>}
               <div className="mt-1.5 flex items-center gap-2 flex-wrap">
                 <ActiveBadge active={agency.isActive} />
                 {agency.featured && (
-                  <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-md bg-amber-50 text-amber-600 border border-amber-200">
+                  <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-md bg-[var(--tone-warning-fill)] text-[var(--tone-warning-ink)] border border-[var(--tone-warning-line)]">
                     <Star size={10} fill="currentColor" /> Featured
                   </span>
                 )}
                 {agency.rating > 0 && (
-                  <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-md bg-[var(--blue-light)] text-[var(--blue)]">
+                  <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-md bg-[var(--studio-accent-soft)] text-[var(--studio-accent)]">
                     <Star size={10} fill="currentColor" /> {Number(agency.rating).toFixed(1)}
                   </span>
                 )}
@@ -220,30 +220,30 @@ function AgencyDrawer({ agency, onClose, onToggle }: { agency: Agency; onClose: 
 
           <div className="grid grid-cols-3 gap-2">
             {([
-              { label: 'Buses',   value: agency.vehiclesCount,  color: 'var(--info)' },
-              { label: 'Drivers', value: agency.driversCount,   color: 'var(--blue)' },
-              { label: 'Trips',   value: agency.completedTrips, color: '#7c3aed' },
+              { label: 'Buses',   value: agency.vehiclesCount,  color: 'var(--tone-info-ink)' },
+              { label: 'Drivers', value: agency.driversCount,   color: 'var(--studio-accent)' },
+              { label: 'Trips',   value: agency.completedTrips, color: 'var(--tone-accent-ink)' },
             ]).map(({ label, value, color }) => (
-              <div key={label} className="rounded-md p-3 border text-center bg-white border-[var(--border)]">
+              <div key={label} className="rounded-md p-3 border text-center bg-white border-[var(--studio-border)]">
                 <p className="font-[var(--font-body)] text-xl font-bold" style={{ color }}>{value}</p>
-                <p className="font-[var(--font-body)] text-xs text-[var(--text-sub)] mt-0.5">{label}</p>
+                <p className="font-[var(--font-body)] text-xs text-[var(--studio-text-sub)] mt-0.5">{label}</p>
               </div>
             ))}
           </div>
 
           {agency.complianceScore > 0 && (
-            <div className="rounded-md p-3 bg-[#F8FAFB] border border-[var(--border)]">
+            <div className="rounded-md p-3 bg-[var(--fill-subtle)] border border-[var(--studio-border)]">
               <div className="flex items-center justify-between mb-2">
-                <span className="font-[var(--font-body)] text-xs font-semibold text-[var(--text-sub)]">Compliance Score</span>
-                <span className="font-[var(--font-body)] text-sm font-bold text-[var(--text)]">{agency.complianceScore}%</span>
+                <span className="font-[var(--font-body)] text-xs font-semibold text-[var(--studio-text-sub)]">Compliance Score</span>
+                <span className="font-[var(--font-body)] text-sm font-bold text-[var(--studio-text)]">{agency.complianceScore}%</span>
               </div>
-              <div className="h-1.5 bg-[#F3F4F6] rounded-full overflow-hidden">
-                <div className="h-full rounded-full transition-all" style={{ width: `${agency.complianceScore}%`, background: agency.complianceScore >= 80 ? '#1D4ED8' : agency.complianceScore >= 60 ? '#f59e0b' : '#ef4444' }} />
+              <div className="h-1.5 bg-[var(--fill-subtle)] rounded-full overflow-hidden">
+                <div className="h-full rounded-full transition-all" style={{ width: `${agency.complianceScore}%`, background: agency.complianceScore >= 80 ? 'var(--tone-info-dot)' : agency.complianceScore >= 60 ? 'var(--tone-warning-dot)' : 'var(--solid-danger)' }} />
               </div>
             </div>
           )}
 
-          <div className="rounded-md p-4 space-y-3.5 bg-[#F8FAFB] border border-[var(--border)]">
+          <div className="rounded-md p-4 space-y-3.5 bg-[var(--fill-subtle)] border border-[var(--studio-border)]">
             {[
               { icon: <Phone size={14} />, label: 'Phone', value: agency.contactPhone },
               { icon: <Mail size={14} />, label: 'Email', value: agency.contactEmail },
@@ -251,31 +251,31 @@ function AgencyDrawer({ agency, onClose, onToggle }: { agency: Agency; onClose: 
               { icon: <Clock size={14} />, label: 'License Expiry', value: agency.licenseExpiry ? new Date(agency.licenseExpiry).toLocaleDateString() : null },
             ].filter(s => s.value).map(s => (
               <div key={s.label} className="flex items-start gap-3">
-                <span className="text-[var(--text-muted)] mt-0.5 flex-shrink-0">{s.icon}</span>
+                <span className="text-[var(--studio-text-muted)] mt-0.5 flex-shrink-0">{s.icon}</span>
                 <div className="min-w-0">
-                  <p className="font-[var(--font-body)] text-xs text-[var(--text-sub)] mb-0.5">{s.label}</p>
-                  <div className="font-[var(--font-body)] text-sm text-[var(--text)]">{s.value}</div>
+                  <p className="font-[var(--font-body)] text-xs text-[var(--studio-text-sub)] mb-0.5">{s.label}</p>
+                  <div className="font-[var(--font-body)] text-sm text-[var(--studio-text)]">{s.value}</div>
                 </div>
               </div>
             ))}
             {(agency.districtCoverage?.length ?? 0) > 0 && (
               <div className="flex items-start gap-3">
-                <span className="text-[var(--text-muted)] mt-0.5 flex-shrink-0"><MapPin size={14} /></span>
+                <span className="text-[var(--studio-text-muted)] mt-0.5 flex-shrink-0"><MapPin size={14} /></span>
                 <div className="min-w-0">
-                  <p className="font-[var(--font-body)] text-xs text-[var(--text-sub)] mb-0.5">Districts</p>
+                  <p className="font-[var(--font-body)] text-xs text-[var(--studio-text-sub)] mb-0.5">Districts</p>
                   <div className="flex flex-wrap gap-1 mt-1">
                     {agency.districtCoverage!.map(d => (
-                      <span key={d} className="font-[var(--font-body)] text-xs bg-white border border-[var(--border)] text-[var(--text)] px-1.5 py-0.5 rounded">{d}</span>
+                      <span key={d} className="font-[var(--font-body)] text-xs bg-white border border-[var(--studio-border)] text-[var(--studio-text)] px-1.5 py-0.5 rounded">{d}</span>
                     ))}
                   </div>
                 </div>
               </div>
             )}
             <div className="flex items-start gap-3">
-              <span className="text-[var(--text-muted)] mt-0.5 flex-shrink-0"><Hash size={14} /></span>
+              <span className="text-[var(--studio-text-muted)] mt-0.5 flex-shrink-0"><Hash size={14} /></span>
               <div className="min-w-0">
-                <p className="font-[var(--font-body)] text-xs text-[var(--text-sub)] mb-0.5">ID</p>
-                <span className="font-[var(--font-body)] text-xs bg-white border border-[var(--border)] px-1.5 py-0.5 rounded break-all">{agency.id}</span>
+                <p className="font-[var(--font-body)] text-xs text-[var(--studio-text-sub)] mb-0.5">ID</p>
+                <span className="font-[var(--font-body)] text-xs bg-white border border-[var(--studio-border)] px-1.5 py-0.5 rounded break-all">{agency.id}</span>
               </div>
             </div>
           </div>
@@ -283,7 +283,7 @@ function AgencyDrawer({ agency, onClose, onToggle }: { agency: Agency; onClose: 
           <button onClick={async () => { setToggling(true); await onToggle(agency); setToggling(false); onClose(); }}
             disabled={toggling}
             className="w-full flex items-center gap-2 px-4 py-2.5 rounded-md text-sm font-medium border"
-            style={agency.isActive ? { background: '#fef2f2', color: 'var(--error)', borderColor: '#fecaca' } : { background: '#F4F4F5', color: 'var(--blue)', borderColor: '#E4E4E7' }}>
+            style={agency.isActive ? { background: 'var(--tone-danger-fill)', color: 'var(--tone-danger-ink)', borderColor: 'var(--tone-danger-line)' } : { background: 'var(--tone-neutral-fill)', color: 'var(--studio-accent)', borderColor: 'var(--studio-border)' }}>
             {toggling ? <Loader2 size={14} className="animate-spin" /> : <Power size={14} />}
             {agency.isActive ? 'Deactivate Agency' : 'Activate Agency'}
           </button>
@@ -353,18 +353,18 @@ function AgenciesTab() {
     <>
       <div className="flex items-center gap-3 mb-4 flex-wrap">
         <div className="relative flex-1 min-w-[200px] max-w-sm">
-          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
-          <input className="w-full pl-9 pr-4 py-2.5 text-sm border border-[var(--border)] rounded-md focus:outline-none focus:border-[var(--info)] bg-white placeholder:text-[var(--text-muted)]"
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--studio-text-muted)]" />
+          <input className="w-full pl-9 pr-4 py-2.5 text-sm border border-[var(--studio-border)] rounded-md focus:outline-none focus:border-[var(--info)] bg-white placeholder:text-[var(--studio-text-muted)]"
             placeholder="Search agencies…" value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} />
         </div>
         <div className="relative">
-          <select className="appearance-none bg-white border border-[var(--border)] rounded-md pl-3 pr-8 py-2.5 text-sm text-[var(--text)] focus:outline-none focus:border-[var(--info)] cursor-pointer"
+          <select className="appearance-none bg-white border border-[var(--studio-border)] rounded-md pl-3 pr-8 py-2.5 text-sm text-[var(--studio-text)] focus:outline-none focus:border-[var(--info)] cursor-pointer"
             value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}>
             <option value="">All statuses</option>
             <option value="active">Active</option>
             <option value="suspended">Suspended</option>
           </select>
-          <ChevronDown size={13} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)] pointer-events-none" />
+          <ChevronDown size={13} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--studio-text-muted)] pointer-events-none" />
         </div>
         <Button size="sm" onClick={() => setShowAdd(true)}><Plus size={14} /> Add Agency</Button>
       </div>
@@ -375,68 +375,68 @@ function AgenciesTab() {
         <StatCard label="Suspended" value={Array.isArray(agencies) ? agencies.filter(a => !a.isActive).length : 0} sub="Not active" icon={<X size={13} />} />
       </div>
 
-      <div className="bg-white rounded-md border border-[var(--border)] overflow-hidden">
+      <div className="bg-white rounded-md border border-[var(--studio-border)] overflow-hidden">
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-[#F8FAFB] border-b border-[var(--border)]">
+            <tr className="bg-[var(--fill-subtle)] border-b border-[var(--studio-border)]">
               {['Agency', 'Fleet', 'Compliance', 'Rating', 'Contact', 'Status', ''].map(h => (
-                <th key={h} className="px-4 py-3 text-left font-[var(--font-body)] text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider whitespace-nowrap">{h}</th>
+                <th key={h} className="px-4 py-3 text-left font-[var(--font-body)] text-xs font-bold text-[var(--studio-text-muted)] uppercase tracking-wider whitespace-nowrap">{h}</th>
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-[var(--border)]">
+          <tbody className="divide-y divide-[var(--studio-border)]">
             {loading
               ? Array.from({ length: 5 }).map((_, i) => (
                   <tr key={i}>
                     {Array.from({ length: 7 }).map((_, j) => (
-                      <td key={j} className="px-4 py-3"><div className={`h-4 bg-[#F9FAFB] rounded skeleton ${j === 0 ? 'w-36' : 'w-16'}`} /></td>
+                      <td key={j} className="px-4 py-3"><div className={`h-4 bg-[var(--fill-subtle)] rounded skeleton ${j === 0 ? 'w-36' : 'w-16'}`} /></td>
                     ))}
                   </tr>
                 ))
               : !Array.isArray(agencies) || agencies.length === 0
               ? (
-                <tr><td colSpan={7} className="py-14 text-center"><Bus size={28} className="mx-auto mb-3 text-[var(--text-muted)]" /><p className="font-[var(--font-body)] text-sm text-[var(--text-sub)]">No agencies found</p></td></tr>
+                <tr><td colSpan={7} className="py-14 text-center"><Bus size={28} className="mx-auto mb-3 text-[var(--studio-text-muted)]" /><p className="font-[var(--font-body)] text-sm text-[var(--studio-text-sub)]">No agencies found</p></td></tr>
               )
               : Array.isArray(agencies) && agencies.map((agency, i) => (
                 <motion.tr key={agency.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.02 * i }}
-                  className="hover:bg-[#F8FAFB] transition-colors cursor-pointer" onClick={() => setSelected(agency)}>
+                  className="hover:bg-[var(--fill-subtle)] transition-colors cursor-pointer" onClick={() => setSelected(agency)}>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-md flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(29,78,216,0.06)' }}>
+                      <div className="w-8 h-8 rounded-md flex items-center justify-center flex-shrink-0" style={{ background: 'var(--studio-accent-soft)' }}>
                         <Bus size={14} color="var(--info)" />
                       </div>
                       <div>
-                        <p className="font-[var(--font-body)] font-medium text-[var(--text)]">
+                        <p className="font-[var(--font-body)] font-medium text-[var(--studio-text)]">
                           {agency.name}
-                          {agency.featured && <Star size={12} className="inline ml-1.5 mb-0.5 text-[#F59E0B]" fill="currentColor" />}
+                          {agency.featured && <Star size={12} className="inline ml-1.5 mb-0.5 text-[var(--tone-warning-dot)]" fill="currentColor" />}
                         </p>
-                        {agency.contactPerson && <p className="font-[var(--font-body)] text-xs text-[var(--text-sub)]">{agency.contactPerson}</p>}
+                        {agency.contactPerson && <p className="font-[var(--font-body)] text-xs text-[var(--studio-text-sub)]">{agency.contactPerson}</p>}
                       </div>
                     </div>
                   </td>
                   <td className="px-4 py-3">
                     <div className="font-[var(--font-body)] text-xs space-y-0.5">
-                      <div className="flex items-center gap-1 text-[var(--text)]"><Bus size={10} className="text-[var(--text-muted)]" />{agency.vehiclesCount} buses</div>
-                      <div className="flex items-center gap-1 text-[var(--text-sub)]"><Users size={10} className="text-[var(--text-muted)]" />{agency.driversCount} drivers</div>
+                      <div className="flex items-center gap-1 text-[var(--studio-text)]"><Bus size={10} className="text-[var(--studio-text-muted)]" />{agency.vehiclesCount} buses</div>
+                      <div className="flex items-center gap-1 text-[var(--studio-text-sub)]"><Users size={10} className="text-[var(--studio-text-muted)]" />{agency.driversCount} drivers</div>
                     </div>
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
-                      <div className="flex-1 h-1.5 bg-[#F9FAFB] rounded-full w-16 overflow-hidden">
-                        <div className="h-full rounded-full" style={{ width: `${agency.complianceScore}%`, background: agency.complianceScore >= 80 ? '#1D4ED8' : agency.complianceScore >= 60 ? '#f59e0b' : '#ef4444' }} />
+                      <div className="flex-1 h-1.5 bg-[var(--fill-subtle)] rounded-full w-16 overflow-hidden">
+                        <div className="h-full rounded-full" style={{ width: `${agency.complianceScore}%`, background: agency.complianceScore >= 80 ? 'var(--tone-info-dot)' : agency.complianceScore >= 60 ? 'var(--tone-warning-dot)' : 'var(--solid-danger)' }} />
                       </div>
-                      <span className="font-[var(--font-body)] text-xs font-semibold text-[var(--text)]">{agency.complianceScore}%</span>
+                      <span className="font-[var(--font-body)] text-xs font-semibold text-[var(--studio-text)]">{agency.complianceScore}%</span>
                     </div>
                   </td>
                   <td className="px-4 py-3">
                     {agency.rating > 0 ? (
-                      <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-md bg-[var(--blue-light)] text-[var(--blue)]">
+                      <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-md bg-[var(--studio-accent-soft)] text-[var(--studio-accent)]">
                         <Star size={10} fill="currentColor" />{Number(agency.rating).toFixed(1)}
                       </span>
-                    ) : <span className="text-xs text-[var(--text-muted)]">—</span>}
+                    ) : <span className="text-xs text-[var(--studio-text-muted)]">—</span>}
                   </td>
-                  <td className="px-4 py-3 text-xs text-[var(--text-sub)]">
-                    <div className="flex items-center gap-1"><Phone size={10} className="text-[var(--text-muted)]" />{agency.contactPhone}</div>
+                  <td className="px-4 py-3 text-xs text-[var(--studio-text-sub)]">
+                    <div className="flex items-center gap-1"><Phone size={10} className="text-[var(--studio-text-muted)]" />{agency.contactPhone}</div>
                   </td>
                   <td className="px-4 py-3"><ActiveBadge active={agency.isActive} /></td>
                   <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
@@ -444,7 +444,7 @@ function AgenciesTab() {
                       extras={[{
                         icon: <Star size={13} />,
                         label: agency.featured ? 'Remove from top' : 'Feature at top',
-                        color: '#f59e0b',
+                        color: 'var(--tone-warning-dot)',
                         action: () => toggleFeatured(agency),
                       }]}
                     />
@@ -455,15 +455,15 @@ function AgenciesTab() {
           </tbody>
         </table>
         {pagination.totalPages > 1 && (
-          <div className="flex items-center justify-between px-4 py-3 border-t border-[var(--border)] bg-[#F8FAFB]">
-            <p className="font-[var(--font-body)] text-xs text-[var(--text-muted)]">Showing {(page - 1) * 20 + 1}–{Math.min(page * 20, pagination.total)} of {pagination.total}</p>
+          <div className="flex items-center justify-between px-4 py-3 border-t border-[var(--studio-border)] bg-[var(--fill-subtle)]">
+            <p className="font-[var(--font-body)] text-xs text-[var(--studio-text-muted)]">Showing {(page - 1) * 20 + 1}–{Math.min(page * 20, pagination.total)} of {pagination.total}</p>
             <div className="flex items-center gap-1">
-              <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="px-3 py-1.5 text-xs rounded-sm border border-[var(--border)] hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed">Previous</button>
+              <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="px-3 py-1.5 text-xs rounded-sm border border-[var(--studio-border)] hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed">Previous</button>
               {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
                 const p = Math.max(1, Math.min(pagination.totalPages - 4, page - 2)) + i;
-                return <button key={p} onClick={() => setPage(p)} className="w-8 h-7 text-xs rounded-sm border transition-colors" style={p === page ? { background: 'var(--info)', color: 'white', borderColor: 'var(--info)' } : { background: 'white', color: '#64748b', borderColor: '#e2e8f0' }}>{p}</button>;
+                return <button key={p} onClick={() => setPage(p)} className="w-8 h-7 text-xs rounded-sm border transition-colors" style={p === page ? { background: 'var(--studio-accent)', color: 'white', borderColor: 'var(--studio-accent)' } : { background: 'var(--studio-surface)', color: 'var(--studio-text-sub)', borderColor: 'var(--studio-border)' }}>{p}</button>;
               })}
-              <button onClick={() => setPage(p => Math.min(pagination.totalPages, p + 1))} disabled={page === pagination.totalPages} className="px-3 py-1.5 text-xs rounded-sm border border-[var(--border)] hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed">Next</button>
+              <button onClick={() => setPage(p => Math.min(pagination.totalPages, p + 1))} disabled={page === pagination.totalPages} className="px-3 py-1.5 text-xs rounded-sm border border-[var(--studio-border)] hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed">Next</button>
             </div>
           </div>
         )}
@@ -485,21 +485,21 @@ export default function OrganisationsPage() {
   const [activeTab, setActiveTab] = useState<'agencies'>('agencies');
 
   const tabs: Array<{ key: 'agencies'; label: string; icon: React.ReactNode; color: string }> = [
-    { key: 'agencies', label: 'Agencies', icon: <Bus size={14} />,           color: 'var(--info)' },
+    { key: 'agencies', label: 'Agencies', icon: <Bus size={14} />,           color: 'var(--tone-info-ink)' },
   ];
 
   return (
     <div className="space-y-5">
       <PageHeader title="Organisations" subtitle="Manage transport agencies" />
 
-      <div className="flex items-center gap-2 border-b border-[var(--border)]">
+      <div className="flex items-center gap-2 border-b border-[var(--studio-border)]">
         {tabs.map((tab) => {
           const active = activeTab === tab.key;
           return (
             <button key={tab.key} onClick={() => setActiveTab(tab.key)}
               className="relative flex items-center gap-2 px-4 py-2.5 font-[var(--font-body)] text-sm font-semibold transition-all rounded-t-md"
-              style={active ? { color: tab.color, background: `${tab.color}08` } : { color: '#94a3b8', background: 'transparent' }}>
-              <span style={{ color: active ? tab.color : '#94a3b8' }}>{tab.icon}</span>
+              style={active ? { color: tab.color, background: 'var(--studio-accent-soft)' } : { color: 'var(--studio-text-muted)', background: 'transparent' }}>
+              <span style={{ color: active ? tab.color : 'var(--studio-text-muted)' }}>{tab.icon}</span>
               {tab.label}
               {active && (
                 <motion.div layoutId="tab-indicator" className="absolute bottom-0 left-0 right-0 h-0.5 rounded-t-md" style={{ background: tab.color }} />

@@ -37,17 +37,17 @@ interface RoleMeta { label: string; className: string; icon: React.ReactNode; de
 // functional roles used elsewhere in the system, so existing accounts must
 // still render accurately. They are NOT selectable in this section.
 const ROLE_META: Record<string, RoleMeta> = {
-  system_admin:  { label: 'System Admin',  className: 'bg-[var(--blue-light)] text-[var(--blue-dark)]', icon: <Shield size={12} />, description: 'Full system access' },
-  agency_admin:  { label: 'Agency Admin',  className: 'bg-[var(--blue-light)] text-[var(--blue-dark)]', icon: <Building2 size={12} />, description: 'Transport agency admin' },
-  agent:         { label: 'Agent',         className: 'bg-[var(--blue-light)] text-[var(--blue-dark)]', icon: <User size={12} />, description: 'Booking agent' },
-  user:          { label: 'Normal User',   className: 'bg-[#F9FAFB] text-[var(--text-sub)]', icon: <User size={12} />, description: 'Regular passenger' },
-  pickup_agent:  { label: 'Pickup Agent',  className: 'bg-[#F9FAFB] text-[var(--text-sub)]', icon: <User size={12} />, description: 'Student pickup verification' },
+  system_admin:  { label: 'System Admin',  className: 'bg-[var(--studio-accent-soft)] text-[var(--studio-accent)]', icon: <Shield size={12} />, description: 'Full system access' },
+  agency_admin:  { label: 'Agency Admin',  className: 'bg-[var(--studio-accent-soft)] text-[var(--studio-accent)]', icon: <Building2 size={12} />, description: 'Transport agency admin' },
+  agent:         { label: 'Agent',         className: 'bg-[var(--studio-accent-soft)] text-[var(--studio-accent)]', icon: <User size={12} />, description: 'Booking agent' },
+  user:          { label: 'Normal User',   className: 'bg-[var(--fill-subtle)] text-[var(--studio-text-sub)]', icon: <User size={12} />, description: 'Regular passenger' },
+  pickup_agent:  { label: 'Pickup Agent',  className: 'bg-[var(--fill-subtle)] text-[var(--studio-text-sub)]', icon: <User size={12} />, description: 'Student pickup verification' },
 };
 
 const STATUS_META: Record<UserStatus, { label: string; className: string; dotClass: string }> = {
-  active:    { label: 'Active',    className: 'bg-[var(--blue-light)] text-[var(--blue-dark)]', dotClass: 'bg-zinc-1000' },
-  inactive:  { label: 'Inactive',  className: 'bg-[#F9FAFB] text-[var(--text-sub)]', dotClass: 'bg-zinc-400' },
-  suspended: { label: 'Suspended', className: 'bg-[#F9FAFB] text-[var(--text-sub)]', dotClass: 'bg-zinc-400' },
+  active:    { label: 'Active',    className: 'bg-[var(--studio-accent-soft)] text-[var(--studio-accent)]', dotClass: 'bg-[var(--studio-text)]' },
+  inactive:  { label: 'Inactive',  className: 'bg-[var(--fill-subtle)] text-[var(--studio-text-sub)]', dotClass: 'bg-zinc-400' },
+  suspended: { label: 'Suspended', className: 'bg-[var(--fill-subtle)] text-[var(--studio-text-sub)]', dotClass: 'bg-zinc-400' },
 };
 
 const ALL_ROLES: UserRole[] = [
@@ -86,7 +86,7 @@ function StatusBadge({ status, verified }: { status: UserStatus; verified: boole
         {meta.label}
       </span>
       {!verified && (
-        <span className="text-xs text-[var(--text-muted)] flex items-center gap-1">
+        <span className="text-xs text-[var(--studio-text-muted)] flex items-center gap-1">
           <AlertCircle size={10} /> Unverified
         </span>
       )}
@@ -137,7 +137,7 @@ function RowMenu({
       <button
         ref={triggerRef}
         onClick={handleOpen}
-        className="p-1.5 rounded-md hover:bg-[var(--blue-light)] text-[var(--text-muted)] transition-colors"
+        className="p-1.5 rounded-md hover:bg-[var(--studio-muted-fill)] text-[var(--studio-text-muted)] transition-colors"
       >
         <MoreHorizontal size={15} />
       </button>
@@ -148,37 +148,37 @@ function RowMenu({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ duration: 0.12 }}
-            className="absolute right-0 z-[200] bg-white border border-[var(--border)] rounded-md py-1 w-44"
+            className="absolute right-0 z-[200] bg-white border border-[var(--studio-border)] rounded-md py-1 w-44"
             style={{ [openUpward ? 'bottom' : 'top']: '2.25rem' }}
           >
             <button
               onClick={() => { onViewProfile(); setOpen(false); }}
-              className="flex items-center gap-2 w-full px-3 py-2 text-sm text-[var(--text)] hover:bg-[var(--blue-light)] transition-colors"
+              className="flex items-center gap-2 w-full px-3 py-2 text-sm text-[var(--studio-text)] hover:bg-[var(--studio-muted-fill)] transition-colors"
             >
               <Eye size={13} /> View profile
             </button>
             {user.role === 'agent' && (
               <button
                 onClick={() => { onAssignRoutes(); setOpen(false); }}
-                className="flex items-center gap-2 w-full px-3 py-2 text-sm text-[var(--text)] hover:bg-[var(--blue-light)] transition-colors"
+                className="flex items-center gap-2 w-full px-3 py-2 text-sm text-[var(--studio-text)] hover:bg-[var(--studio-muted-fill)] transition-colors"
               >
                 <Route size={13} /> Assign routes
               </button>
             )}
-            <div className="border-t border-[var(--border)] my-1" />
+            <div className="border-t border-[var(--studio-border)] my-1" />
             <button
               onClick={() => { onToggle(); setOpen(false); }}
-              className={`flex items-center gap-2 w-full px-3 py-2 text-sm hover:bg-[var(--blue-light)] transition-colors ${user.isActive ? 'text-[var(--text-muted)]' : 'text-[var(--blue)]'}`}
+              className={`flex items-center gap-2 w-full px-3 py-2 text-sm hover:bg-[var(--studio-muted-fill)] transition-colors ${user.isActive ? 'text-[var(--studio-text-muted)]' : 'text-[var(--studio-accent)]'}`}
             >
               <Power size={13} />
               {user.isActive ? 'Deactivate' : 'Activate'}
             </button>
             {canDelete && (
               <>
-                <div className="border-t border-[var(--border)] my-1" />
+                <div className="border-t border-[var(--studio-border)] my-1" />
                 <button
                   onClick={() => { onDelete(); setOpen(false); }}
-                  className="flex items-center gap-2 w-full px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                  className="flex items-center gap-2 w-full px-3 py-2 text-sm text-[var(--tone-danger-ink)] hover:bg-[var(--tone-danger-fill)] transition-colors"
                 >
                   <Trash2 size={13} /> Delete user
                 </button>
@@ -249,30 +249,30 @@ function AssignRoutesModal({ userId, userName, onClose, onSave }: { userId: stri
       <motion.div initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.96 }}
         className="bg-white rounded-md w-full max-w-lg overflow-hidden flex flex-col max-h-[80vh]"
       >
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border)] shrink-0">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--studio-border)] shrink-0">
           <div>
-            <h3 className="font-[var(--font-body)] text-base font-semibold text-zinc-950">Assigned Routes</h3>
-            <p className="text-xs text-[var(--text-muted)] mt-0.5">Manage routes for <strong>{userName}</strong></p>
+            <h3 className="font-[var(--font-body)] text-base font-semibold text-[var(--studio-text)]">Assigned Routes</h3>
+            <p className="text-xs text-[var(--studio-text-muted)] mt-0.5">Manage routes for <strong>{userName}</strong></p>
           </div>
-          <button onClick={onClose} className="p-1.5 rounded-md hover:bg-[#F9FAFB] text-[var(--text-muted)] transition-colors"><X size={16} /></button>
+          <button onClick={onClose} className="p-1.5 rounded-md hover:bg-[var(--fill-hover)] text-[var(--studio-text-muted)] transition-colors"><X size={16} /></button>
         </div>
 
         <div className="px-6 py-4 shrink-0">
           {error && (
-            <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 border border-red-200 px-3 py-2.5 rounded-md mb-3">
+            <div className="flex items-center gap-2 text-sm text-[var(--tone-danger-ink)] bg-[var(--tone-danger-fill)] border border-[var(--tone-danger-line)] px-3 py-2.5 rounded-md mb-3">
               <span>{error}</span>
             </div>
           )}
           <div className="relative mb-3">
-            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--studio-text-muted)]" />
             <input
               value={routeSearch}
               onChange={e => setRouteSearch(e.target.value)}
-              className="w-full h-10 pl-9 pr-4 rounded-md border border-[var(--border)] text-sm focus:outline-none focus:border-[var(--blue)]"
+              className="w-full h-10 pl-9 pr-4 rounded-md border border-[var(--studio-border)] text-sm focus:outline-none focus:border-[var(--studio-accent)]"
               placeholder="Search routes by origin or destination..."
             />
           </div>
-          <div className="text-xs text-[var(--text-muted)] mb-1">
+          <div className="text-xs text-[var(--studio-text-muted)] mb-1">
             {assignedRouteIds.length} route{assignedRouteIds.length !== 1 ? 's' : ''} assigned
           </div>
         </div>
@@ -280,10 +280,10 @@ function AssignRoutesModal({ userId, userName, onClose, onSave }: { userId: stri
         <div className="flex-1 overflow-y-auto px-6 pb-4 min-h-0">
           {loadingRoutes ? (
             <div className="flex items-center justify-center py-10">
-              <Loader2 size={20} className="animate-spin text-[var(--text-muted)]" />
+              <Loader2 size={20} className="animate-spin text-[var(--studio-text-muted)]" />
             </div>
           ) : filteredRoutes.length === 0 ? (
-            <div className="text-center py-10 text-sm text-[var(--text-muted)]">No routes found</div>
+            <div className="text-center py-10 text-sm text-[var(--studio-text-muted)]">No routes found</div>
           ) : (
             <div className="space-y-1.5">
               {filteredRoutes.map(route => {
@@ -294,16 +294,16 @@ function AssignRoutesModal({ userId, userName, onClose, onSave }: { userId: stri
                     onClick={() => toggleRoute(route._id)}
                     className={`w-full flex items-center justify-between px-4 py-3 rounded-md border text-left text-sm transition-all cursor-pointer ${
                       isSelected
-                        ? 'border-zinc-300 bg-[var(--blue-light)] text-blue-900'
-                        : 'border-[var(--border)] bg-white text-zinc-700 hover:border-zinc-300 hover:bg-[#F9FAFB]'
+                        ? 'border-[var(--studio-border)] bg-[var(--studio-accent-soft)] text-blue-900'
+                        : 'border-[var(--studio-border)] bg-white text-[var(--studio-text-sub)] hover:border-[var(--studio-border)] hover:bg-[var(--fill-hover)]'
                     }`}
                   >
                     <div className="flex items-center gap-3">
-                      <MapPin size={14} className={isSelected ? 'text-blue-500' : 'text-[var(--text-muted)]'} />
-                      <span className="font-medium">{route.origin} → {route.destination}<span className="text-[var(--text-muted)] font-normal">{viaLabel(route.via)}</span></span>
+                      <MapPin size={14} className={isSelected ? 'text-blue-500' : 'text-[var(--studio-text-muted)]'} />
+                      <span className="font-medium">{route.origin} → {route.destination}<span className="text-[var(--studio-text-muted)] font-normal">{viaLabel(route.via)}</span></span>
                     </div>
                     <div className={`w-5 h-5 rounded flex items-center justify-center border ${
-                      isSelected ? 'bg-[var(--blue)] border-[var(--blue)]' : 'border-zinc-300 bg-white'
+                      isSelected ? 'bg-[var(--studio-accent)] border-[var(--studio-accent)]' : 'border-[var(--studio-border)] bg-white'
                     }`}>
                       {isSelected && <Check size={12} className="text-white" />}
                     </div>
@@ -314,13 +314,13 @@ function AssignRoutesModal({ userId, userName, onClose, onSave }: { userId: stri
           )}
         </div>
 
-        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-[var(--border)] shrink-0">
+        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-[var(--studio-border)] shrink-0">
           <button onClick={onClose}
-            className="h-9 px-4 rounded-md border border-[var(--border)] text-sm font-medium bg-[#F9FAFB] hover:bg-[#F3F4F6] text-zinc-700 transition-colors">
+            className="h-9 px-4 rounded-md border border-[var(--studio-border)] text-sm font-medium bg-[var(--fill-subtle)] hover:bg-[var(--fill-hover)] text-[var(--studio-text-sub)] transition-colors">
             Cancel
           </button>
           <button onClick={handleSave} disabled={saving}
-            className="h-9 px-4 rounded-md bg-[var(--blue)] text-white text-sm font-medium hover:bg-[var(--blue-dark)] disabled:opacity-50 transition-colors">
+            className="h-9 px-4 rounded-md bg-[var(--studio-accent)] text-white text-sm font-medium hover:bg-[var(--studio-accent)] disabled:opacity-50 transition-colors">
             {saving ? 'Saving…' : 'Save Assignments'}
           </button>
         </div>
@@ -387,14 +387,14 @@ function RegisterUserModal({ onClose, onSave }: { onClose: () => void; onSave: (
         exit={{ opacity: 0, scale: 0.96, y: 8 }}
         className="bg-white rounded-md w-full max-w-lg overflow-hidden"
       >
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border)]">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--studio-border)]">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-md bg-[var(--blue)]/10 flex items-center justify-center">
-              <UserPlus size={16} className="text-[var(--blue)]" />
+            <div className="w-8 h-8 rounded-md bg-[var(--studio-accent)]/10 flex items-center justify-center">
+              <UserPlus size={16} className="text-[var(--studio-accent)]" />
             </div>
-            <h3 className="font-[var(--font-body)] text-base font-semibold text-[var(--text)]">Invite New User</h3>
+            <h3 className="font-[var(--font-body)] text-base font-semibold text-[var(--studio-text)]">Invite New User</h3>
           </div>
-          <button onClick={onClose} className="p-1.5 rounded-md hover:bg-[var(--blue-light)] text-[var(--text-muted)] transition-colors">
+          <button onClick={onClose} className="p-1.5 rounded-md hover:bg-[var(--studio-muted-fill)] text-[var(--studio-text-muted)] transition-colors">
             <X size={16} />
           </button>
         </div>
@@ -407,17 +407,17 @@ function RegisterUserModal({ onClose, onSave }: { onClose: () => void; onSave: (
               animate={{ opacity: 1, scale: 1 }}
               className="px-6 py-12 text-center"
             >
-              <div className="w-16 h-16 rounded-full bg-[var(--blue-light)] border border-zinc-200 flex items-center justify-center mx-auto mb-4">
-                <Check size={28} className="text-[var(--blue)]" />
+              <div className="w-16 h-16 rounded-full bg-[var(--studio-accent-soft)] border border-[var(--studio-border)] flex items-center justify-center mx-auto mb-4">
+                <Check size={28} className="text-[var(--studio-accent)]" />
               </div>
-              <p className="font-[var(--font-body)] text-lg font-semibold text-[var(--text)]">User Invited!</p>
-              <p className="font-[var(--font-body)] text-sm text-[var(--text-sub)] mt-1">
+              <p className="font-[var(--font-body)] text-lg font-semibold text-[var(--studio-text)]">User Invited!</p>
+              <p className="font-[var(--font-body)] text-sm text-[var(--studio-text-sub)] mt-1">
                 A setup link has been sent to <strong>{form.email}</strong>
               </p>
               {setupUrl && (
-                <div className="mt-3 bg-[#F9FAFB] border border-[var(--border)] rounded-md px-3 py-2 text-xs text-[var(--text-sub)] break-all">
+                <div className="mt-3 bg-[var(--fill-subtle)] border border-[var(--studio-border)] rounded-md px-3 py-2 text-xs text-[var(--studio-text-sub)] break-all">
                   <p className="font-semibold mb-1">Setup URL (dev mode):</p>
-                  <a href={setupUrl} className="text-[var(--blue)] underline" target="_blank" rel="noopener noreferrer">{setupUrl}</a>
+                  <a href={setupUrl} className="text-[var(--studio-accent)] underline" target="_blank" rel="noopener noreferrer">{setupUrl}</a>
                 </div>
               )}
             </motion.div>
@@ -433,7 +433,7 @@ function RegisterUserModal({ onClose, onSave }: { onClose: () => void; onSave: (
               )}
 
               <div>
-                <label className="block font-[var(--font-body)] text-xs font-semibold text-[var(--text-sub)] uppercase tracking-wide mb-2">
+                <label className="block font-[var(--font-body)] text-xs font-semibold text-[var(--studio-text-sub)] uppercase tracking-wide mb-2">
                   Role <span className="text-blue-400">*</span>
                 </label>
                 <div className="grid grid-cols-2 gap-2">
@@ -445,7 +445,7 @@ function RegisterUserModal({ onClose, onSave }: { onClose: () => void; onSave: (
                         key={role}
                         type="button"
                         onClick={() => setForm(f => ({ ...f, role, agencyId: '' }))}
-                        className={`flex items-center gap-2 p-3 rounded-md border text-left transition-all ${active ? m.className : 'bg-white text-[var(--text-muted)] border-[var(--border)]'}`}
+                        className={`flex items-center gap-2 p-3 rounded-md border text-left transition-all ${active ? m.className : 'bg-white text-[var(--studio-text-muted)] border-[var(--studio-border)]'}`}
                         style={active ? { borderColor: 'currentColor' } : {}}
                       >
                         <span>{m.icon}</span>
@@ -460,7 +460,7 @@ function RegisterUserModal({ onClose, onSave }: { onClose: () => void; onSave: (
               </div>
 
               {form.role === 'agent' && (
-                <p className="mt-2 text-xs text-[var(--text-sub)] bg-[var(--blue-light)] border border-zinc-200 rounded-md px-3 py-2">
+                <p className="mt-2 text-xs text-[var(--studio-text-sub)] bg-[var(--studio-accent-soft)] border border-[var(--studio-border)] rounded-md px-3 py-2">
                   Agents are agency-independent. Assign their routes after the account is created.
                 </p>
               )}
@@ -496,12 +496,12 @@ function RegisterUserModal({ onClose, onSave }: { onClose: () => void; onSave: (
                     exit={{ opacity: 0, height: 0 }}
                     className="overflow-hidden"
                   >
-                    <label className="block font-[var(--font-body)] text-xs font-semibold text-[var(--text-sub)] uppercase tracking-wide mb-1.5">
+                    <label className="block font-[var(--font-body)] text-xs font-semibold text-[var(--studio-text-sub)] uppercase tracking-wide mb-1.5">
                       Agency <span className="text-blue-400">*</span>
                     </label>
                     <div className="relative">
                       <select
-                        className="w-full h-12 px-4 rounded-md border border-[var(--border)] bg-white font-[var(--font-body)] text-base text-[var(--text)] appearance-none focus:outline-none focus:border-[var(--blue)] cursor-pointer"
+                        className="w-full h-12 px-4 rounded-md border border-[var(--studio-border)] bg-white font-[var(--font-body)] text-base text-[var(--studio-text)] appearance-none focus:outline-none focus:border-[var(--studio-accent)] cursor-pointer"
                         value={form.agencyId}
                         onChange={e => setForm(f => ({ ...f, agencyId: e.target.value }))}
                       >
@@ -510,20 +510,20 @@ function RegisterUserModal({ onClose, onSave }: { onClose: () => void; onSave: (
                           <option key={a._id} value={a._id}>{a.name}</option>
                         ))}
                       </select>
-                      <ChevronDown size={13} className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] pointer-events-none" />
+                      <ChevronDown size={13} className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--studio-text-muted)] pointer-events-none" />
                     </div>
                   </motion.div>
                 )}
               </AnimatePresence>
 
-              <div className="bg-[var(--bg)] rounded-md px-3 py-2.5 flex items-start gap-2 border border-[var(--border)]">
-                <Mail size={13} className="text-[var(--text-muted)] mt-0.5 flex-shrink-0" />
-                <p className="font-[var(--font-body)] text-xs text-[var(--text-sub)]">
+              <div className="bg-[var(--fill-subtle)] rounded-md px-3 py-2.5 flex items-start gap-2 border border-[var(--studio-border)]">
+                <Mail size={13} className="text-[var(--studio-text-muted)] mt-0.5 flex-shrink-0" />
+                <p className="font-[var(--font-body)] text-xs text-[var(--studio-text-sub)]">
                   The user will receive an email with a link to set up their account. Their account remains inactive until they complete setup.
                 </p>
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-2 border-t border-[var(--border)]">
+              <div className="flex items-center justify-end gap-3 pt-2 border-t border-[var(--studio-border)]">
                 <Button variant="secondary" size="sm" onClick={onClose}>
                   Cancel
                 </Button>
@@ -575,7 +575,7 @@ function UserDrawer({
               {user.name[0]}
             </div>
             <div className="min-w-0">
-              <p className="font-[var(--font-body)] font-semibold text-[var(--text)] text-base truncate">{user.name}</p>
+              <p className="font-[var(--font-body)] font-semibold text-[var(--studio-text)] text-base truncate">{user.name}</p>
               <div className="mt-1">
                 <RoleBadge role={user.role} />
                 </div>
@@ -588,28 +588,28 @@ function UserDrawer({
               {statusMeta.label}
             </span>
             {!user.emailVerified && (
-              <span className="text-xs text-[var(--text-sub)] bg-[#F9FAFB] border border-[var(--border)] px-2 py-0.5 rounded-md flex items-center gap-1">
+              <span className="text-xs text-[var(--studio-text-sub)] bg-[var(--fill-subtle)] border border-[var(--studio-border)] px-2 py-0.5 rounded-md flex items-center gap-1">
                 <AlertCircle size={10} /> Unverified email
               </span>
             )}
           </div>
 
-          <div className="bg-[var(--bg)] rounded-md p-4 space-y-3.5 border border-[var(--border)]">
+          <div className="bg-[var(--fill-subtle)] rounded-md p-4 space-y-3.5 border border-[var(--studio-border)]">
             {[
               { icon: <Mail size={14} />,     label: 'Email',        value: user.email },
               { icon: <Phone size={14} />,    label: 'Phone',        value: user.phoneNumber || '—' },
               { icon: <Building2 size={14} />,label: 'Organization', value: user.organization
-                ? <span className="font-mono text-[var(--text)] text-xs bg-white border border-[var(--border)] px-1.5 py-0.5 rounded">{user.organization}</span>
+                ? <span className="font-mono text-[var(--studio-text)] text-xs bg-white border border-[var(--studio-border)] px-1.5 py-0.5 rounded">{user.organization}</span>
                 : '—'
               },
               { icon: <Clock size={14} />,    label: 'Last Login',   value: timeAgo(user.lastLogin) },
               { icon: <Clock size={14} />,    label: 'Registered',   value: new Date(user.createdAt).toLocaleDateString() },
             ].map(({ icon, label, value }) => (
               <div key={label} className="flex items-start gap-3">
-                <span className="text-[var(--text-muted)] mt-0.5 flex-shrink-0">{icon}</span>
+                <span className="text-[var(--studio-text-muted)] mt-0.5 flex-shrink-0">{icon}</span>
                 <div className="min-w-0">
-                  <p className="font-[var(--font-body)] text-xs text-[var(--text-sub)] mb-0.5">{label}</p>
-                  <p className="font-[var(--font-body)] text-sm text-[var(--text)] break-all">{value}</p>
+                  <p className="font-[var(--font-body)] text-xs text-[var(--studio-text-sub)] mb-0.5">{label}</p>
+                  <p className="font-[var(--font-body)] text-sm text-[var(--studio-text)] break-all">{value}</p>
                 </div>
               </div>
             ))}
@@ -624,7 +624,7 @@ function UserDrawer({
               disabled={toggling}
               className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-md text-sm font-medium transition-colors border ${user.isActive
                 ? 'bg-[var(--error-bg)] text-[var(--error)] border-[var(--error-border)]'
-                : 'bg-[var(--blue-light)] text-[var(--blue)] border-zinc-200'
+                : 'bg-[var(--studio-accent-soft)] text-[var(--studio-accent)] border-[var(--studio-border)]'
               }`}
             >
               {toggling ? <Loader2 size={14} className="animate-spin" /> : <Power size={14} />}
@@ -652,8 +652,8 @@ function DeleteUserModal({
   return (
     <Modal open onClose={onCancel} title="Delete user" maxWidth={480}>
       <div className="space-y-4">
-        <p className="font-[var(--font-body)] text-sm text-[var(--text-sub)] leading-relaxed">
-          This will permanently delete <strong className="text-[var(--text)]">{user.name}</strong>{' '}
+        <p className="font-[var(--font-body)] text-sm text-[var(--studio-text-sub)] leading-relaxed">
+          This will permanently delete <strong className="text-[var(--studio-text)]">{user.name}</strong>{' '}
           ({user.email || user.phoneNumber || 'no contact'}). Any accounts they manage and references will be removed.
           This action cannot be undone.
         </p>
@@ -662,14 +662,14 @@ function DeleteUserModal({
             <AlertCircle size={14} className="flex-shrink-0" /> {error}
           </div>
         )}
-        <div className="flex items-center justify-end gap-3 pt-2 border-t border-[var(--border)]">
+        <div className="flex items-center justify-end gap-3 pt-2 border-t border-[var(--studio-border)]">
           <Button variant="secondary" size="sm" onClick={onCancel} disabled={busy}>
             Cancel
           </Button>
           <button
             onClick={onConfirm}
             disabled={busy}
-            className="h-9 px-4 rounded-md bg-red-600 text-white text-sm font-medium hover:bg-red-700 disabled:opacity-50 transition-colors flex items-center gap-2 cursor-pointer"
+            className="h-9 px-4 rounded-md bg-[var(--solid-danger)] text-white text-sm font-medium hover:bg-[var(--solid-danger)] disabled:opacity-50 transition-colors flex items-center gap-2 cursor-pointer"
           >
             {busy ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
             {busy ? 'Deleting…' : 'Delete user'}
@@ -784,12 +784,12 @@ export default function UsersPage() {
         <button
           onClick={() => { setRoleFilter(''); setPage(1); }}
           className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-md border transition-all ${roleFilter === ''
-            ? 'bg-[var(--blue)] text-white border-[var(--blue)]'
-            : 'bg-white text-[var(--text-sub)] border-[var(--border)]'
+            ? 'bg-[var(--studio-accent)] text-white border-[var(--studio-accent)]'
+            : 'bg-white text-[var(--studio-text-sub)] border-[var(--studio-border)]'
           }`}
         >
           All&nbsp;
-          <span className={`font-bold text-xs px-1.5 py-0.5 rounded ${roleFilter === '' ? 'bg-white/20 text-white' : 'bg-[var(--border)] text-[var(--text-sub)]'}`}>
+          <span className={`font-bold text-xs px-1.5 py-0.5 rounded ${roleFilter === '' ? 'bg-white/20 text-white' : 'bg-[var(--fill-strong)] text-[var(--studio-text-sub)]'}`}>
             {pagination.total}
           </span>
         </button>
@@ -803,14 +803,14 @@ export default function UsersPage() {
               key={role}
               onClick={() => { setRoleFilter(active ? '' : role); setPage(1); }}
               className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-md border transition-all ${active
-                ? 'bg-[var(--blue)] text-white border-[var(--blue)]'
-                : 'bg-white text-[var(--text-sub)] border-[var(--border)]'
+                ? 'bg-[var(--studio-accent)] text-white border-[var(--studio-accent)]'
+                : 'bg-white text-[var(--studio-text-sub)] border-[var(--studio-border)]'
               }`}
             >
               <span className={active ? 'text-white' : meta.className.split(' ').find(c => c.startsWith('text-'))}>{meta.icon}</span>
               {meta.label}
               {count > 0 && (
-                <span className={`font-bold text-xs px-1 rounded ${active ? 'text-white/70' : 'text-[var(--text-muted)]'}`}>
+                <span className={`font-bold text-xs px-1 rounded ${active ? 'text-white/70' : 'text-[var(--studio-text-muted)]'}`}>
                   {count}
                 </span>
               )}
@@ -821,9 +821,9 @@ export default function UsersPage() {
 
       <div className="flex items-center gap-3">
         <div className="relative flex-1 max-w-sm">
-          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--studio-text-muted)]" />
           <input
-            className="w-full h-12 pl-9 pr-4 rounded-md border border-[var(--border)] bg-white font-[var(--font-body)] text-base font-normal text-[var(--text)] placeholder:text-[var(--text-muted)] placeholder:font-light transition-[border-color] duration-150 ease-out focus:outline-none focus:border-[var(--blue)]"
+            className="w-full h-12 pl-9 pr-4 rounded-md border border-[var(--studio-border)] bg-white font-[var(--font-body)] text-base font-normal text-[var(--studio-text)] placeholder:text-[var(--studio-text-muted)] placeholder:font-light transition-[border-color] duration-150 ease-out focus:outline-none focus:border-[var(--studio-accent)]"
             placeholder="Search by name or email…"
             value={search}
             onChange={e => { setSearch(e.target.value); setPage(1); }}
@@ -832,7 +832,7 @@ export default function UsersPage() {
 
         <div className="relative">
           <select
-            className="appearance-none h-12 pl-4 pr-10 rounded-md border border-[var(--border)] bg-white font-[var(--font-body)] text-base font-normal text-[var(--text)] transition-[border-color] duration-150 ease-out focus:outline-none focus:border-[var(--blue)] cursor-pointer"
+            className="appearance-none h-12 pl-4 pr-10 rounded-md border border-[var(--studio-border)] bg-white font-[var(--font-body)] text-base font-normal text-[var(--studio-text)] transition-[border-color] duration-150 ease-out focus:outline-none focus:border-[var(--studio-accent)] cursor-pointer"
             value={statusFilter}
             onChange={e => { setStatusFilter(e.target.value as UserStatus | ''); setPage(1); }}
           >
@@ -841,31 +841,31 @@ export default function UsersPage() {
             <option value="inactive">Inactive</option>
             <option value="suspended">Suspended</option>
           </select>
-          <ChevronDown size={13} className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] pointer-events-none" />
+          <ChevronDown size={13} className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--studio-text-muted)] pointer-events-none" />
         </div>
       </div>
 
-      <div className="bg-white rounded-md border border-[var(--border)] overflow-hidden">
+      <div className="bg-white rounded-md border border-[var(--studio-border)] overflow-hidden">
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-[#F8FAFB] border-b border-[var(--border)]">
+            <tr className="bg-[var(--fill-subtle)] border-b border-[var(--studio-border)]">
               {['User', 'Role', 'Status', 'Organization', 'Last Login', 'Created', ''].map(h => (
                 <th
                   key={h}
-                  className="px-4 py-3 text-left font-[var(--font-body)] text-xs font-semibold uppercase tracking-[0.5px] text-[#475569] whitespace-nowrap"
+                  className="px-4 py-3 text-left font-[var(--font-body)] text-xs font-semibold uppercase tracking-[0.5px] text-[var(--studio-text-sub)] whitespace-nowrap"
                 >
                   {h}
                 </th>
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-[var(--border)]">
+          <tbody className="divide-y divide-[var(--studio-border)]">
             {loading ? (
               Array.from({ length: 8 }).map((_, i) => (
                 <tr key={i}>
                   {Array.from({ length: 7 }).map((_, j) => (
                     <td key={j} className="px-4 py-3">
-                      <div className={`h-4 bg-[var(--border)] rounded animate-pulse ${j === 0 ? 'w-32' : 'w-20'}`} />
+                      <div className={`h-4 bg-[var(--fill-strong)] rounded animate-pulse ${j === 0 ? 'w-32' : 'w-20'}`} />
                     </td>
                   ))}
                 </tr>
@@ -874,12 +874,12 @@ export default function UsersPage() {
               <tr>
                 <td colSpan={7}>
                   <div className="py-16 text-center">
-                    <Users size={32} className="mx-auto mb-3 text-[var(--text-muted)]" />
-                    <p className="font-[var(--font-body)] text-sm text-[var(--text-sub)]">No users found</p>
+                    <Users size={32} className="mx-auto mb-3 text-[var(--studio-text-muted)]" />
+                    <p className="font-[var(--font-body)] text-sm text-[var(--studio-text-sub)]">No users found</p>
                     {(search || roleFilter || statusFilter) && (
                       <button
                         onClick={() => { setSearch(''); setRoleFilter(''); setStatusFilter(''); }}
-                        className="mt-2 text-xs text-[var(--blue)] hover:underline"
+                        className="mt-2 text-xs text-[var(--studio-accent)] hover:underline"
                       >
                         Clear filters
                       </button>
@@ -894,7 +894,7 @@ export default function UsersPage() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.02 * i }}
-                  className="hover:bg-[var(--blue-light)] transition-colors cursor-pointer"
+                  className="hover:bg-[var(--studio-muted-fill)] transition-colors cursor-pointer"
                   onClick={() => setSelectedUser(user)}
                 >
                   <td className="px-4 py-3">
@@ -906,8 +906,8 @@ export default function UsersPage() {
                         {user.name[0]}
                       </div>
                       <div>
-                        <p className="font-[var(--font-body)] font-medium text-[var(--text)]">{user.name}</p>
-                        <p className="font-[var(--font-body)] text-xs text-[var(--text-sub)]">{user.email}</p>
+                        <p className="font-[var(--font-body)] font-medium text-[var(--studio-text)]">{user.name}</p>
+                        <p className="font-[var(--font-body)] text-xs text-[var(--studio-text-sub)]">{user.email}</p>
                       </div>
                     </div>
                   </td>
@@ -917,22 +917,22 @@ export default function UsersPage() {
                   <td className="px-4 py-3">
                     <StatusBadge status={user.status} verified={user.emailVerified} />
                   </td>
-                  <td className="px-4 py-3 text-[var(--text-sub)] text-xs max-w-[120px] truncate">
+                  <td className="px-4 py-3 text-[var(--studio-text-sub)] text-xs max-w-[120px] truncate">
                     {user.organization ? (
-                      <span className="font-mono bg-[var(--border)]/50 px-1.5 py-0.5 rounded text-[var(--text-sub)] text-xs">
+                      <span className="font-mono bg-[var(--fill-strong)]/50 px-1.5 py-0.5 rounded text-[var(--studio-text-sub)] text-xs">
                         {user.organization.slice(0, 8)}…
                       </span>
                     ) : (
-                      <span className="text-[var(--text-muted)]">—</span>
+                      <span className="text-[var(--studio-text-muted)]">—</span>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-xs text-[var(--text-sub)] whitespace-nowrap">
+                  <td className="px-4 py-3 text-xs text-[var(--studio-text-sub)] whitespace-nowrap">
                     <div className="flex items-center gap-1">
                       <Clock size={11} />
                       {timeAgo(user.lastLogin)}
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-xs text-[var(--text-sub)] whitespace-nowrap">
+                  <td className="px-4 py-3 text-xs text-[var(--studio-text-sub)] whitespace-nowrap">
                     {new Date(user.createdAt).toLocaleDateString()}
                   </td>
                   <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
@@ -941,7 +941,7 @@ export default function UsersPage() {
                         <button
                           onClick={() => { setDeleteError(''); setDeletingUser(user); }}
                           title={`Delete ${user.name}`}
-                          className="p-1.5 rounded-md text-red-600 hover:bg-red-50 transition-colors"
+                          className="p-1.5 rounded-md text-[var(--tone-danger-ink)] hover:bg-[var(--tone-danger-fill)] transition-colors"
                         >
                           <Trash2 size={15} />
                         </button>
@@ -963,15 +963,15 @@ export default function UsersPage() {
         </table>
 
         {pagination.totalPages > 1 && (
-          <div className="flex items-center justify-between px-4 py-3 border-t border-[var(--border)] bg-[#F8FAFB]">
-            <p className="font-[var(--font-body)] text-xs text-[var(--text-sub)]">
+          <div className="flex items-center justify-between px-4 py-3 border-t border-[var(--studio-border)] bg-[var(--fill-subtle)]">
+            <p className="font-[var(--font-body)] text-xs text-[var(--studio-text-sub)]">
               Showing {((page - 1) * 20) + 1}–{Math.min(page * 20, pagination.total)} of {pagination.total}
             </p>
             <div className="flex items-center gap-1">
               <button
                 onClick={() => setPage(p => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className="px-3 py-1.5 text-xs rounded-md border border-[var(--border)] hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors font-[var(--font-body)] text-[var(--text)]"
+                className="px-3 py-1.5 text-xs rounded-md border border-[var(--studio-border)] hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors font-[var(--font-body)] text-[var(--studio-text)]"
               >
                 Previous
               </button>
@@ -982,8 +982,8 @@ export default function UsersPage() {
                     key={p}
                     onClick={() => setPage(p)}
                     className={`w-8 h-7 text-xs rounded-md border transition-colors font-[var(--font-body)] ${p === page
-                      ? 'bg-[var(--blue)] text-white border-[var(--blue)]'
-                      : 'bg-white text-[var(--text-sub)] border-[var(--border)]'
+                      ? 'bg-[var(--studio-accent)] text-white border-[var(--studio-accent)]'
+                      : 'bg-white text-[var(--studio-text-sub)] border-[var(--studio-border)]'
                     }`}
                   >
                     {p}
@@ -993,7 +993,7 @@ export default function UsersPage() {
               <button
                 onClick={() => setPage(p => Math.min(pagination.totalPages, p + 1))}
                 disabled={page === pagination.totalPages}
-                className="px-3 py-1.5 text-xs rounded-md border border-[var(--border)] hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors font-[var(--font-body)] text-[var(--text)]"
+                className="px-3 py-1.5 text-xs rounded-md border border-[var(--studio-border)] hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors font-[var(--font-body)] text-[var(--studio-text)]"
               >
                 Next
               </button>

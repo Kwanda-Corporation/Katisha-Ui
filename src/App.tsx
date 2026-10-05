@@ -2,6 +2,7 @@ import IntroOverlay from './components/ui/IntroOverlay';
 import { AuthProvider } from './contexts/AuthContext';
 import { SocketProvider } from './contexts/SocketContext';
 import { OnlineProvider } from './contexts/OnlineContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 import { ToastProvider } from './components/ui/Toast';
 
 // Shared provider tree used by both entry points. The router (BrowserRouter on
@@ -13,9 +14,11 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
       <OnlineProvider>
         <AuthProvider>
           <SocketProvider>
-            <ToastProvider>
-              {children}
-            </ToastProvider>
+            <ThemeProvider>
+              <ToastProvider>
+                {children}
+              </ToastProvider>
+            </ThemeProvider>
           </SocketProvider>
         </AuthProvider>
       </OnlineProvider>

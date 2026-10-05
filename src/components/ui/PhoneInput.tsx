@@ -33,6 +33,10 @@ interface PhoneInputProps {
   required?: boolean
   error?: string
   id?: string
+  /** `lg` matches the Claude-style auth surfaces (larger radius + height). */
+  size?: 'default' | 'lg'
+  /** Translated "no matches" text for the country picker. */
+  noResultsLabel?: string
 }
 
 export default function PhoneInput({
@@ -44,7 +48,10 @@ export default function PhoneInput({
   required,
   error,
   id,
+  size = 'default',
+  noResultsLabel = 'No countries found',
 }: PhoneInputProps) {
+  const isLg = size === 'lg'
   const defaultEntry = COUNTRY_CODES.find(c => c.code === defaultCountry) || COUNTRY_CODES[0]
 
   const [countryCode, setCountryCode] = useState(defaultCountry)
@@ -56,18 +63,27 @@ export default function PhoneInput({
   const dropdownRef = useRef<HTMLDivElement>(null)
   const searchRef = useRef<HTMLInputElement>(null)
 
+  // Hydrate from an existing value on mount. Handles every stored spelling:
+  // `+250788000007`, `250788000007`, `0788000007` and `788000007` all render as
+  // the flag/dial plus the national number.
   useEffect(() => {
     if (!value) {
       setLocalNumber('')
       return
     }
-    const match = COUNTRY_CODES.find(c => value.startsWith(c.dial))
-    if (match) {
-      setCountryCode(match.code)
-      setLocalNumber(value.slice(match.dial.length))
-    } else {
-      setLocalNumber(value.replace(/^\+/, ''))
+    const dialMatch = COUNTRY_CODES.find(c => value.startsWith(c.dial))
+    if (dialMatch) {
+      setCountryCode(dialMatch.code)
+      setLocalNumber(toLocalNumber(value, dialMatch.dial))
+      return
     }
+    const bareDial = COUNTRY_CODES.find(c => value.startsWith(c.dial.replace('+', '')))
+    if (bareDial) {
+      setCountryCode(bareDial.code)
+      setLocalNumber(toLocalNumber(value, bareDial.dial))
+      return
+    }
+    setLocalNumber(toLocalNumber(value, defaultEntry.dial))
   }, [])
 
   useEffect(() => {
@@ -91,28 +107,42 @@ export default function PhoneInput({
   const selected = COUNTRY_CODES.find(c => c.code === countryCode) || defaultEntry
   const selectedDial = selected.dial
 
-  const stripLeadingZero = (d: string) => d.replace(/^0+/, '')
+  /**
+   * Turn whatever the user typed into the local part of the number.
+   *
+   * People type `788000007`, `0788000007`, `788 000 007`, and also paste a
+   * full `+250788000007`. The dial code and a single trunk `0` are both dropped
+   * so the field only ever shows the national number; the dial code is already
+   * displayed separately next to the flag.
+   */
+  const toLocalNumber = (raw: string, dial: string): string => {
+    let digits = raw.replace(/\D/g, '')
+    // `00` international prefix, e.g. a pasted `00250788000007`.
+    while (digits.startsWith('00')) digits = digits.slice(2)
+    const dialDigits = dial.replace(/\D/g, '')
+    if (dialDigits && digits.startsWith(dialDigits)) {
+      digits = digits.slice(dialDigits.length)
+    }
+    return digits.replace(/^0+/, '')
+  }
 
   const handleLocalChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = e.target.value
-    setLocalNumber(raw)
-    const digits = stripLeadingZero(raw.replace(/\D/g, ''))
-    if (digits) {
-      onChange(`${selectedDial}${digits}`)
-    } else {
-      onChange('')
-    }
+    const local = toLocalNumber(raw, selectedDial)
+    // Keep what was typed when it isn't yet a usable number, so the caret and
+    // any leading zero stay put while the user is mid-entry.
+    setLocalNumber(local || raw.replace(/\s|-/g, ''))
+    onChange(local ? `${selectedDial}${local}` : '')
   }
 
   const selectCountry = (code: string) => {
-    setCountryCode(code)
     const newDial = COUNTRY_CODES.find(c => c.code === code)?.dial || ''
-    const digits = stripLeadingZero(localNumber.replace(/\D/g, ''))
-    if (digits) {
-      onChange(`${newDial}${digits}`)
-    } else {
-      onChange('')
-    }
+    // Re-derive against the new dial code: the old local part must not be
+    // reinterpreted as already containing the previous country code.
+    const digits = toLocalNumber(localNumber, newDial)
+    setCountryCode(code)
+    setLocalNumber(digits)
+    onChange(digits ? `${newDial}${digits}` : '')
     setDropdownOpen(false)
     setSearch('')
   }
@@ -133,12 +163,24 @@ export default function PhoneInput({
           {label}
         </label>
       )}
-      <div className="flex gap-0 items-stretch">
-        <div className="relative" ref={dropdownRef}>
+      {/* One control, one border: the country trigger and the number share a
+          single rounded outline and are split by an inset divider. The clipped
+          row must stay an inner element so the dropdown can escape it. */}
+      <div className="relative" ref={dropdownRef}>
+        <div
+          className={`flex items-stretch overflow-hidden ${
+            isLg ? 'rounded-[var(--auth-radius)]' : 'rounded-[var(--radius-lg)]'
+          } border transition-colors duration-150 ease-out ${
+            error
+              ? 'border-[var(--error)] bg-[var(--error-bg)]'
+              : 'border-[var(--border)] bg-white focus-within:border-[var(--blue)]'
+          }`}
+        >
           <button
             type="button"
             onClick={() => { setDropdownOpen(o => !o); setSearch('') }}
-            className="h-12 flex items-center gap-1.5 pl-2.5 pr-3 rounded-l-md border border-[var(--border)] border-r-0 bg-white focus:outline-none focus:border-[var(--blue)] transition-colors cursor-pointer hover:bg-[#F9FAFB]"
+            aria-expanded={dropdownOpen}
+            className="flex shrink-0 items-center gap-1.5 border-0 border-r border-[var(--border)] bg-white pl-2.5 pr-3 focus:outline-none transition-colors cursor-pointer hover:bg-[#F9FAFB]"
           >
             <ReactCountryFlag
               countryCode={selected.countryCode}
@@ -149,63 +191,55 @@ export default function PhoneInput({
             <span className="text-[10px] text-[var(--text-muted)]">▾</span>
           </button>
 
-          {dropdownOpen && (
-            <div className="absolute top-full left-0 z-50 mt-1 w-64 bg-white border border-[var(--border)] rounded-md overflow-hidden">
-              <div className="p-2 border-b border-zinc-100">
-                <input
-                  ref={searchRef}
-                  type="text"
-                  value={search}
-                  onChange={e => setSearch(e.target.value)}
-                  placeholder="Search country..."
-                  className="w-full h-9 px-3 rounded-sm border border-[var(--border)] bg-[#F9FAFB] text-sm focus:outline-none focus:border-[var(--blue)] placeholder:text-[var(--text-muted)]"
-                />
-              </div>
-              <div className="max-h-52 overflow-y-auto">
-                {filtered.length === 0 ? (
-                  <div className="px-3 py-4 text-center text-xs text-[var(--text-muted)]">No countries found</div>
-                ) : (
-                  filtered.map(c => (
-                    <button
-                      key={c.code}
-                      type="button"
-                      onClick={() => selectCountry(c.code)}
-                      className={`w-full flex items-center gap-2.5 px-3 py-2 text-left transition-colors cursor-pointer hover:bg-[#F9FAFB] ${
-                        c.code === countryCode ? 'bg-[var(--blue-bg)]' : ''
-                      }`}
-                    >
-                      <ReactCountryFlag
-                        countryCode={c.countryCode}
-                        svg
-                        style={{ fontSize: '18px', lineHeight: '18px' }}
-                      />
-                      <span className="flex-1 text-sm text-[var(--text)]">{c.label}</span>
-                      <span className="text-xs text-[var(--text-muted)] font-medium">{c.dial}</span>
-                    </button>
-                  ))
-                )}
-              </div>
-            </div>
-          )}
+          <input
+            id={inputId}
+            type="tel"
+            value={localNumber}
+            onChange={handleLocalChange}
+            placeholder={placeholder}
+            required={required}
+            className="min-w-0 flex-1 border-0 bg-white px-4 h-12 font-[var(--font-body)] text-base font-normal text-[var(--text)] placeholder:text-[var(--text-muted)] placeholder:font-light focus:outline-none"
+          />
         </div>
 
-        <input
-          id={inputId}
-          type="tel"
-          value={localNumber}
-          onChange={handleLocalChange}
-          placeholder={placeholder}
-          required={required}
-          className={`
-            flex-1 h-12 px-4 rounded-r-md
-            border border-[var(--border)] bg-white
-            font-[var(--font-body)] text-base font-normal text-[var(--text)]
-            placeholder:text-[var(--text-muted)] placeholder:font-light
-            transition-[border-color] duration-150 ease-out
-            focus:outline-none focus:border-[var(--blue)]
-            ${error ? '!border-[var(--error)] !bg-[var(--error-bg)]' : ''}
-          `}
-        />
+        {dropdownOpen && (
+          <div className="absolute top-full left-0 z-50 mt-1 w-64 bg-white border border-[var(--border)] rounded-md overflow-hidden">
+            <div className="p-2 border-b border-zinc-100">
+              <input
+                ref={searchRef}
+                type="text"
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                placeholder={noResultsLabel}
+                className="w-full h-9 px-3 rounded-sm border border-[var(--border)] bg-[#F9FAFB] text-sm focus:outline-none focus:border-[var(--blue)] placeholder:text-[var(--text-muted)]"
+              />
+            </div>
+            <div className="max-h-52 overflow-y-auto">
+              {filtered.length === 0 ? (
+                <div className="px-3 py-4 text-center text-xs text-[var(--text-muted)]">{noResultsLabel}</div>
+              ) : (
+                filtered.map(c => (
+                  <button
+                    key={c.code}
+                    type="button"
+                    onClick={() => selectCountry(c.code)}
+                    className={`w-full flex items-center gap-2.5 px-3 py-2 text-left transition-colors cursor-pointer hover:bg-[#F9FAFB] ${
+                      c.code === countryCode ? 'bg-[var(--blue-bg)]' : ''
+                    }`}
+                  >
+                    <ReactCountryFlag
+                      countryCode={c.countryCode}
+                      svg
+                      style={{ fontSize: '18px', lineHeight: '18px' }}
+                    />
+                    <span className="flex-1 text-sm text-[var(--text)]">{c.label}</span>
+                    <span className="text-xs text-[var(--text-muted)] font-medium">{c.dial}</span>
+                  </button>
+                ))
+              )}
+            </div>
+          </div>
+        )}
       </div>
       {error && (
         <span className="font-[var(--font-body)] text-xs text-[var(--error)]">

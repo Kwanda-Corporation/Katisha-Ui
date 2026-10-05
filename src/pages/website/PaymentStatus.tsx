@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import Lottie from 'lottie-react';
 import paymentAnimation from '../../assets/lottie/payment.json';
 import { AlertCircle, Loader, X, Check, MessageCircle } from 'lucide-react';
-import { useTranslation } from '../../../node_modules/react-i18next';
+import { useTranslation } from 'react-i18next';
 import { api } from '../../api';
 import { useSocket } from '../../contexts/SocketContext';
 import { useToast } from '../../components/ui/Toast';

@@ -11,7 +11,7 @@ import {
   ChevronRight,
   Copy,
 } from 'lucide-react';
-import { useTranslation } from '../../../node_modules/react-i18next';
+import { useTranslation } from 'react-i18next';
 
 const getFocusable = (container: HTMLElement) =>
   Array.from(
@@ -27,14 +27,30 @@ interface ModalFrameProps {
   children: ReactNode;
   maxWidth?: number;
   sheet?: boolean;
+  /**
+   * Panel height. In sheet mode it defaults to 80dvh. In centered mode it pins
+   * the panel to this height (and to the same max-height), which is how the
+   * booking selectors get a predictable 89%-of-the-screen layout.
+   */
   height?: string;
 }
 
-export function ModalFrame({ open, onClose, labelledBy, children, maxWidth = 1000, sheet = false, height = '80dvh' }: ModalFrameProps) {
+/**
+ * The booking selectors (destination, agency, date, hour, payment) are all
+ * built on this so they share one size: a fixed 89% of the viewport. On a phone
+ * the panel is a bottom sheet flush with the left, right and bottom edges; from
+ * the `sm` breakpoint up it is a centred card. `dvh` keeps the ratio honest when
+ * mobile browser chrome collapses.
+ */
+export const MODAL_VIEWPORT_HEIGHT = '89dvh';
+
+export function ModalFrame({ open, onClose, labelledBy, children, maxWidth = 1000, sheet = false, height }: ModalFrameProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   const restoreFocusRef = useRef<HTMLElement | null>(null);
   const onCloseRef = useRef(onClose);
   const [keyboardOffset, setKeyboardOffset] = useState(0);
+
+  const sheetHeight = height ?? '80dvh';
 
   useEffect(() => {
     onCloseRef.current = onClose;
@@ -138,8 +154,8 @@ export function ModalFrame({ open, onClose, labelledBy, children, maxWidth = 100
                 className="relative w-full flex flex-col overflow-hidden bg-white outline-none rounded-t-[20px] sm:rounded-[20px]"
                 style={{
                   maxWidth,
-                  height: keyboardVisible ? `calc(100% - ${keyboardOffset}px)` : height,
-                  maxHeight: keyboardVisible ? `calc(100% - ${keyboardOffset}px)` : height,
+                  height: keyboardVisible ? `calc(100% - ${keyboardOffset}px)` : sheetHeight,
+                  maxHeight: keyboardVisible ? `calc(100% - ${keyboardOffset}px)` : sheetHeight,
                   marginBottom: keyboardVisible ? keyboardOffset : 0,
                   boxShadow: '0 -12px 40px -12px rgba(15, 23, 42, 0.25), 0 16px 40px -18px rgba(15, 23, 42, 0.22)',
                 }}
@@ -157,7 +173,7 @@ export function ModalFrame({ open, onClose, labelledBy, children, maxWidth = 100
             </div>
           ) : (
             <div
-              className="relative flex min-h-full items-center justify-center p-4 sm:p-6"
+              className="relative flex h-full items-center justify-center p-3 sm:p-6"
               onClick={e => {
                 if (e.target === e.currentTarget) onClose();
               }}
@@ -171,7 +187,12 @@ export function ModalFrame({ open, onClose, labelledBy, children, maxWidth = 100
                 className="relative w-full flex flex-col overflow-hidden bg-white outline-none border border-[#E5E7EB] rounded-[20px]"
                 style={{
                   maxWidth,
-                  maxHeight: 'min(90vh, 600px)',
+                  // A supplied height pins the panel (both axes) so every
+                  // booking selector occupies the same 89% of the screen; with
+                  // no height the dialog stays content-sized as before.
+                  ...(height
+                    ? { height, maxHeight: height }
+                    : { maxHeight: 'min(90vh, 600px)' }),
                   boxShadow: '0 30px 80px rgba(15, 23, 42, 0.16)',
                 }}
                 initial={{ opacity: 0, scale: 0.96 }}
@@ -361,20 +382,6 @@ export interface PaymentModalProps {
   ussdHighlight?: string;
 }
 
-function useIsMobile() {
-  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches);
-
-  useEffect(() => {
-    const mq = window.matchMedia('(max-width: 767px)');
-    const update = () => setIsMobile(mq.matches);
-    update();
-    mq.addEventListener('change', update);
-    return () => mq.removeEventListener('change', update);
-  }, []);
-
-  return isMobile;
-}
-
 export default function PaymentModal({
   open,
   onClose,
@@ -400,7 +407,6 @@ export default function PaymentModal({
   ussdHighlight,
 }: PaymentModalProps) {
   const { t } = useTranslation();
-  const isMobile = useIsMobile();
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethodId>('mtn');
   const [copied, setCopied] = useState(false);
 
@@ -444,7 +450,7 @@ export default function PaymentModal({
   };
 
   return (
-    <ModalFrame sheet open={open} onClose={onClose} labelledBy="payment-modal-title" maxWidth={860} height={isMobile ? '99dvh' : 'min(75dvh, 650px)'}>
+    <ModalFrame sheet open={open} onClose={onClose} labelledBy="payment-modal-title" maxWidth={900} height={MODAL_VIEWPORT_HEIGHT}>
       <div className="relative flex flex-col md:flex-row flex-1 min-h-0">
         {/* Close button */}
         <button

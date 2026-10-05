@@ -6,11 +6,12 @@ import {
   Loader, Minus, Plus, Clock, Info, AlertCircle, X, ChevronDown, Search, Lock, Star, Route
 } from 'lucide-react';
 import { api, resolveImageUrl } from '../../api';
+import { captureReferralCode, clearReferralCode, getReferralCode } from '../../utils/referral';
 import { useAuth } from '../../contexts/AuthContext';
 import { useSocket } from '../../contexts/SocketContext';
-import { useTranslation } from '../../../node_modules/react-i18next';
+import { useTranslation } from 'react-i18next';
 import { useToast } from '../ui/Toast';
-import PaymentModal, { ModalFrame } from './PaymentModal';
+import PaymentModal, { ModalFrame, MODAL_VIEWPORT_HEIGHT } from './PaymentModal';
 import i18n from '../../i18n';
 import { searchRoutesOffline } from '../../services/offlineData';
 import { cacheTicketWithImage, cacheTicket } from '../../services/ticketCache';
@@ -256,6 +257,8 @@ export default function BookingWizard() {
   const [selectedYear, setSelectedYear] = useState(() => kigaliTodayDate().getFullYear());
   const [showDateModal, setShowDateModal] = useState(false);
   const [showTimeModal, setShowTimeModal] = useState(false);
+  const [showAgencyModal, setShowAgencyModal] = useState(false);
+  const [agencySearch, setAgencySearch] = useState('');
   const [useExtraContactPhone, setUseExtraContactPhone] = useState(false);
   const [phoneInput, setPhoneInput] = useState('');
   const [contactPhoneInput, setContactPhoneInput] = useState('');
@@ -265,6 +268,7 @@ export default function BookingWizard() {
   const [catalogue, setCatalogue] = useState<CatalogRoute[]>([]);
   const viaFetchedOriginRef = useRef<string | null>(null);
   const autoOpenedDestRef = useRef(false);
+  const autoOpenedAgencyRef = useRef(false);
   const [blockedDates] = useState<string[]>([]);
   const [blockedTimes, setBlockedTimes] = useState<string[]>([]);
   const [scheduleConfigured, setScheduleConfigured] = useState(false);
@@ -285,6 +289,10 @@ export default function BookingWizard() {
   // there's NO deep link, the destination picker opens automatically as soon
   // as the page loads (the city catalogue was already prefetched above).
   useEffect(() => {
+    // Latch any ?ref= before deep-link handling, so a promoter link that also
+    // carries ?to=/?date= still attributes the booking.
+    captureReferralCode();
+
     const params = new URLSearchParams(window.location.search);
     const to = (params.get('to') || params.get('destination') || '').trim();
     const agency = params.get('agency') || params.get('agencyId');
@@ -394,6 +402,8 @@ export default function BookingWizard() {
 
   const handleAgencySelect = (route: any) => {
     setForm(f => ({ ...f, routeId: route._id, agencyId: route.agency?._id || '' }));
+    setShowAgencyModal(false);
+    setAgencySearch('');
     window.scrollTo({ top: 0, behavior: 'smooth' });
     if (scheduleTimerRef.current) clearTimeout(scheduleTimerRef.current);
     scheduleTimerRef.current = setTimeout(() => setShowSchedule(true), 500);
@@ -430,15 +440,6 @@ export default function BookingWizard() {
       : Math.round(fare * 0.01) + 60;
     return Math.round((fare + fee + txn) / seats);
   };
-  const medianPrice = useMemo(() => {
-    const prices = availableRoutes
-      .map(r => Number(r.effectivePrice || r.price) || 0)
-      .sort((a, b) => a - b);
-    const n = prices.length;
-    if (!n) return 0;
-    const mid = Math.floor(n / 2);
-    return n % 2 ? prices[mid] : (prices[mid - 1] + prices[mid]) / 2;
-  }, [availableRoutes]);
   const phoneDisplay = phoneInput;
   const contactPhoneDisplay = contactPhoneInput;
 
@@ -632,6 +633,23 @@ export default function BookingWizard() {
     searchRoutes(form.origin, form.destination, form.via || undefined);
   }, [step, form.origin, form.destination, form.via]);
 
+  // Open the agency picker as soon as the routes for the chosen destination are
+  // in, so the user never has to tap the Agency field. Latched per destination
+  // so it fires once: changing the destination re-arms it, and closing or
+  // choosing from the picker does not. Deep links that already picked an agency
+  // (applyPendingAgency) are skipped, as is a search that found no routes.
+  useEffect(() => {
+    if (step !== 0 || !form.destination) {
+      autoOpenedAgencyRef.current = false;
+      return;
+    }
+    if (loading || cityPickerField !== null) return;
+    if (!availableRoutes.length || form.routeId || pendingAgencyRef.current) return;
+    if (autoOpenedAgencyRef.current) return;
+    autoOpenedAgencyRef.current = true;
+    setShowAgencyModal(true);
+  }, [step, form.destination, loading, cityPickerField, availableRoutes, form.routeId]);
+
   // Load the via points served from the selected origin, grouped by the city
   // they lead to (e.g. Nairobi → [Gatuna]) so the picker can offer
   // "Nairobi via Gatuna" style destinations. Fetches the FULL route catalogue
@@ -806,6 +824,11 @@ export default function BookingWizard() {
         contactPhone: useExtraContactPhone ? (form.contactPhone.trim() || undefined) : form.phone,
       };
 
+      // Promoter attribution. The server ignores this when there is no code, and
+      // rejects self-referral, so it is always safe to send.
+      const referralCode = getReferralCode();
+      if (referralCode) bookingData.referralCode = referralCode;
+
       if (isGuest) {
         bookingData.guestName = guestName.trim() || t('booking.guest');
         bookingData.isGuest = true;
@@ -815,6 +838,11 @@ export default function BookingWizard() {
 
       const res = isGuest ? await api.createGuestBooking(bookingData) : await api.createBooking(bookingData);
       const { booking, paymentStatus } = res.data;
+
+      // The referral is now frozen onto the booking server-side (a customer can
+      // only ever be attributed to one promoter), so drop the local code to
+      // stop a shared device attributing its next order to the same promoter.
+      clearReferralCode();
 
       // If guest booking, auto-login by saving tokens
       if (isGuest && res.data.accessToken && res.data.refreshToken) {
@@ -985,10 +1013,57 @@ export default function BookingWizard() {
     );
   }
 
-  const renderAgencySection = () => {
+  const renderAgencyModal = () => {
+    // Filter on the agency name or the via point, so "Nairobi" and "Gatuna" both
+    // find the same row. Matches on agency name first, then the route line.
+    const agencyQuery = agencySearch.trim().toLowerCase();
+    const filteredRoutes = availableRoutes.filter(route => {
+      if (!agencyQuery) return true;
+      const name = (route.agency?.name || '').toLowerCase();
+      const via = (route.via || '').toLowerCase();
+      return name.includes(agencyQuery) || via.includes(agencyQuery);
+    });
+
     return (
-      <div className="flex flex-col gap-5">
-        <label className="text-sm sm:text-base font-medium uppercase tracking-[0.12em] text-[var(--text-sub)] block">{t('booking.selectAgency')}</label>
+      <ModalFrame
+        open={showAgencyModal}
+        onClose={() => { setShowAgencyModal(false); setAgencySearch(''); }}
+        labelledBy="agency-modal-title"
+        maxWidth={860}
+        sheet
+        height={MODAL_VIEWPORT_HEIGHT}
+      >
+        <div className="flex flex-col min-h-0 flex-1">
+          <div className="flex items-start justify-between gap-3 px-5 sm:px-8 pt-4 sm:pt-6 pb-3 shrink-0">
+            <div className="min-w-0">
+              <h2 id="agency-modal-title" className="text-lg font-bold text-[var(--text)]">
+                {t('booking.selectAgency')}
+              </h2>
+              <p className="text-[13px] text-[var(--text-sub)] mt-0.5">
+                {form.origin} → {form.destination}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => { setShowAgencyModal(false); setAgencySearch(''); }}
+              aria-label="Close"
+              className="w-9 h-9 rounded-sm bg-[#F3F4F6] hover:bg-[#E9ECEF] text-[#52525B] flex items-center justify-center transition-colors duration-200 cursor-pointer border-none shrink-0"
+            >
+              <X size={18} />
+            </button>
+          </div>
+
+          <div className="relative px-5 sm:px-8 pt-2 pb-3 shrink-0">
+            <Search size={16} className="absolute left-8 sm:left-11 top-1/2 -translate-y-1/2 text-[var(--text-muted)] pointer-events-none" />
+            <input
+              value={agencySearch}
+              onChange={(e) => setAgencySearch(e.target.value)}
+              placeholder={t('booking.searchAgencies') || 'Search agencies'}
+              className="w-full h-12 rounded-md border border-[#E5E7EB] bg-white pl-11 pr-4 text-base outline-none transition-all duration-200 focus:border-[var(--blue)] focus:ring-4 focus:ring-[var(--blue-bg)]"
+            />
+          </div>
+
+          <div className="min-h-0 overflow-y-auto px-5 sm:px-8 pb-6">
         {loading ? (
           <div className="flex items-center justify-center py-10">
             <Loader size={24} className="animate-spin text-[var(--blue)]" />
@@ -998,85 +1073,100 @@ export default function BookingWizard() {
             <Bus size={32} className="mx-auto text-[var(--text-muted)] mb-2" />
             <p className="text-base text-[var(--text-sub)]">{t('booking.noRoutes')}</p>
           </div>
+        ) : filteredRoutes.length === 0 ? (
+          <div className="text-center py-10">
+            <Bus size={32} className="mx-auto text-[var(--text-muted)] mb-2" />
+            <p className="text-base text-[var(--text-sub)]">{t('booking.noRoutes')}</p>
+          </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {availableRoutes.map((route, i) => {
+            <div className="flex flex-col gap-0.5">
+              {filteredRoutes.map((route, i) => {
                 const selected = form.routeId === route._id;
                 const routePrice = Number(route.effectivePrice || route.price) || 0;
-                const isExpensive = routePrice >= medianPrice;
-                // Two-layer solid brand gradient (no background photos).
-                const base = selected
-                  ? 'linear-gradient(135deg, #71717A 0%, #52525B 100%)'
-                  : 'linear-gradient(135deg, #1D4ED8 0%, #1E40AF 100%)';
+                const showVia = route.via && route.via.trim().toLowerCase() !== form.destination.trim().toLowerCase();
                 return (
                   <motion.button key={route._id}
-                    initial={{ opacity: 0, y: 10 }}
+                    type="button"
+                    initial={{ opacity: 0, y: 6 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.2, delay: 0.08 + i * 0.04, ease: [0.22, 1, 0.36, 1] }}
-                    whileHover={{ scale: 1.01, x: 2 }}
+                    transition={{ duration: 0.15, delay: Math.min(i * 0.03, 0.2) }}
                     whileTap={{ scale: 0.99 }}
                     onClick={() => handleAgencySelect(route)}
-                    className={`w-full p-4 sm:p-5 rounded-md border-2 text-left transition-all duration-200 cursor-pointer text-white ${
-                      selected
-                        ? 'border-[#71717A] ring-2 ring-white/70 shadow-[0_4px_18px_rgba(113,113,122,0.5)]'
-                        : 'border-[var(--blue)] hover:shadow-[0_4px_14px_rgba(29,78,216,0.35)]'
+                    className={`w-full flex items-center justify-between gap-3 px-2.5 py-2.5 rounded-sm text-left cursor-pointer border-none transition-colors duration-150 ${
+                      selected ? 'bg-[var(--blue-bg)] text-[var(--blue-dark)]' : 'text-[var(--text)] hover:bg-[#F9FAFB]'
                     }`}
-                    style={{
-                      backgroundImage: base,
-                    }}
                   >
-                  <div className="min-w-0">
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <motion.div
-                          animate={form.routeId === route._id ? { scale: [1, 1.15, 1] } : {}}
-                          transition={{ duration: 0.3 }}
-                          className="w-9 h-9 rounded-md flex items-center justify-center text-base font-semibold shrink-0 bg-white/20 text-white"
-                        >
-                          {route.agency?.name?.[0] || '?'}
-                        </motion.div>
-                        <div className="min-w-0">
-                          <p className="font-medium text-base truncate text-white">
+                    <span className="flex items-center gap-2.5 min-w-0">
+                      <span className={`w-7 h-7 rounded-sm flex items-center justify-center shrink-0 text-[13px] font-semibold ${selected ? 'bg-[var(--blue)]/15 text-[var(--blue)]' : 'bg-[#F3F4F6] text-[var(--text-sub)]'}`}>
+                        {route.agency?.name?.[0] || '?'}
+                      </span>
+                      <span className="flex flex-col min-w-0">
+                        <span className="flex items-center min-w-0">
+                          <span className={`text-[15px] font-medium truncate ${selected ? 'font-semibold' : ''}`}>
                             {route.agency?.name || t('booking.unknownAgency')}
-                            {route.agency?.featured && (
-                              <Star size={12} className="inline ml-1 mb-0.5 text-[#FCD34D]" fill="currentColor" />
-                            )}
-                            {isExpensive ? (
-                              <span className="inline-flex items-center gap-0.5 ml-1 mb-0.5">
-                                <Star size={12} className="text-[#FCD34D]" fill="currentColor" />
-                                <Star size={12} className="text-[#FCD34D]" fill="currentColor" />
-                              </span>
-                            ) : (
-                              <span className="inline-flex items-center ml-1 mb-0.5">
-                                <Star size={12} className="text-[#A1A1AA]" fill="currentColor" />
-                              </span>
-                            )}
-                          </p>
-                          <div className="flex items-center gap-1.5 min-w-0 flex-wrap">
-                            <span className="text-sm font-medium truncate text-white">{form.origin} → {form.destination}</span>
-                            {route.via && route.via.trim().toLowerCase() !== form.destination.trim().toLowerCase() && (
-                              <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-sm bg-white/20 text-white shrink-0">
-                                <Route size={10} /> via {route.via}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="mt-3 pt-3 border-t border-white/25 flex items-center justify-between">
-                      <span className="text-xs text-white/60">{route.estimatedDuration || ''}</span>
-                      <span className="font-semibold text-base whitespace-nowrap text-white">
+                          </span>
+                          {route.agency?.featured && (
+                            <Star size={12} className="inline shrink-0 ml-1 mb-0.5 text-[#FCD34D]" fill="currentColor" />
+                          )}
+                        </span>
+                        <span className="text-[11px] text-[var(--text-muted)] truncate">
+                          {form.origin} → {form.destination}
+                          {route.estimatedDuration ? ` · ${route.estimatedDuration}` : ''}
+                        </span>
+                      </span>
+                      {showVia && (
+                        <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-sm bg-[var(--blue-bg)] text-[var(--blue)] shrink-0">
+                          <Route size={10} /> via {route.via}
+                        </span>
+                      )}
+                    </span>
+                    <span className="flex items-center gap-2 shrink-0">
+                      <span className={`text-[13px] font-semibold whitespace-nowrap ${selected ? 'text-[var(--blue-dark)]' : 'text-[var(--text)]'}`}>
                         {perSeatTotalFor(routePrice).toLocaleString()} {t('booking.currency')}
                       </span>
-                    </div>
-                  </div>
-                </motion.button>
-              );
+                      {selected && <Check size={16} className="shrink-0 text-[var(--blue)]" />}
+                    </span>
+                  </motion.button>
+                );
               })}
             </div>
           </>
         )}
+        {errors.agencyId && <div className="pt-4"><FieldError message={errors.agencyId} /></div>}
+          </div>
+        </div>
+      </ModalFrame>
+    );
+  };
+
+  /** The inline trigger that opens the agency modal, styled like the other selects. */
+  const renderAgencyTrigger = () => {
+    const chosen = availableRoutes.find(r => r._id === form.routeId);
+    const label = chosen?.agency?.name || t('booking.selectAgency');
+    return (
+      <div className="min-w-0">
+        <label className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--text-sub)] block mb-2">{t('booking.selectAgency')}</label>
+        <button
+          type="button"
+          onClick={() => setShowAgencyModal(true)}
+          className={`group w-full h-[54px] rounded-md border-[1.5px] bg-white pl-3 pr-3.5 text-left text-base outline-none cursor-pointer transition-all duration-200 flex items-center justify-between gap-2.5 ${
+            chosen ? 'text-[var(--text)]' : 'text-[var(--text-muted)]'
+          } border-[var(--blue)] hover:border-[var(--blue-dark)] focus-visible:border-[var(--blue-dark)] focus-visible:ring-4 focus-visible:ring-[var(--blue-bg)] hover:shadow-[0_3px_12px_-5px_rgba(29,78,216,0.45)]`}
+        >
+          <span className="flex items-center gap-2.5 min-w-0 flex-1">
+            <span className="w-9 h-9 rounded-md bg-[var(--blue-bg)] text-[var(--blue-dark)] flex items-center justify-center shrink-0 transition-colors duration-200 group-hover:bg-[var(--blue)] group-hover:text-white">
+              <Bus size={16} />
+            </span>
+            <span className={`truncate ${chosen ? 'font-medium' : ''}`}>
+              {label}
+              {chosen && chosen.via && (
+                <span className="text-[var(--text-sub)]"> · via {chosen.via}</span>
+              )}
+            </span>
+          </span>
+          <ChevronDown size={16} className="shrink-0 text-[var(--text-muted)]" />
+        </button>
         {errors.agencyId && <FieldError message={errors.agencyId} />}
       </div>
     );
@@ -1125,7 +1215,7 @@ export default function BookingWizard() {
                     exit={{ opacity: 0, y: -8 }}
                     transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
                   >
-                    {renderAgencySection()}
+                    {renderAgencyTrigger()}
                   </motion.div>
                 ) : (
                   <motion.div
@@ -1220,11 +1310,12 @@ export default function BookingWizard() {
     const hasResults = groupItems.length > 0;
     return (
       <ModalFrame
-        sheet
         open={field !== null}
         onClose={() => setCityPickerField(null)}
         labelledBy="city-picker-title"
-        maxWidth={560}
+        maxWidth={640}
+        sheet
+        height={MODAL_VIEWPORT_HEIGHT}
       >
         <div className="flex flex-col min-h-0 flex-1">
           <div className="flex items-start justify-between gap-3 px-5 sm:px-8 pt-4 sm:pt-8 pb-2 shrink-0">
@@ -1337,11 +1428,12 @@ export default function BookingWizard() {
   const renderDateModal = () => {
     return (
       <ModalFrame
-        sheet
         open={showDateModal}
         onClose={() => setShowDateModal(false)}
         labelledBy="date-modal-title"
         maxWidth={720}
+        sheet
+        height={MODAL_VIEWPORT_HEIGHT}
       >
         <div className="flex flex-col min-h-0 flex-1">
           <div className="flex items-start justify-between gap-3 px-5 sm:px-8 pt-4 sm:pt-8 pb-2 shrink-0">
@@ -1439,11 +1531,12 @@ export default function BookingWizard() {
   const renderTimeModal = () => {
     return (
       <ModalFrame
-        sheet
         open={showTimeModal}
         onClose={() => setShowTimeModal(false)}
         labelledBy="time-modal-title"
-        maxWidth={560}
+        maxWidth={640}
+        sheet
+        height={MODAL_VIEWPORT_HEIGHT}
       >
         <div className="flex flex-col min-h-0 flex-1">
           <div className="flex items-start justify-between gap-3 px-5 sm:px-8 pt-4 sm:pt-8 pb-2 shrink-0">
@@ -1788,6 +1881,7 @@ export default function BookingWizard() {
       />
 
       {renderCityPickerModal()}
+      {renderAgencyModal()}
       {renderDateModal()}
       {renderTimeModal()}
     </div>

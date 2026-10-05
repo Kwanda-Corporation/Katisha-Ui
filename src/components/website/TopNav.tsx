@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router';
-import { useTranslation } from '../../../node_modules/react-i18next';
+import { useTranslation } from 'react-i18next';
 import { ChevronDown, Phone, Mail, Globe, LogOut, Menu } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import BusAnimation from '../ui/BusAnimation';
@@ -88,6 +88,10 @@ export default function TopNav() {
 
   const currentLang = LANGUAGES.find((l) => l.code === i18n.language) || LANGUAGES[0];
 
+  // On the booking screen the signed-out nav promotes the promoter offer
+  // instead of Sign in / Sign up (the mobile menu still carries both).
+  const showEarnCta = location.pathname === '/book' || location.pathname === '/';
+
   const renderProfileDropdown = () => (
     <motion.div
       key="profile-dd"
@@ -95,19 +99,19 @@ export default function TopNav() {
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: 4, scale: 0.97 }}
       transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
-      className="absolute top-[calc(100%+6px)] right-0 w-[240px] max-w-[calc(100vw-16px)] bg-white rounded-sm border py-1.5 z-50 origin-top-right overflow-y-auto max-h-[calc(100vh-72px)]"
+      className="absolute top-[calc(100%+6px)] right-0 w-[240px] max-w-[calc(100vw-16px)] bg-white rounded-md border py-1.5 z-50 origin-top-right overflow-y-auto max-h-[calc(100vh-72px)]"
       style={{ borderColor: 'var(--border)' }}
     >
       {!isLoggedIn && (
         <div className="px-2 pb-1.5 space-y-1">
           <Link to="/login" onClick={() => setProfileOpen(false)}
-            className="block w-full text-center px-4 py-2 rounded-sm text-[14px] font-semibold no-underline"
+            className="block w-full text-center px-4 py-2 rounded-md text-[14px] font-semibold no-underline"
             style={{ background: 'var(--blue)', color: 'white' }}
           >
             {t('auth.signIn')}
           </Link>
           <Link to="/register" onClick={() => setProfileOpen(false)}
-            className="block w-full text-center px-4 py-2 rounded-sm text-[14px] font-semibold no-underline"
+            className="block w-full text-center px-4 py-2 rounded-md text-[14px] font-semibold no-underline"
             style={{ background: 'var(--border)', color: 'var(--text-sub)' }}
           >
             {t('auth.signUp')}
@@ -156,7 +160,7 @@ export default function TopNav() {
             <button
               key={lang.code}
               onClick={() => switchLang(lang.code)}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-sm text-[13px] font-semibold cursor-pointer border-none"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-[13px] font-semibold cursor-pointer border-none"
               style={{
                 background: i18n.language === lang.code ? 'var(--blue)' : 'var(--border)',
                 color: i18n.language === lang.code ? 'white' : 'var(--text-sub)',
@@ -218,14 +222,14 @@ export default function TopNav() {
         <div className="flex items-center gap-0.5 sm:gap-1">
           <Link
             to="/book"
-            className="px-2.5 sm:px-3.5 py-1.5 rounded-sm text-[13px] sm:text-[15px] font-semibold transition-all duration-200 no-underline whitespace-nowrap"
+            className="px-2.5 sm:px-3.5 py-1.5 rounded-md text-[13px] sm:text-[15px] font-semibold transition-all duration-200 no-underline whitespace-nowrap"
             style={location.pathname === '/book' || location.pathname === '/' ? { background: 'var(--blue)', color: 'white' } : { color: 'var(--text-muted)' }}
           >
             {t('nav.bookTicket')}
           </Link>
           <Link
             to="/track"
-            className="px-2.5 sm:px-3.5 py-1.5 rounded-sm text-[13px]  sm:text-[15px] font-semibold transition-all duration-200 no-underline whitespace-nowrap"
+            className="px-2.5 sm:px-3.5 py-1.5 rounded-md text-[13px]  sm:text-[15px] font-semibold transition-all duration-200 no-underline whitespace-nowrap"
             style={location.pathname.startsWith('/track') || location.pathname.startsWith('/my-bookings') ? { background: 'var(--blue)', color: 'white' } : { color: 'var(--text-black)' }}
           >
             {t('nav.trackBooking')}
@@ -248,7 +252,7 @@ export default function TopNav() {
           <div className="relative">
             <button
               onClick={() => setLangOpen(!langOpen)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-[13px] font-semibold transition-all cursor-pointer ml-1 border-none"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[13px] font-semibold transition-all cursor-pointer ml-1 border-none"
               style={{ color: 'var(--text-muted)', background: 'transparent' }}
             >
               <Globe size={12} strokeWidth={2} />
@@ -263,7 +267,7 @@ export default function TopNav() {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 4, scale: 0.97 }}
                   transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
-                  className="absolute top-[calc(100%+6px)] right-0 w-[180px] bg-white rounded-sm border py-1.5 z-50 origin-top-right"
+                  className="absolute top-[calc(100%+6px)] right-0 w-[180px] bg-white rounded-md border py-1.5 z-50 origin-top-right"
                   style={{ borderColor: 'var(--border)' }}
                 >
                   {LANGUAGES.map((lang) => (
@@ -296,7 +300,7 @@ export default function TopNav() {
             <div className="relative" ref={profileRef}>
               <button
                 onClick={() => setProfileOpen(!profileOpen)}
-                className="flex items-center gap-1.5 px-2 py-1.5 rounded-sm text-[13px] font-semibold transition-all cursor-pointer border-none"
+                className="flex items-center gap-1.5 px-2 py-1.5 rounded-md text-[13px] font-semibold transition-all cursor-pointer border-none"
                 style={{ background: 'var(--blue)', color: 'white' }}
                 aria-label="Account menu"
               >
@@ -313,17 +317,29 @@ export default function TopNav() {
             </div>
           ) : (
             <>
-              <Link to="/login" className="hidden sm:inline-flex items-center px-3 py-1.5 rounded-sm text-[13px] font-semibold no-underline transition-all hover:bg-[#F9FAFB]" style={{ color: 'var(--text-sub)' }}>
-                {t('auth.signIn')}
-              </Link>
-              <Link to="/register" className="hidden sm:inline-flex px-3 py-1.5 rounded-sm text-[13px] font-semibold no-underline bg-blue-600" style={{ color: 'white' }}>
-                {t('auth.signUp')}
-              </Link>
+              {showEarnCta ? (
+                <Link
+                  to="/dashboard/promoter/setup"
+                  className="hidden sm:inline-flex items-center px-1 py-1.5 text-[13px] font-semibold no-underline transition-opacity hover:opacity-75"
+                  style={{ color: 'var(--blue-dark)' }}
+                >
+                  Become a promoter
+                </Link>
+              ) : (
+                <>
+                  <Link to="/login" className="hidden sm:inline-flex items-center px-3 py-1.5 rounded-md text-[13px] font-semibold no-underline transition-all hover:bg-[#F9FAFB]" style={{ color: 'var(--text-sub)' }}>
+                    {t('auth.signIn')}
+                  </Link>
+                  <Link to="/register" className="hidden sm:inline-flex px-3 py-1.5 rounded-md text-[13px] font-semibold no-underline bg-blue-600" style={{ color: 'white' }}>
+                    {t('auth.signUp')}
+                  </Link>
+                </>
+              )}
               {/* Mobile: account/menu button (replaces the hamburger + icon sign-in) */}
               <div className="relative md:hidden" ref={profileRef}>
                 <button
                   onClick={() => setProfileOpen(!profileOpen)}
-                  className="w-9 h-9 flex items-center justify-center rounded-sm cursor-pointer border-none"
+                  className="w-9 h-9 flex items-center justify-center rounded-md cursor-pointer border-none"
                   style={{ color: 'var(--blue-dark)', background: 'var(--blue-light)' }}
                   aria-label="Menu"
                 >

@@ -1,114 +1,80 @@
-import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
-import { UserPlus, LogIn, ArrowRight } from 'lucide-react';
+import { UserPlus, LogIn, ArrowRight, Banknote } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import SEO from '../../components/seo/SEO';
-import Logo from '../../components/ui/Logo';
-
-function TypewriterText({ text, delay = 40 }: { text: string; delay?: number }) {
-  const [displayed, setDisplayed] = useState('');
-
-  useEffect(() => {
-    setDisplayed('');
-    let i = 0;
-    const timer = setInterval(() => {
-      i++;
-      setDisplayed(text.slice(0, i));
-      if (i >= text.length) clearInterval(timer);
-    }, delay);
-    return () => clearInterval(timer);
-  }, [text, delay]);
-
-  return (
-    <>
-      {displayed}
-      <span style={{ opacity: displayed.length < text.length ? 1 : 0 }} className="animate-pulse">|</span>
-    </>
-  );
-}
+import AuthLayout from '../../components/AuthLayout';
 
 export default function AuthChoice() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
-      <SEO title="Sign In or Register - Katisha Bus Booking" noindex />
+    <AuthLayout
+      headline={t('auth.welcomeToKatisha')}
+      subline={t('auth.chooseHowToContinue')}
+    >
+      <SEO title={t('auth.welcomeToKatisha')} noindex />
 
-      {/* Top-left logo only */}
-      <div className="px-6 sm:px-8 pt-6 sm:pt-8 pb-4 flex justify-between items-start">
-        <Logo />
+      <div className="w-14 h-14 rounded-full bg-[var(--blue-bg)] flex items-center justify-center mx-auto mb-5">
+        <UserPlus size={28} color="var(--blue)" />
       </div>
 
-      {/* Centered content */}
-      <div className="flex-1 flex items-center justify-center px-6 pb-20">
-        <div className="w-full max-w-[440px]">
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          >
-            <div className="text-center mb-8">
-              <div className="w-14 h-14 rounded-full bg-[var(--blue-bg)] flex items-center justify-center mx-auto mb-4">
-                <UserPlus size={28} color="var(--blue)" />
-              </div>
-              <h1 className="font-[var(--font-body)] text-[1.75rem] font-semibold text-[var(--text)]">
-                <TypewriterText text="Welcome to Katisha" />
-              </h1>
-              <p className="font-[var(--font-body)] text-sm text-[var(--text-sub)] mt-2">
-                Continue to your account or create a new one to manage your trips.
-              </p>
-            </div>
-
-            <div className="space-y-3">
-              <button
-                onClick={() => navigate('/register')}
-                className="w-full flex items-center justify-center gap-3 p-4 rounded-md bg-[var(--blue)] text-white font-[var(--font-body)] text-base font-semibold transition-all cursor-pointer border-none hover:opacity-90"
-              >
-                <UserPlus size={20} />
-                Create Account
-              </button>
-              <button
-                onClick={() => navigate('/login')}
-                className="w-full flex items-center justify-center gap-3 p-4 rounded-md border border-[var(--border)] bg-white text-[var(--text)] font-[var(--font-body)] text-base font-semibold transition-all cursor-pointer hover:border-[var(--blue)]"
-              >
-                <LogIn size={20} />
-                Log In
-              </button>
-
-              {/* Divider */}
-              <div className="relative my-4">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-[var(--border)]"></div>
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-white px-3 text-[var(--text-muted)] font-[var(--font-body)]">or</span>
-                </div>
-              </div>
-
-              <button
-                onClick={() => navigate('/book')}
-                className="w-full flex items-center justify-center gap-3 p-4 rounded-md border border-dashed border-[var(--border)] bg-white text-[var(--text)] font-[var(--font-body)] text-base font-semibold transition-all cursor-pointer hover:border-[var(--blue)] hover:bg-[var(--blue-bg)]"
-              >
-                <ArrowRight size={20} />
-                Continue as Guest
-              </button>
-              <p className="text-center text-xs text-[var(--text-muted)] font-[var(--font-body)] -mt-1">
-                Your account will be created automatically after booking
-              </p>
-            </div>
-          </motion.div>
-        </div>
-      </div>
-      {/* Bottom-right pill for promoter signup */}
-      <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-10">
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+        className="space-y-3"
+      >
         <button
-          onClick={() => navigate('/promoter/setup')}
-          className="flex items-center gap-2 px-4 py-2 rounded-full border border-[var(--border)] bg-white text-[var(--text)] shadow-sm font-[var(--font-body)] text-sm font-medium transition-all hover:border-[var(--blue)] hover:bg-[var(--blue-bg)]"
+          type="button"
+          onClick={() => navigate('/register')}
+          className="auth-primary"
         >
-          { /* translated via i18n if needed; keep simple */ }
-          Earn from Katisha
+          <UserPlus size={18} />
+          {t('auth.register')}
+        </button>
+        <button
+          type="button"
+          onClick={() => navigate('/login')}
+          className="auth-secondary"
+        >
+          <LogIn size={18} />
+          {t('auth.logIn')}
+        </button>
+
+        <div className="auth-divider my-1">
+          <span>{t('auth.or')}</span>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => navigate('/book')}
+          className="auth-secondary !border-dashed"
+        >
+          <ArrowRight size={18} />
+          {t('auth.continueAsGuest')}
+        </button>
+        <p className="auth-hint -mt-1">{t('auth.guestAutoCreate')}</p>
+      </motion.div>
+
+      {/* Bottom-right pill for promoter signup */}
+      <div className="fixed bottom-5 right-5 z-20 group">
+        <span
+          role="tooltip"
+          className="pointer-events-none absolute bottom-[calc(100%+8px)] right-0 w-max max-w-[240px] rounded-lg bg-[var(--text)] px-3 py-2 text-xs text-white opacity-0 shadow-lg transition-opacity duration-150 group-hover:opacity-100 group-focus-within:opacity-100"
+        >
+          {t('promoter.earnTooltip')}
+        </span>
+        <button
+          type="button"
+          onClick={() => navigate('/dashboard/promoter/setup')}
+          className="inline-flex items-center gap-2 h-11 px-5 rounded-md bg-[var(--blue)] hover:bg-[var(--blue-dark)] text-white text-sm font-semibold transition-colors cursor-pointer"
+        >
+          <Banknote size={16} />
+          {t('promoter.earnFromKatisha')}
         </button>
       </div>
-    </div>
+    </AuthLayout>
   );
 }

@@ -7,7 +7,7 @@ import {
   useTransform,
   type MotionValue,
 } from 'framer-motion';
-import { useTranslation } from '../../../node_modules/react-i18next';
+import { useTranslation } from 'react-i18next';
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 
 // Horizontal cover-flow carousel. Items sit in a draggable track; the item

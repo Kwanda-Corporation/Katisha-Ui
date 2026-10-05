@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useCallback, ReactNode, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AlertCircle, CheckCircle, AlertTriangle, Info, X } from 'lucide-react';
+import { useTheme } from '../../contexts/ThemeContext';
 
 type ToastType = 'error' | 'success' | 'warning' | 'info';
 
@@ -29,11 +30,15 @@ export function useToast() {
   return ctx;
 }
 
-const TYPE_CONFIG: Record<ToastType, { Icon: typeof CheckCircle; bg: string; border: string; text: string; bar: string }> = {
-  success: { Icon: CheckCircle, bg: '#1E40AF', border: '#E4E4E7', text: '#FFFFFF', bar: '#FFFFFF' },
-  error:   { Icon: AlertCircle, bg: '#FEF2F2', border: '#FECACA', text: '#DC2626', bar: '#EF4444' },
-  warning: { Icon: AlertTriangle, bg: '#FFFBEB', border: '#FDE68A', text: '#92400E', bar: '#F59E0B' },
-  info:    { Icon: Info, bg: '#F4F4F5', border: '#E4E4E7', text: '#1E40AF', bar: '#1D4ED8' },
+// Success is a solid accent panel with white text, which reads the same in both
+// schemes; the other three ride the tone tokens so their fill/ink flip with the
+// theme. `barTrack` exists because the progress rail used to be `${bar}22`,
+// which stops being valid once `bar` is a `var()` reference.
+const TYPE_CONFIG: Record<ToastType, { Icon: typeof CheckCircle; bg: string; border: string; text: string; bar: string; barTrack: string }> = {
+  success: { Icon: CheckCircle, bg: 'var(--studio-accent)', border: 'var(--studio-accent)', text: '#FFFFFF', bar: '#FFFFFF', barTrack: 'rgba(255,255,255,0.25)' },
+  error:   { Icon: AlertCircle, bg: 'var(--tone-danger-fill)', border: 'var(--tone-danger-line)', text: 'var(--tone-danger-ink)', bar: 'var(--tone-danger-dot)', barTrack: 'var(--tone-danger-line)' },
+  warning: { Icon: AlertTriangle, bg: 'var(--tone-warning-fill)', border: 'var(--tone-warning-line)', text: 'var(--tone-warning-ink)', bar: 'var(--tone-warning-dot)', barTrack: 'var(--tone-warning-line)' },
+  info:    { Icon: Info, bg: 'var(--tone-info-fill)', border: 'var(--tone-info-line)', text: 'var(--tone-info-ink)', bar: 'var(--tone-info-dot)', barTrack: 'var(--tone-info-line)' },
 };
 
 function ToastItem({ toast, onDismiss }: { toast: Toast; onDismiss: (id: string) => void }) {
@@ -79,13 +84,13 @@ function ToastItem({ toast, onDismiss }: { toast: Toast; onDismiss: (id: string)
         </div>
         <button
           onClick={() => onDismiss(toast.id)}
-          className="flex-shrink-0 p-0.5 rounded-md hover:bg-black/5 transition-colors cursor-pointer bg-transparent border-none"
+          className="flex-shrink-0 p-0.5 rounded-md hover:brightness-95 transition-colors cursor-pointer bg-transparent border-none"
           style={{ color: config.text }}
         >
           <X size={14} />
         </button>
       </div>
-      <div className="h-0.5 w-full" style={{ background: `${config.bar}22` }}>
+      <div className="h-0.5 w-full" style={{ background: config.barTrack }}>
         <motion.div
           className="h-full"
           style={{ background: config.bar, width: `${progress}%` }}
@@ -98,6 +103,7 @@ function ToastItem({ toast, onDismiss }: { toast: Toast; onDismiss: (id: string)
 
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
+  const { scheme } = useTheme();
 
   const dismiss = useCallback((id: string) => {
     setToasts(prev => prev.filter(t => t.id !== id));
@@ -120,7 +126,13 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <ToastContext.Provider value={api}>
       {children}
-      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-[9999] flex flex-col gap-2 items-center pointer-events-none">
+      {/* `theme-tokens` opts this overlay into the dark token block: the viewport
+          is a sibling of the router, so it is not inside `.studio-shell` and
+          would otherwise resolve the light `:root` values. */}
+      <div
+        className="theme-tokens fixed bottom-4 left-1/2 -translate-x-1/2 z-[9999] flex flex-col gap-2 items-center pointer-events-none"
+        data-theme={scheme}
+      >
         <AnimatePresence mode="popLayout">
           {toasts.map(t => (
             <div key={t.id} className="pointer-events-auto w-full max-w-sm">

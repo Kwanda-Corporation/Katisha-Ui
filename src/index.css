@@ -35,6 +35,9 @@
   --blue-deep: #1E3A8A;
   --blue-light: #F4F4F5;
   --blue-bg: #F4F4F5;
+  /* Translucent brand ring for focus-visible. Needs its own token because the
+     fixed dark-blue it replaced all but vanished on a black canvas. */
+  --focus-ring: rgba(29, 78, 216, 0.35);
   --blue-border: #E4E4E7;
   --blue-ink: #1E3A8A;
 
@@ -72,15 +75,105 @@
   --status-completed: #1E40AF;
   --status-cancelled: #52525B;
 
+  /* Semantic tones. Every status/badge pair is expressed as ink + fill + line
+     so a pill themes as one unit. Replaces the fixed Tailwind palette
+     (`emerald-700`, `amber-50`, …), which cannot change with the scheme. */
+  --tone-success-ink: #047857;
+  --tone-success-fill: #ECFDF5;
+  --tone-success-line: #A7F3D0;
+  --tone-success-dot: #10B981;
+
+  --tone-warning-ink: #B45309;
+  --tone-warning-fill: #FFFBEB;
+  --tone-warning-line: #FDE68A;
+  --tone-warning-dot: #F59E0B;
+
+  --tone-danger-ink: #B91C1C;
+  --tone-danger-fill: #FEF2F2;
+  --tone-danger-line: #FECACA;
+  --tone-danger-dot: #EF4444;
+
+  --tone-info-ink: #1D4ED8;
+  --tone-info-fill: #EFF6FF;
+  --tone-info-line: #BFDBFE;
+  --tone-info-dot: #3B82F6;
+
+  --tone-neutral-ink: #3F3F46;
+  --tone-neutral-fill: #F4F4F5;
+  --tone-neutral-line: #E4E4E7;
+  --tone-neutral-dot: #A1A1AA;
+
+  --tone-accent-ink: #6D28D9;
+  --tone-accent-fill: #F5F3FF;
+  --tone-accent-line: #DDD6FE;
+  --tone-accent-dot: #8B5CF6;
+
+  /* Rose: health/medical categories, which need to stay distinct from both the
+     red "emergency" and the purple "safety violation" tones. */
+  --tone-rose-ink: #BE185D;
+  --tone-rose-fill: #FCE7F3;
+  --tone-rose-line: #FBCFE8;
+  --tone-rose-dot: #EC4899;
+
+  /* Solid fills for buttons that carry white text. These go *deeper* in dark
+     mode (opposite of the tones) so white text keeps its contrast. */
+  --solid-success: #059669;
+  --solid-success-hover: #047857;
+  --solid-warning: #D97706;
+  --solid-warning-hover: #B45309;
+  --solid-danger: #DC2626;
+  --solid-danger-hover: #B91C1C;
+  --solid-info: #2563EB;
+  --solid-info-hover: #1D4ED8;
+
+  /* Neutral fills that replace the hand-picked near-white hexes the
+     dashboards used for table headers, zebra rows and hover states. */
+  --fill-subtle: #F4F4F5;
+  --fill-hover: #FAFAFA;
+  --fill-strong: #E4E4E7;
+  /* Raised neutral chip (segmented controls, unselected pills). Darker than the
+     page canvas in both schemes, so it needs its own pair rather than reusing
+     --fill-strong, which is a light-mode tint. */
+  --fill-raised: #3F3F46;
+  --fill-raised-hover: #52525B;
+  --ink-strong: #18181B;
+
   /* Studio (YouTube Studio-inspired) tokens */
   --studio-bg: var(--bg);
-  --studio-surface: #FFFFFF;
-  --studio-surface-sub: #F8FAFC;
-  --studio-sidebar-bg: #F8FAFC;
+  /* Cards/sections are borderless, so the zinc fill is what separates them
+     from the white page behind. */
+  --studio-surface: #F4F4F5;
+  --studio-surface-sub: #E4E4E7;
+  --studio-sidebar-bg: #FFFFFF;
+  --studio-topbar-bg: #FFFFFF;
   --studio-border: var(--border);
   --studio-topbar-height: 56px;
   --studio-sidebar-width-open: 230px;
   --studio-sidebar-width-closed: 64px;
+  --studio-text: var(--text);
+  --studio-text-sub: var(--text-sub);
+  --studio-text-muted: var(--text-muted);
+  --studio-muted-fill: #F1F5F9;
+  --studio-hover: var(--blue-light);
+  --studio-active: #E4E4E7;
+  --studio-radius-card: 24px;
+  --studio-radius-pill: 9999px;
+  --studio-accent: var(--blue);
+  --studio-accent-soft: var(--blue-bg);
+  /* Cards and sections are borderless; only form controls keep an outline. */
+  --studio-card-border: transparent;
+  --studio-divider: var(--border);
+  /* Highlighter marker behind the dashboard headings. */
+  --studio-marker: #DBEAFE;
+  --studio-marker-dot: #38BDF8;
+
+  /* Auth: white canvas to match the rest of the site, 10px (rounded-md) field
+     and button radius, quiet dividers. */
+  --auth-canvas: #FFFFFF;
+  --auth-surface: #FFFFFF;
+  --auth-border: #E3E1DC;
+  --auth-field: #FFFFFF;
+  --auth-radius: 10px;
 
   --spacing-xs: 4px;
   --spacing-sm: 8px;
@@ -97,6 +190,330 @@
   --radius-xl: 14px;
   --radius-full: 9999px;
 }
+
+/* Dark theme — scoped to the Studio shell (`.studio-shell[data-theme="dark"]`)
+   so dashboards can switch independently of the marketing/booking pages.
+   `.theme-tokens` is the same token block opted into by overlays that render
+   outside the shell (the toast viewport), which would otherwise keep the light
+   `:root` values while the rest of the app is dark. */
+.studio-shell[data-theme='dark'],
+.theme-tokens[data-theme='dark'] {
+  --bg: #000000;
+  --text: #F1F5F9;
+  --text-sub: #CBD5E1;
+  --text-muted: #94A3B8;
+  --border: #1F2937;
+  --white: #000000;
+
+  --blue: #7DA8FB;
+  --blue-dark: #6D97EA;
+  --blue-light: #111827;
+  --focus-ring: rgba(125, 168, 251, 0.45);
+  --blue-bg: #0B1220;
+  --blue-border: #1E3A8A;
+  --blue-ink: #BFDBFE;
+
+  --error: #F87171;
+  --error-bg: #2C1519;
+  --error-border: #7F1D1D;
+  --warning: #FBBF24;
+  --warning-bg: #2A2013;
+  --success: #7DA8FB;
+  --success-bg: #0B1220;
+
+  /* Tones are lifted for a black canvas: bright ink on a deep, desaturated
+     fill keeps the same semantic without the light-mode wash. */
+  --tone-success-ink: #6EE7B7;
+  --tone-success-fill: #06281C;
+  --tone-success-line: #115E3A;
+  --tone-success-dot: #34D399;
+
+  --tone-warning-ink: #FCD34D;
+  --tone-warning-fill: #2A2013;
+  --tone-warning-line: #78551A;
+  --tone-warning-dot: #FBBF24;
+
+  --tone-danger-ink: #FCA5A5;
+  --tone-danger-fill: #2C1519;
+  --tone-danger-line: #7F1D1D;
+  --tone-danger-dot: #F87171;
+
+  --tone-info-ink: #93C5FD;
+  --tone-info-fill: #0B1220;
+  --tone-info-line: #1E3A8A;
+  --tone-info-dot: #60A5FA;
+
+  --tone-neutral-ink: #D4D4D8;
+  --tone-neutral-fill: #17171B;
+  --tone-neutral-line: #2A2A30;
+  --tone-neutral-dot: #71717A;
+
+  --tone-accent-ink: #C4B5FD;
+  --tone-accent-fill: #241046;
+  --tone-accent-line: #4C1D95;
+  --tone-accent-dot: #A78BFA;
+
+  --tone-rose-ink: #F9A8D4;
+  --tone-rose-fill: #3B0A2A;
+  --tone-rose-line: #7A1F4D;
+  --tone-rose-dot: #F472B6;
+
+  --solid-success: #047857;
+  --solid-success-hover: #065F46;
+  --solid-warning: #B45309;
+  --solid-warning-hover: #92400E;
+  --solid-danger: #B91C1C;
+  --solid-danger-hover: #991B1B;
+  --solid-info: #1D4ED8;
+  --solid-info-hover: #1E40AF;
+
+  --fill-subtle: #121317;
+  --fill-hover: #17171B;
+  --fill-strong: #2A2A30;
+  --fill-raised: #2F2F37;
+  --fill-raised-hover: #3F3F46;
+  --ink-strong: #FAFAFA;
+
+  --overlay: #000000;
+
+  /* Chrome (page canvas, sidebar, top bar) is pure black; content surfaces sit
+     slightly above it so cards keep a visible edge. */
+  --studio-bg: #000000;
+  --studio-sidebar-bg: #000000;
+  --studio-topbar-bg: #000000;
+  --studio-surface: #111114;
+  --studio-surface-sub: #17171B;
+  --studio-border: #1F2937;
+  --studio-text: #F1F5F9;
+  --studio-text-sub: #CBD5E1;
+  --studio-text-muted: #94A3B8;
+  --studio-muted-fill: #121317;
+  --studio-hover: #121317;
+  --studio-active: #1A1D24;
+  --studio-accent: #7DA8FB;
+  --studio-accent-soft: #0B1220;
+  --studio-card-border: transparent;
+  --studio-divider: #1F2937;
+  /* Deep blue keeps the near-white heading legible on black. */
+  --studio-marker: #14337A;
+  --studio-marker-dot: #60A5FA;
+}
+
+/* Borderless cards and sections. The dashboards predate theming and draw
+   frames with plain `border` utilities, so the frame is neutralised here
+   instead of rewriting ~270 call sites. Layout width is preserved (the 1px
+   border stays, only its colour is transparent).
+
+   `!important` is required: `@layer base` sets `* { border-color: var(--border) }`,
+   which would otherwise repaint these frames.
+
+   Kept on purpose: form controls and buttons (an input with no outline is
+   unfillable, and `border-b-2` is how the active tab is marked), table cells
+   and anything inside them, plus the `divide-y` row separators. */
+.studio-shell :where(div, section, article, ul, ol, li, header, aside, figure, table, thead, tbody, tfoot, tr)
+  :not(input):not(select):not(textarea):not(button):not(a):not(td):not(th):not(:where(td, th) *)[class*='border'] {
+  border-color: transparent !important;
+}
+
+.studio-shell .recharts-tooltip-wrapper,
+.studio-shell .recharts-default-tooltip {
+  border-color: transparent !important;
+}
+
+/* Light mode + dark mode: the white boxes these dashboards hand-roll as cards
+   take the surface fill so they read as panels. The app chrome (top bar,
+   sidebar) uses its own token and stays white / pure black. */
+.studio-shell .bg-white {
+  background-color: var(--studio-surface);
+}
+
+/* The shell markup predates theming and still paints itself with fixed Tailwind
+   palette shades and hand-picked hexes. Those cannot respond to a token swap,
+   so they are remapped onto the tone/fill tokens defined above. This is a
+   safety net for the shared `components/ui` primitives and the long tail of
+   markup; new Studio pages should reference the tokens directly.
+
+   Unlayered rules win over Tailwind's utilities layer without !important. */
+.studio-shell[data-theme='dark'] .bg-gray-50,
+.studio-shell[data-theme='dark'] .bg-slate-50,
+.studio-shell[data-theme='dark'] .bg-neutral-50,
+.studio-shell[data-theme='dark'] .bg-zinc-50 { background-color: var(--fill-subtle); }
+
+/* Near-white surface tints → the dark subtle fill. */
+.studio-shell[data-theme='dark'] .bg-zinc-100,
+.studio-shell[data-theme='dark'] .bg-zinc-200 { background-color: var(--fill-hover); }
+.studio-shell[data-theme='dark'] .bg-\[\#F9FAFB\],
+.studio-shell[data-theme='dark'] .bg-\[\#F8FAFB\],
+.studio-shell[data-theme='dark'] .bg-\[\#F3F4F6\],
+.studio-shell[data-theme='dark'] .bg-\[\#FAFBFC\],
+.studio-shell[data-theme='dark'] .bg-\[\#F4F4F5\] { background-color: var(--fill-subtle); }
+.studio-shell[data-theme='dark'] .hover\:bg-\[\#F3F4F6\]:hover,
+.studio-shell[data-theme='dark'] .hover\:bg-\[\#F9FAFB\]:hover,
+.studio-shell[data-theme='dark'] .hover\:bg-\[\#F8FAFB\]:hover { background-color: var(--fill-hover); }
+.studio-shell[data-theme='dark'] .hover\:bg-white:hover { background-color: var(--fill-hover); }
+.studio-shell[data-theme='dark'] .hover\:bg-zinc-100:hover { background-color: var(--fill-hover); }
+
+/* Text: neutral greys collapse onto the three studio ink steps. */
+.studio-shell[data-theme='dark'] .text-zinc-950,
+.studio-shell[data-theme='dark'] .text-zinc-900,
+.studio-shell[data-theme='dark'] .text-zinc-800,
+.studio-shell[data-theme='dark'] .text-zinc-700,
+.studio-shell[data-theme='dark'] .text-slate-900,
+.studio-shell[data-theme='dark'] .text-slate-700,
+.studio-shell[data-theme='dark'] .text-gray-900,
+.studio-shell[data-theme='dark'] .text-\[\#0F172A\],
+.studio-shell[data-theme='dark'] .text-\[\#1F2937\] { color: var(--studio-text); }
+.studio-shell[data-theme='dark'] .text-zinc-600,
+.studio-shell[data-theme='dark'] .text-zinc-500,
+.studio-shell[data-theme='dark'] .text-slate-600,
+.studio-shell[data-theme='dark'] .text-slate-500,
+.studio-shell[data-theme='dark'] .text-gray-600,
+.studio-shell[data-theme='dark'] .text-gray-500,
+.studio-shell[data-theme='dark'] .text-\[\#475569\],
+.studio-shell[data-theme='dark'] .text-\[\#52525B\],
+.studio-shell[data-theme='dark'] .text-\[\#64748B\] { color: var(--studio-text-sub); }
+.studio-shell[data-theme='dark'] .text-zinc-400,
+.studio-shell[data-theme='dark'] .text-zinc-300,
+.studio-shell[data-theme='dark'] .text-slate-400,
+.studio-shell[data-theme='dark'] .text-slate-300,
+.studio-shell[data-theme='dark'] .text-gray-400,
+.studio-shell[data-theme='dark'] .text-\[\#9CA3AF\] { color: var(--studio-text-muted); }
+.studio-shell[data-theme='dark'] .text-black { color: var(--studio-text); }
+
+/* Borders. Cards stay borderless (see above); form controls and table cells
+   keep their frame, so those two families are remapped here. */
+.studio-shell[data-theme='dark'] .border-gray-100,
+.studio-shell[data-theme='dark'] .border-gray-200,
+.studio-shell[data-theme='dark'] .border-gray-300,
+.studio-shell[data-theme='dark'] .border-slate-200,
+.studio-shell[data-theme='dark'] .border-slate-300,
+.studio-shell[data-theme='dark'] .border-zinc-100,
+.studio-shell[data-theme='dark'] .border-zinc-200,
+.studio-shell[data-theme='dark'] .border-zinc-300,
+.studio-shell[data-theme='dark'] .border-\[\#D1D5DB\] { border-color: var(--studio-border); }
+
+/* Semantic tones: ink / fill / line / dot collapse onto the tone tokens. */
+.studio-shell[data-theme='dark'] .bg-emerald-50,
+.studio-shell[data-theme='dark'] .bg-green-50,
+.studio-shell[data-theme='dark'] .bg-emerald-100,
+.studio-shell[data-theme='dark'] .hover\:bg-emerald-100:hover { background-color: var(--tone-success-fill); }
+.studio-shell[data-theme='dark'] .text-emerald-600,
+.studio-shell[data-theme='dark'] .text-emerald-700,
+.studio-shell[data-theme='dark'] .text-emerald-800,
+.studio-shell[data-theme='dark'] .text-green-700,
+.studio-shell[data-theme='dark'] .text-green-800,
+.studio-shell[data-theme='dark'] .text-green-900 { color: var(--tone-success-ink); }
+.studio-shell[data-theme='dark'] .border-emerald-200,
+.studio-shell[data-theme='dark'] .border-emerald-500,
+.studio-shell[data-theme='dark'] .border-emerald-600,
+.studio-shell[data-theme='dark'] .hover\:border-emerald-500:hover { border-color: var(--tone-success-line); }
+
+.studio-shell[data-theme='dark'] .bg-amber-50,
+.studio-shell[data-theme='dark'] .bg-amber-100 { background-color: var(--tone-warning-fill); }
+.studio-shell[data-theme='dark'] .text-amber-600,
+.studio-shell[data-theme='dark'] .text-amber-700,
+.studio-shell[data-theme='dark'] .text-amber-800,
+.studio-shell[data-theme='dark'] .text-amber-900 { color: var(--tone-warning-ink); }
+.studio-shell[data-theme='dark'] .border-amber-200 { border-color: var(--tone-warning-line); }
+
+.studio-shell[data-theme='dark'] .bg-red-50,
+.studio-shell[data-theme='dark'] .bg-red-100,
+.studio-shell[data-theme='dark'] .hover\:bg-red-100:hover { background-color: var(--tone-danger-fill); }
+.studio-shell[data-theme='dark'] .text-red-500,
+.studio-shell[data-theme='dark'] .text-red-600,
+.studio-shell[data-theme='dark'] .text-red-700,
+.studio-shell[data-theme='dark'] .text-red-800,
+.studio-shell[data-theme='dark'] .text-red-900 { color: var(--tone-danger-ink); }
+.studio-shell[data-theme='dark'] .text-red-400 { color: var(--tone-danger-ink); }
+.studio-shell[data-theme='dark'] .border-red-200,
+.studio-shell[data-theme='dark'] .border-red-300,
+.studio-shell[data-theme='dark'] .border-red-600,
+.studio-shell[data-theme='dark'] .hover\:border-red-500:hover { border-color: var(--tone-danger-line); }
+
+.studio-shell[data-theme='dark'] .bg-blue-50 { background-color: var(--tone-info-fill); }
+.studio-shell[data-theme='dark'] .bg-blue-100 { background-color: #14337A; }
+.studio-shell[data-theme='dark'] .bg-blue-400 { background-color: var(--tone-info-dot); }
+.studio-shell[data-theme='dark'] .text-blue-400,
+.studio-shell[data-theme='dark'] .text-blue-500,
+.studio-shell[data-theme='dark'] .text-blue-700,
+.studio-shell[data-theme='dark'] .text-blue-800,
+.studio-shell[data-theme='dark'] .text-blue-900,
+.studio-shell[data-theme='dark'] .text-blue-600 { color: var(--tone-info-ink); }
+.studio-shell[data-theme='dark'] .border-blue-200 { border-color: var(--tone-info-line); }
+.studio-shell[data-theme='dark'] .focus\:border-zinc-400:focus { border-color: var(--studio-text-sub); }
+.studio-shell[data-theme='dark'] .focus\:ring-zinc-400:focus { --tw-ring-color: var(--tone-info-dot); }
+
+.studio-shell[data-theme='dark'] .bg-purple-50,
+.studio-shell[data-theme='dark'] .bg-violet-50 { background-color: #241046; }
+.studio-shell[data-theme='dark'] .text-purple-700,
+.studio-shell[data-theme='dark'] .text-violet-700,
+.studio-shell[data-theme='dark'] .text-purple-600 { color: #C4B5FD; }
+
+/* Solid fills (white text) — see the --solid-* tokens. These darken rather
+   than lighten so `text-white` keeps its contrast. */
+.studio-shell[data-theme='dark'] .bg-emerald-500,
+.studio-shell[data-theme='dark'] .bg-emerald-600 { background-color: var(--solid-success); }
+.studio-shell[data-theme='dark'] .bg-amber-500,
+.studio-shell[data-theme='dark'] .bg-amber-600 { background-color: var(--solid-warning); }
+.studio-shell[data-theme='dark'] .bg-red-500,
+.studio-shell[data-theme='dark'] .bg-red-600,
+.studio-shell[data-theme='dark'] .bg-red-700 { background-color: var(--solid-danger); }
+.studio-shell[data-theme='dark'] .bg-blue-600,
+.studio-shell[data-theme='dark'] .bg-blue-700 { background-color: var(--solid-info); }
+.studio-shell[data-theme='dark'] .hover\:bg-emerald-700:hover { background-color: var(--solid-success-hover); }
+.studio-shell[data-theme='dark'] .hover\:bg-red-700:hover { background-color: var(--solid-danger-hover); }
+.studio-shell[data-theme='dark'] .bg-slate-300,
+.studio-shell[data-theme='dark'] .bg-zinc-300,
+.studio-shell[data-theme='dark'] .bg-zinc-400 { background-color: var(--tone-neutral-dot); }
+
+/* Table row rules: `divide-zinc-100` compiles to `border-color` on every child
+   but the last, and near-white on a dark canvas leaves the rows undivided. */
+.studio-shell[data-theme='dark'] .divide-zinc-100 > :not(:last-child) { border-color: var(--studio-border); }
+
+.studio-shell[data-theme='dark'] .hover\:bg-red-50:hover,
+.studio-shell[data-theme='dark'] .hover\:text-red-700:hover { background-color: var(--tone-danger-fill); }
+.studio-shell[data-theme='dark'] .hover\:text-red-700:hover { color: var(--tone-danger-ink); }
+
+/* `zinc-1000` is not a real Tailwind shade (the scale stops at 950), so those
+   utilities emitted nothing and rendered an invisible swatch/bar. */
+.studio-shell[data-theme='dark'] .bg-zinc-1000\/20 { background-color: var(--fill-strong); }
+.studio-shell[data-theme='dark'] .hover\:bg-zinc-1000\/40:hover { background-color: var(--fill-hover); }
+.studio-shell[data-theme='dark'] .bg-zinc-1000 { background-color: var(--studio-text); }
+.studio-shell[data-theme='dark'] .bg-zinc-800 { background-color: var(--studio-surface-sub); }
+
+.studio-shell[data-theme='dark'] input,
+.studio-shell[data-theme='dark'] select,
+.studio-shell[data-theme='dark'] textarea {
+  background-color: #0B0B0D;
+  color: var(--studio-text);
+}
+.studio-shell[data-theme='dark'] .recharts-cartesian-axis-tick text { fill: var(--studio-text-muted); }
+.studio-shell[data-theme='dark'] .recharts-cartesian-grid line { stroke: var(--studio-border); }
+.studio-shell[data-theme='dark'] .recharts-tooltip-wrapper { background: var(--studio-surface-sub); }
+.studio-shell[data-theme='dark'] .recharts-default-tooltip { color: var(--studio-text); }
+.studio-shell[data-theme='dark'] img { opacity: 0.92; }
+
+/* Mapbox ships its own stylesheet with a hardcoded white popup chrome. Those
+   nodes are created outside React but still live inside .studio-shell, so the
+   tokens resolve. Markers are styled inline from JS, hence the [data-*] hooks. */
+.studio-shell[data-theme='dark'] .mapboxgl-popup-content,
+.studio-shell[data-theme='dark'] .mapboxgl-popup-tip {
+  background: var(--studio-surface-sub);
+  border-color: var(--studio-border);
+  color: var(--studio-text);
+}
+.studio-shell[data-theme='dark'] .mapboxgl-popup-close-button { filter: invert(1) opacity(0.6); }
+.studio-shell[data-theme='dark'] .mapboxgl-ctrl-group {
+  background: var(--studio-surface-sub);
+  border-color: var(--studio-border);
+}
+.studio-shell[data-theme='dark'] .mapboxgl-ctrl-group button + button { border-color: var(--studio-border); }
+.studio-shell[data-theme='dark'] .mapboxgl-ctrl-icon { filter: invert(1) opacity(0.75); }
+.studio-shell[data-theme='dark'] .mapboxgl-ctrl-attrib,
+.studio-shell[data-theme='dark'] .mapboxgl-ctrl-attrib a { background: var(--studio-surface-sub); color: var(--studio-text-sub); }
+
+/* Scrollbars follow the canvas so a light track never flashes on black. */
+.studio-shell[data-theme='dark'] * { scrollbar-color: #2A2A30 transparent; }
 
 /* Photo scrim for the destination cards: dark bottom edge for text legibility,
    fading to transparent towards the top. Built from the --overlay token. */
@@ -643,4 +1060,173 @@ p {
     --spacing-lg: 16px;
     --spacing-xl: 24px;
   }
+}
+
+/* ── Auth surfaces (Claude-style calm forms) ───────────────────────────────── */
+.auth-label {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 0.375rem;
+}
+
+.auth-input {
+  width: 100%;
+  height: 48px;
+  padding: 0 0.875rem;
+  border-radius: var(--auth-radius);
+  border: 1px solid var(--auth-border);
+  background: var(--auth-field);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--text);
+  transition: border-color 150ms ease-out, box-shadow 150ms ease-out;
+}
+.auth-input::placeholder {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+.auth-input:hover {
+  border-color: #D3D0C9;
+}
+.auth-input:focus {
+  outline: none;
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.06);
+}
+.auth-input--error {
+  border-color: var(--error);
+}
+.auth-input-wrap {
+  position: relative;
+}
+.auth-input-wrap .auth-input {
+  padding-right: 2.75rem;
+}
+.auth-reveal {
+  position: absolute;
+  right: 0.625rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  border-radius: 9999px;
+}
+.auth-reveal:hover {
+  color: var(--text);
+  background: rgba(15, 23, 42, 0.05);
+}
+
+.auth-primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  height: 48px;
+  border: 0;
+  border-radius: var(--auth-radius);
+  background: var(--blue);
+  color: #FFFFFF;
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 150ms ease-out;
+}
+.auth-primary:hover:not(:disabled) {
+  background: var(--blue-dark);
+}
+.auth-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.auth-secondary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  height: 48px;
+  border-radius: var(--auth-radius);
+  background: var(--auth-field);
+  border: 1px solid var(--auth-border);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 150ms ease-out;
+}
+.auth-secondary:hover {
+  background: var(--auth-field);
+  border-color: var(--blue);
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--auth-border);
+}
+.auth-divider span {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.auth-link {
+  color: var(--text);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: rgba(15, 23, 42, 0.3);
+}
+.auth-link:hover {
+  text-decoration-color: currentColor;
+}
+
+.auth-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  padding: 0.75rem 0.875rem;
+  border-radius: 10px;
+  background: var(--error-bg);
+  border: 1px solid rgba(220, 38, 38, 0.28);
+}
+.auth-alert p {
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--error);
+}
+.auth-alert svg {
+  color: var(--error);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.auth-hint {
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  color: var(--text-sub);
+  text-align: center;
+  line-height: 1.5;
 }

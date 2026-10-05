@@ -9,7 +9,6 @@ import Spinner from './components/ui/Spinner';
 // Routes are code-split so heavy page-level libraries (mapbox, recharts, etc.)
 // load only when their page is actually visited instead of on first paint.
 const Login = lazy(() => import('./pages/public/Login'));
-const Register = lazy(() => import('./pages/public/Register'));
 const ForgotPassword = lazy(() => import('./pages/public/ForgotPassword'));
 const ResetPassword = lazy(() => import('./pages/public/ResetPassword'));
 const SetPassword = lazy(() => import('./pages/public/SetPassword'));
@@ -39,6 +38,7 @@ const OrganisationsPage = lazy(() => import('./potals/SystemAdmin/Organizations'
 const UsersPage = lazy(() => import('./potals/SystemAdmin/Users'));
 const SystemAdminOverview = lazy(() => import('./layouts/dashboard/SystemDashboard'));
 const RoutePricesPage = lazy(() => import('./potals/SystemAdmin/RoutePricing'));
+const PromotersPage = lazy(() => import('./potals/SystemAdmin/Promoters'));
 const AgencyAgentsPage = lazy(() => import('./potals/Agency/Agents'));
 const TrackingPage = lazy(() => import('./potals/Common/TrackingPage'));
 const AccountingPage = lazy(() => import('./layouts/dashboard/AccountingPage'));
@@ -46,6 +46,13 @@ const AgencySettings = lazy(() => import('./pages/dashboards/AgencySettings'));
 const DepartureManagement = lazy(() => import('./pages/dashboards/DepartureManagement'));
 const ScheduleManagement = lazy(() => import('./pages/dashboards/ScheduleManagement'));
 const AgentBookingsPage = lazy(() => import('./pages/website/AgentBookings'));
+const StudioPreview = lazy(() => import('./pages/promoter/StudioPreview'));
+const PromoterSetup = lazy(() => import('./pages/promoter/PromoterSetup'));
+const PromoterDashboard = lazy(() => import('./pages/promoter/PromoterDashboard'));
+const PromoterReferrals = lazy(() => import('./pages/promoter/PromoterReferrals'));
+const PromoterEarnings = lazy(() => import('./pages/promoter/PromoterEarnings'));
+const PromoterPayouts = lazy(() => import('./pages/promoter/PromoterPayouts'));
+const PromoterSettings = lazy(() => import('./pages/promoter/PromoterSettings'));
 
 const ROLE_HOME: Record<UserRole, string> = {
   [UserRole.SYSTEM_ADMIN]: '/dashboard/overview-admin',
@@ -53,6 +60,7 @@ const ROLE_HOME: Record<UserRole, string> = {
   [UserRole.AGENT]:        '/dashboard/agent',
   [UserRole.PICKUP_AGENT]: '/login',
   [UserRole.USER]:         '/book',
+  [UserRole.PROMOTER]:     '/dashboard/promoter',
 };
 
 function ForbiddenPage() {
@@ -79,6 +87,16 @@ function RootRedirect() {
   return <Navigate to={ROLE_HOME[user.role]} replace />;
 }
 
+// Opening the site while signed in as a promoter should land on the promoter
+// dashboard, not the booking/onboarding page.
+function HomeEntry() {
+  const { isAuthenticated, user, hasRole } = useAuth();
+  if (isAuthenticated && user && hasRole(UserRole.PROMOTER)) {
+    return <Navigate to="/dashboard/promoter" replace />;
+  }
+  return <Onboarding />;
+}
+
 // ── All routes live here so useNavigate works inside the router ────────────────
 function RouteFallback() {
   return (
@@ -93,8 +111,8 @@ export default function AppRoutes() {
     <Suspense fallback={<RouteFallback />}>
     <Routes>
       {/* Public routes */}
-      <Route path="/" element={<Onboarding />} />
-      <Route path="/welcome" element={<Onboarding />} />
+      <Route path="/" element={<HomeEntry />} />
+      <Route path="/welcome" element={<HomeEntry />} />
       <Route path="/auth-choice" element={<AuthChoice />} />
       <Route path="/book" element={<WebsiteHome />} />
       <Route path="/bus/:slug" element={<RouteLandingPage />} />
@@ -109,7 +127,9 @@ export default function AppRoutes() {
       <Route path="/privacy" element={<PrivacyPolicy />} />
       <Route path="/redirect" element={<RootRedirect />} />
       <Route path="/login"           element={<GuestRoute><Login /></GuestRoute>} />
-      <Route path="/register"        element={<GuestRoute><Register /></GuestRoute>} />
+      {/* There is no standalone sign-up page any more: promoter signup is the
+          only create-account entry point, so every "Sign up" link lands there. */}
+      <Route path="/register"        element={<Navigate to="/dashboard/promoter/setup" replace />} />
       <Route path="/forgot-password" element={<GuestRoute><ForgotPassword /></GuestRoute>} />
       <Route path="/reset-password"  element={<GuestRoute><ResetPassword /></GuestRoute>} />
       <Route path="/set-password"    element={<SetPassword />} />
@@ -185,6 +205,13 @@ export default function AppRoutes() {
           </ProtectedRoute>
         } />
 
+        {/* Promoter applications (System Admin) */}
+        <Route path="promoters" element={
+          <ProtectedRoute roles={[UserRole.SYSTEM_ADMIN]}>
+            <PromotersPage />
+          </ProtectedRoute>
+        } />
+
         {/* Accounting (System Admin) */}
         <Route path="accounting" element={
           <ProtectedRoute roles={[UserRole.SYSTEM_ADMIN]}>
@@ -234,6 +261,41 @@ export default function AppRoutes() {
       </Route>
 
       <Route path="/unauthorized" element={<ForbiddenPage />} />
+
+      {/* Promoter. Deliberately outside the legacy DashboardLayout: these pages
+          render their own shell. `/setup` stays reachable while signed out so the
+          "Earn from Katisha" pill can be tapped before authenticating. */}
+      <Route path="/dashboard/promoter/setup" element={<PromoterSetup />} />
+      <Route path="/dashboard/promoter" element={
+        <ProtectedRoute roles={[UserRole.PROMOTER]}>
+          <PromoterDashboard />
+        </ProtectedRoute>
+      } />
+      <Route path="/dashboard/promoter/referrals" element={
+        <ProtectedRoute roles={[UserRole.PROMOTER]}>
+          <PromoterReferrals />
+        </ProtectedRoute>
+      } />
+      <Route path="/dashboard/promoter/earnings" element={
+        <ProtectedRoute roles={[UserRole.PROMOTER]}>
+          <PromoterEarnings />
+        </ProtectedRoute>
+      } />
+      <Route path="/dashboard/promoter/payouts" element={
+        <ProtectedRoute roles={[UserRole.PROMOTER]}>
+          <PromoterPayouts />
+        </ProtectedRoute>
+      } />
+      <Route path="/dashboard/promoter/settings" element={
+        <ProtectedRoute roles={[UserRole.PROMOTER]}>
+          <PromoterSettings />
+        </ProtectedRoute>
+      } />
+
+      {/* Dev-only design-system preview. Not present in production builds. */}
+      {import.meta.env.DEV && (
+        <Route path="/studio-preview" element={<ProtectedRoute><StudioPreview /></ProtectedRoute>} />
+      )}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
     </Suspense>
