@@ -21,6 +21,7 @@ interface PromoterApplication {
   status: ApplicationStatus
   termsAcceptedAt: string | null
   createdAt: string
+  referralCount?: number
 }
 
 interface ReviewPayload {
@@ -150,6 +151,17 @@ export default function Promoters() {
         render: (r) => (
           <span className="font-mono text-xs font-semibold text-[var(--studio-accent)]">
             {r.promoterCode || '—'}
+          </span>
+        ),
+      },
+      {
+        key: 'referralCount',
+        header: t('promoterAdmin.referrals'),
+        sortable: true,
+        sortValue: (r) => r.referralCount ?? 0,
+        render: (r) => (
+          <span className="text-sm font-semibold text-[var(--studio-text)]">
+            {r.referralCount ?? 0}
           </span>
         ),
       },

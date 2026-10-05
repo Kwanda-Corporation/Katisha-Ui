@@ -180,7 +180,7 @@
     "chooseDate": "When do you want to travel?",
     "chooseTime": "What time would you like to depart?",
     "searchDistricts": "Search destinations...",
-        "searchAgencies": "Search agencies...",
+    "searchAgencies": "Search agencies...",
     "searchCity": "Search city...",
     "searchAgency": "Search agency...",
     "noResults": "No matching locations found.",
@@ -720,7 +720,7 @@
     "referrals": "Referrals",
     "earnings": "Earnings",
     "payouts": "Payouts"
-},
+  },
   "footer": {
     "description": "Rwanda's leading bus ticket booking platform. Book intercity and cross-border bus routes online from Kigali. Pay with MTN Mobile Money, Airtel Money & M-Pesa. Real-time tracking, instant e-tickets.",
     "quickLinks": "Quick Links",
@@ -761,8 +761,7 @@
     "freeTicketsTitle": "Free Tickets",
     "freeTicketsDesc": "Earn 1 free ticket for every 10 paid  bookings. Free tickets can be used on any route. Simply select 'Use free ticket' during checkout and no payment will be required.",
     "freeTicketsHow": "How to use your free ticket:",
-    "freeTicketsStep1": "Complete your booking as normal until you reach the payment step.",  
-
+    "freeTicketsStep1": "Complete your booking as normal until you reach the payment step.",
     "freeTicketsStep2": "Toggle 'Use free ticket' before selecting a payment method.",
     "freeTicketsStep3": "Confirm your booking — no payment needed!",
     "supportTitle": "Need Help? Contact Us",
@@ -959,8 +958,10 @@
     "changePayoutNumber": "Change number",
     "password": "Password",
     "loadFailed": "We could not load your promoter settings.",
-    "noReferralsDesc":"No one has signed up or booked through your link yet. Share your referral link to start earning commission."
-},
+    "noReferralsDesc": "No one has signed up or booked through your link yet. Share your referral link to start earning commission.",
+    "linkOpens": "Link opens",
+    "linkOpensDesc": "People who opened your referral link"
+  },
   "studio": {
     "settings": "Settings",
     "dashboard": "Dashboard",
@@ -992,7 +993,9 @@
     "selectRow": "Select row",
     "sortBy": "Sort by {{column}}",
     "pageSize": "Rows per page",
-    "removeFilter": "Remove filter {{label}}"
+    "removeFilter": "Remove filter {{label}}",
+    "contactUs": "Contact us",
+    "contactUsDesc": "If you get any problem, call us:"
   },
   "roles": {
     "system_admin": "System Admin",
@@ -1026,6 +1029,7 @@
     "reviewFailed": "Could not update the promoter",
     "loadFailed": "Could not load promoters",
     "empty": "No promoters here",
-    "emptyDesc": "Promoter applications will appear here for review."
+    "emptyDesc": "Promoter applications will appear here for review.",
+    "referrals": "Referrals"
   }
 }

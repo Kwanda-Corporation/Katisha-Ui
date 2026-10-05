@@ -8,13 +8,26 @@ import './i18n'
 import { AppProviders } from './App'
 import AppRoutes from './routes'
 import { ssrData } from './ssrData'
-import { SERVER_ORIGIN } from './config/apiBase'
+import { SERVER_ORIGIN, API_BASE } from './config/apiBase'
 import { captureReferralCode } from './utils/referral'
 
 // Latch any promoter `?ref=` code on the very first load. A shared link points at
 // the marketing home page, so this must run before any routing so the code is
 // still in localStorage by the time the booking wizard mounts.
 captureReferralCode()
+
+// Let the promoter know someone opened their link.
+try {
+  const fromUrl = new URLSearchParams(window.location.search).get('ref')
+  if (fromUrl) {
+    fetch(`${API_BASE}/promoter/track-click`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code: fromUrl }),
+      keepalive: true,
+    }).catch(() => {})
+  }
+} catch {}
 
 // Rehydrate server-side-rendered data so the first client render matches the
 // pre-rendered HTML (avoids hydration mismatch / flash) on route & agency

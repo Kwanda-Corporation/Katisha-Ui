@@ -182,7 +182,7 @@
     "chooseDate": "Ushaka kugenda ryari?",
     "chooseTime": "Ushaka kugenda saa zingahe?",
     "searchDistricts": "Shakisha aho ujya...",
-        "searchAgencies": "Shakisha ibigo...",
+    "searchAgencies": "Shakisha ibigo...",
     "searchCity": "Shakisha umujyi...",
     "searchAgency": "Shakisha sosiyete...",
     "noResults": "Nta hantu hujyanye n'icyo ushaka habonetse.",
@@ -720,7 +720,7 @@
     "referrals": "Abafunguye link",
     "earnings": "Amafaranga",
     "payouts": "Kwishyura"
-},
+  },
   "footer": {
     "description": "Urubuga rwo kodesha itike za bisi mu Rwanda n'Uburasirazuba bwa Afurika. Kwishyura ukoresheje MTN Mobile Money, Airtel Money & M-Pesa. Gukurikirana igihe nyacyo.",
     "quickLinks": "Ibyuka Byihuse",
@@ -875,7 +875,6 @@
     "setupFailed": "Gukora setup ya promoter byananiranye. Ongera ugerageze.",
     "alreadyPromoter": "Usanzwe uri umupromoter",
     "goToDashboard": "Jya kuri dashboard y’umupromoter",
-
     "promoterCode": "Kode y’umupromoter",
     "promoterCodeHint": "Kode y’umupromoter yashyizweho.",
     "continueWithAccount": "Komeza ukoreshe konti yanwe isanzwe ihari",
@@ -959,8 +958,10 @@
     "changePayoutNumber": "Hindura nomero",
     "password": "Ijambobanga",
     "loadFailed": "Turi byababaye kubona ibisanzwe byawe.",
-    "noReferralsDesc":"Nta bafunguye link bahari. Share link yawe yihariye kugirango utangire kwinjiriza."
-},
+    "noReferralsDesc": "Nta bafunguye link bahari. Share link yawe yihariye kugirango utangire kwinjiriza.",
+    "linkOpens": "Inshuro link yafunguwe",
+    "linkOpensDesc": "Inshuro abantu bafunguye link yawe"
+  },
   "studio": {
     "settings": "Settings",
     "dashboard": "Dashboard",
@@ -992,7 +993,9 @@
     "selectRow": "Hitamo umurongo",
     "sortBy": "Hitamo ku {{column}}",
     "pageSize": "Imirongo k’urupapuro",
-    "removeFilter": "Hagarika {{label}}"
+    "removeFilter": "Hagarika {{label}}",
+    "contactUs": "Twandikire",
+    "contactUsDesc": "Niba ufite ikibazo, watwandesu:"
   },
   "roles": {
     "system_admin": "Umuyobozi wa system",
@@ -1026,6 +1029,7 @@
     "reviewFailed": "Gusuzuma byananiranye. Ongera ugerageze.",
     "loadFailed": "Gukura abapromoter byananiranye. Ongera ugerageze.",
     "empty": "Nta bapromoter babonetse",
-    "emptyDesc": "Nta bapromoter babonetse. Ongera ugerageze cyangwa hindura uburyo bwo gushakisha."
+    "emptyDesc": "Nta bapromoter babonetse. Ongera ugerageze cyangwa hindura uburyo bwo gushakisha.",
+    "referrals": "Abakoresheje link"
   }
 }

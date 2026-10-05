@@ -180,7 +180,7 @@
     "chooseDate": "Quand voulez-vous voyager ?",
     "chooseTime": "À quelle heure souhaitez-vous partir ?",
     "searchDistricts": "Rechercher des destinations...",
-        "searchAgencies": "Rechercher des agences...",
+    "searchAgencies": "Rechercher des agences...",
     "searchCity": "Rechercher une ville...",
     "searchAgency": "Rechercher une agence...",
     "noResults": "Aucun lieu trouvé.",
@@ -720,7 +720,7 @@
     "referrals": "Parrainages",
     "earnings": "Gains",
     "payouts": "Paiements"
-},
+  },
   "footer": {
     "description": "La plateforme leader de réservation de billets de bus au Rwanda. Réservez des itinéraires interurbains et en Afrique de l'Est en ligne avec MTN Mobile Money, Airtel Money et M-Pesa. Suivi en temps réel, e-billets instantanés.",
     "quickLinks": "Liens rapides",
@@ -958,8 +958,10 @@
     "changePayoutNumber": "Modifier le numéro",
     "password": "Mot de passe",
     "loadFailed": "Impossible de charger vos paramètres de promoteur.",
-    "noReferralsDesc":"Vous n’avez pas encore de parrainages. Partagez votre lien de parrainage pour commencer à gagner des commissions."
-},
+    "noReferralsDesc": "Vous n’avez pas encore de parrainages. Partagez votre lien de parrainage pour commencer à gagner des commissions.",
+    "linkOpens": "Ouvertures du lien",
+    "linkOpensDesc": "Personnes ayant ouvert votre lien de parrainage"
+  },
   "studio": {
     "settings": "Paramètres",
     "dashboard": "Tableau de bord",
@@ -991,7 +993,9 @@
     "selectRow": "Sélectionner la ligne",
     "sortBy": "Trier par {{column}}",
     "pageSize": "Lignes par page",
-    "removeFilter": "Retirer le filtre {{label}}"
+    "removeFilter": "Retirer le filtre {{label}}",
+    "contactUs": "Nous contacter",
+    "contactUsDesc": "En cas de problème, appelez-nous :"
   },
   "roles": {
     "system_admin": "Administrateur système",
@@ -1025,6 +1029,7 @@
     "reviewFailed": "Impossible de modifier le promoteur",
     "loadFailed": "Impossible de charger les promoteurs",
     "empty": "Aucun promoteur",
-    "emptyDesc": "Les demandes de promoteur apparaîtront ici pour examen."
+    "emptyDesc": "Les demandes de promoteur apparaîtront ici pour examen.",
+    "referrals": "Parrainages"
   }
 }

@@ -140,7 +140,15 @@ export default function PromoterDashboard() {
         </StudioCard>
 
         {/* Counters */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+          <StudioCard padding="sm">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-[var(--studio-text-sub)]">{t('promoter.linkOpens')}</span>
+              <Link2 size={16} className="text-[var(--studio-accent)]" />
+            </div>
+            <p className="mt-2 text-2xl font-semibold text-[var(--studio-text)]">{stats?.linkClicks ?? 0}</p>
+            <p className="mt-1 text-xs text-[var(--studio-text-muted)]">{t('promoter.linkOpensDesc')}</p>
+          </StudioCard>
           <StudioCard padding="sm">
             <div className="flex items-center justify-between">
               <span className="text-sm text-[var(--studio-text-sub)]">{t('promoter.totalEarnings')}</span>

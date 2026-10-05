@@ -180,7 +180,7 @@
     "chooseDate": "Unataka kusafiri lini?",
     "chooseTime": "Unataka kuondoka saa ngapi?",
     "searchDistricts": "Tafuta lengwa...",
-        "searchAgencies": "Tafuta kampuni za mabasi...",
+    "searchAgencies": "Tafuta kampuni za mabasi...",
     "searchCity": "Tafuta mji...",
     "searchAgency": "Tafuta shirika...",
     "noResults": "Hakuna mahali panapoendana.",
@@ -720,7 +720,7 @@
     "referrals": "Mapendekezo",
     "earnings": "Mapato",
     "payouts": "Malipo"
-},
+  },
   "footer": {
     "description": "Jukwaa la kununua tiketi za basi Rwanda na Afrika Mashariki. Lipa kwa MTN Mobile Money, Airtel Money & M-Pesa. Fuatilia safari yako kwa wakati halisi.",
     "quickLinks": "Viungo vya Haraka",
@@ -868,7 +868,9 @@
     "selectRow": "Chagua safu",
     "sortBy": "Panga kwa {{column}}",
     "pageSize": "Safu kwa ukurasa",
-    "removeFilter": "Ondoa kichujio cha {{label}}"
+    "removeFilter": "Ondoa kichujio cha {{label}}",
+    "contactUs": "Wasiliana nasi",
+    "contactUsDesc": "Ikiwa una tatizo, tupigie simu:"
   },
   "roles": {
     "system_admin": "Msimamizi wa mfumo",
@@ -998,8 +1000,10 @@
     "editSettings": "Badilisha mipangilio",
     "changePayoutNumber": "Badilisha namba",
     "password": "Nenosiri",
-    "loadFailed": "Hatukuweza kupakia mipangilio yako ya promoter."
-},
+    "loadFailed": "Hatukuweza kupakia mipangilio yako ya promoter.",
+    "linkOpens": "Mafunguzi ya kiungo",
+    "linkOpensDesc": "Watu walioufungua kiungo chako cha marejeleo"
+  },
   "promoterAdmin": {
     "title": "Watumishi",
     "searchPlaceholder": "Tafuta jina, simu au msimbo",
@@ -1024,6 +1028,7 @@
     "reviewFailed": "Imesasishwa",
     "loadFailed": "Imepakua watumishi",
     "empty": "Hakuna watumishi",
-    "emptyDesc": "Maombi ya kuwa watumishi yataonekana hapa kupitiwa kagongwa."
+    "emptyDesc": "Maombi ya kuwa watumishi yataonekana hapa kupitiwa kagongwa.",
+    "referrals": "Mapendekezo"
   }
 }

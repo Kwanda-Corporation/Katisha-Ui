@@ -108,6 +108,22 @@ export default function Sidebar({
           </>
         )}
       </nav>
+
+      {/* Support */}
+      <div className={`px-3 py-4 border-t border-[var(--studio-border)] ${expanded ? '' : 'text-center'}`}>
+        {expanded ? (
+          <>
+            <p className="text-xs font-semibold text-[var(--studio-text)]">{t('studio.contactUs')}</p>
+            <p className="text-[11px] text-[var(--studio-text-muted)] mt-1">{t('studio.contactUsDesc')}</p>
+            <a href="tel:0793216191" className="text-sm font-semibold text-[var(--studio-accent)]">0793216191</a>
+          </>
+        ) : (
+          <a href="tel:0793216191" className="studio-rail-item mx-auto" title={t('studio.contactUs')} aria-label={t('studio.contactUs')}>
+            <span style={{ fontSize: 16 }}>☎</span>
+            <span className="studio-tip">{t('studio.contactUs')}: 0793216191</span>
+          </a>
+        )}
+      </div>
     </div>
   )
 
