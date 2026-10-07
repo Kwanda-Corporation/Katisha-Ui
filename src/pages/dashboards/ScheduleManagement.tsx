@@ -35,6 +35,7 @@ interface RouteItem {
   origin: string;
   destination: string;
   via?: string;
+  departureTimes?: string[];
 }
 
 interface OverrideItem {
@@ -69,6 +70,7 @@ export default function ScheduleManagement() {
 
   const selectedAgency = agencies.find(a => a._id === agencyId);
   const selectedRoute = routes.find(r => r._id === routeId);
+  const routeDefaults: string[] = Array.isArray(selectedRoute?.departureTimes) ? selectedRoute!.departureTimes! : [];
 
   useEffect(() => {
     let cancelled = false;
@@ -187,6 +189,39 @@ export default function ScheduleManagement() {
     } finally {
       setActionLoading(null);
     }
+  };
+
+  const [defaultTime, setDefaultTime] = useState('');
+  const [editingDefault, setEditingDefault] = useState<string | null>(null);
+
+  const saveRouteDefaults = async (times: string[], msg: string) => {
+    if (!routeId) return;
+    setActionLoading('route-defaults');
+    try {
+      await api.updateRoute(routeId, { departureTimes: times });
+      setRoutes(rs => rs.map(r => r._id === routeId ? { ...r, departureTimes: times } : r));
+      await loadWeekly(routeId);
+      setDefaultTime('');
+      setEditingDefault(null);
+      flash(msg);
+    } catch (err: any) {
+      flash(err.message || 'Failed to update route hours', true);
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleAddDefault = () => {
+    if (!defaultTime) return;
+    if (routeDefaults.includes(defaultTime) && editingDefault !== defaultTime) { flash('This hour already exists', true); return; }
+    const next = editingDefault
+      ? routeDefaults.map(t => (t === editingDefault ? defaultTime : t)).sort()
+      : [...routeDefaults, defaultTime].sort();
+    saveRouteDefaults(next, `${editingDefault ? 'Updated' : 'Added'} ${defaultTime} as a default travel hour`);
+  };
+
+  const handleRemoveDefault = (time: string) => {
+    saveRouteDefaults(routeDefaults.filter(t => t !== time), `Removed default hour ${time}`);
   };
 
   const handleAddOverride = async () => {
@@ -348,7 +383,19 @@ export default function ScheduleManagement() {
                         className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-[var(--blue-bg)] border border-[var(--blue-border)] text-[var(--studio-accent)] text-xs font-bold">
                         <Clock size={11} />
                         {time}
-                        {slot.isDefault && <span className="text-[9px] font-bold uppercase text-[var(--studio-text-muted)]">default</span>}
+                        {slot.isDefault && (
+                          <>
+                            <span className="text-[9px] font-bold uppercase text-[var(--studio-text-muted)]">default</span>
+                            <button onClick={() => { setEditingDefault(time); setDefaultTime(time); }}
+                              className="text-[var(--studio-accent)]/50 hover:text-[var(--studio-accent)] cursor-pointer transition-colors border-none bg-transparent p-0 flex items-center" aria-label={`Edit default ${time}`}>
+                              <Pencil size={11} />
+                            </button>
+                            <button onClick={() => handleRemoveDefault(time)} disabled={actionLoading === 'route-defaults'}
+                              className="text-[var(--studio-accent)]/50 hover:text-[var(--tone-danger-ink)] cursor-pointer transition-colors border-none bg-transparent p-0 flex items-center" aria-label={`Remove default ${time}`}>
+                              <X size={11} />
+                            </button>
+                          </>
+                        )}
                         {!slot.isDefault && (
                           <>
                             <button onClick={() => startEditWeekly(time)}
@@ -380,6 +427,24 @@ export default function ScheduleManagement() {
                     Cancel
                   </Button>
                 )}
+              </div>
+
+              {/* Route default hours (what the booking page shows when no weekly schedule is configured) */}
+              <div className="flex flex-wrap items-end gap-2 mt-4 pt-4 border-t border-[var(--studio-border)]">
+                <div className="w-40">
+                  <Input label="Default travel hour" type="time" value={defaultTime} onChange={e => setDefaultTime(e.target.value)} />
+                </div>
+                <Button size="sm" variant="secondary" onClick={handleAddDefault} loading={actionLoading === 'route-defaults'} disabled={!defaultTime}>
+                  <Plus size={14} /> {editingDefault ? `Save default` : `Add default`}
+                </Button>
+                {editingDefault && (
+                  <Button size="sm" variant="ghost" onClick={() => { setEditingDefault(null); setDefaultTime(''); }}>
+                    Cancel
+                  </Button>
+                )}
+                <p className="text-[11px] text-[var(--studio-text-muted)] w-full">
+                  Route default: {routeDefaults.length > 0 ? routeDefaults.join(', ') : 'none set'}
+                </p>
               </div>
             </div>
           </div>
