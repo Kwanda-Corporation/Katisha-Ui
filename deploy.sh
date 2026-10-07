@@ -56,7 +56,7 @@ for i in $(seq 1 30); do
   if docker exec $(docker compose -f "$COMPOSE_FILE" ps -q web) wget -qO- http://127.0.0.1/ >/dev/null 2>&1; then
     echo ">>> Web is healthy"
     docker compose -f "$COMPOSE_FILE" ps
-    docker image prune -f
+    docker image prune -f || true
     echo ">>> Deploy finished"
     exit 0
   fi
