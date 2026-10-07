@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import {
   Building2, Bus, Clock, Plus, X, Loader,
-  CalendarDays, CheckCircle, Ban, Info, ArrowUpDown,
+  CalendarDays, CheckCircle, Ban, Info, ArrowUpDown, Pencil,
 } from 'lucide-react';
 import { api } from '../../api';
 import { PageHeader, Button, Input, Select } from '../../components/ui';
@@ -143,17 +143,33 @@ export default function ScheduleManagement() {
     setTimeout(() => { setError(''); setNotice(''); }, 3000);
   };
 
+  const [editing, setEditing] = useState<{ day: number; time: string } | null>(null);
+
+  const startEditWeekly = (time: string) => {
+    setEditing({ day: selectedDay, time });
+    setNewTime(time);
+  };
+
   const handleAddWeekly = async () => {
     if (!agencyId || !routeId || !newTime) return;
-    if ((weekly[selectedDay] || []).some(w => w.time === newTime)) { flash('This time is already scheduled on that day', true); return; }
+    if (!editing && (weekly[selectedDay] || []).some(w => w.time === newTime)) { flash('This time is already scheduled on that day', true); return; }
     setActionLoading(`w-add-${selectedDay}-${newTime}`);
     try {
-      await api.addWeeklySchedule({ agencyId, routeId, dayOfWeek: selectedDay, travelTime: newTime });
-      await loadWeekly(routeId);
-      setNewTime('');
-      flash(`Added ${newTime} on ${DAY_NAMES[selectedDay]}`);
+      if (editing) {
+        await api.removeWeeklySchedule({ agencyId, routeId, dayOfWeek: editing.day, travelTime: editing.time });
+        await api.addWeeklySchedule({ agencyId, routeId, dayOfWeek: selectedDay, travelTime: newTime });
+        await loadWeekly(routeId);
+        setEditing(null);
+        setNewTime('');
+        flash(`Updated ${editing.time} to ${newTime} on ${DAY_NAMES[selectedDay]}`);
+      } else {
+        await api.addWeeklySchedule({ agencyId, routeId, dayOfWeek: selectedDay, travelTime: newTime });
+        await loadWeekly(routeId);
+        setNewTime('');
+        flash(`Added ${newTime} on ${DAY_NAMES[selectedDay]}`);
+      }
     } catch (err: any) {
-      flash(err.message || 'Failed to add schedule', true);
+      flash(err.message || 'Failed to save schedule', true);
     } finally {
       setActionLoading(null);
     }
@@ -300,7 +316,7 @@ export default function ScheduleManagement() {
                 const count = (weekly[day.value] || []).length;
                 const active = selectedDay === day.value;
                 return (
-                  <button key={day.value} onClick={() => setSelectedDay(day.value)}
+                  <button key={day.value} onClick={() => { setSelectedDay(day.value); setEditing(null); setNewTime(''); }}
                     className={`px-3 py-1.5 rounded-md text-xs font-semibold border cursor-pointer transition-colors whitespace-nowrap ${
                       active ? 'bg-[var(--studio-accent)] text-white border-[var(--studio-accent)]' : 'bg-[var(--fill-subtle)] text-[var(--studio-text-sub)] border-[var(--studio-border)] hover:border-[var(--studio-accent)]'
                     }`}>
@@ -334,10 +350,16 @@ export default function ScheduleManagement() {
                         {time}
                         {slot.isDefault && <span className="text-[9px] font-bold uppercase text-[var(--studio-text-muted)]">default</span>}
                         {!slot.isDefault && (
-                          <button onClick={() => handleRemoveWeekly(time)} disabled={actionLoading === key}
-                            className="text-[var(--studio-accent)]/50 hover:text-[var(--tone-danger-ink)] cursor-pointer transition-colors border-none bg-transparent p-0 flex items-center" aria-label={`Remove ${time}`}>
-                            {actionLoading === key ? <Loader size={11} className="animate-spin" /> : <X size={11} />}
-                          </button>
+                          <>
+                            <button onClick={() => startEditWeekly(time)}
+                              className="text-[var(--studio-accent)]/50 hover:text-[var(--studio-accent)] cursor-pointer transition-colors border-none bg-transparent p-0 flex items-center" aria-label={`Edit ${time}`}>
+                              <Pencil size={11} />
+                            </button>
+                            <button onClick={() => handleRemoveWeekly(time)} disabled={actionLoading === key}
+                              className="text-[var(--studio-accent)]/50 hover:text-[var(--tone-danger-ink)] cursor-pointer transition-colors border-none bg-transparent p-0 flex items-center" aria-label={`Remove ${time}`}>
+                              {actionLoading === key ? <Loader size={11} className="animate-spin" /> : <X size={11} />}
+                            </button>
+                          </>
                         )}
                       </motion.span>
                     );
@@ -351,8 +373,13 @@ export default function ScheduleManagement() {
                   <Input label="Travel hour" type="time" value={newTime} onChange={e => setNewTime(e.target.value)} />
                 </div>
                 <Button size="sm" onClick={handleAddWeekly} loading={actionLoading?.startsWith('w-add')} disabled={!newTime}>
-                  <Plus size={14} /> Add on {DAY_NAMES[selectedDay]}
+                  <Plus size={14} /> {editing ? `Save ${DAY_NAMES[selectedDay]}` : `Add on ${DAY_NAMES[selectedDay]}`}
                 </Button>
+                {editing && (
+                  <Button size="sm" variant="ghost" onClick={() => { setEditing(null); setNewTime(''); }}>
+                    Cancel
+                  </Button>
+                )}
               </div>
             </div>
           </div>
