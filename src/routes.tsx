@@ -87,19 +87,17 @@ function RootRedirect() {
   return <Navigate to={ROLE_HOME[user.role]} replace />;
 }
 
-// The homepage is the keyword-rich booking landing page (search wizard +
-// destination/agency content) so crawlers and brand searches land on real
-// content. Signed-in promoters still go straight to their dashboard.
+// Opening the site while signed in as a promoter should land on the promoter
+// dashboard. Everyone else is asked to pick a language before booking.
 function HomeEntry() {
   const { isAuthenticated, user, hasRole } = useAuth();
   if (isAuthenticated && user && hasRole(UserRole.PROMOTER)) {
     return <Navigate to="/dashboard/promoter" replace />;
   }
-  return <WebsiteHome />;
+  return <Onboarding />;
 }
 
-// The language-selection splash lives at /welcome (noindex, duplicate of the
-// homepage) so it never competes with the landing page for brand queries.
+// Alias kept so the /welcome URL still resolves to the language-selection page.
 function OnboardingEntry() {
   return <Onboarding />;
 }

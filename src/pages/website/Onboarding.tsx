@@ -167,8 +167,7 @@ export default function Onboarding() {
         title="Choose your language"
         description="Choose your preferred language to book bus tickets across Rwanda and East Africa with Katisha."
         keywords="Katisha language, bus booking language, Kinyarwanda, Kiswahili, English, French"
-        canonical="/welcome"
-        noindex
+        canonical="/"
         jsonLd={{
           "@context": "https://schema.org",
           "@type": "WebSite",
