@@ -53,7 +53,7 @@ export default function ScheduleManagement() {
   const [loadingRoutes, setLoadingRoutes] = useState(false);
   const [loadingSchedule, setLoadingSchedule] = useState(false);
 
-  const [weekly, setWeekly] = useState<Record<number, string[]>>({});
+  const [weekly, setWeekly] = useState<Record<number, { time: string; isDefault: boolean }[]>>({});
   const [selectedDay, setSelectedDay] = useState<number>(() => new Date().getDay());
   const [newTime, setNewTime] = useState('');
 
@@ -100,13 +100,13 @@ export default function ScheduleManagement() {
     setLoadingSchedule(true);
     try {
       const res = await api.getWeeklySchedules({ routeId: rid });
-      const grouped: Record<number, string[]> = {};
+      const grouped: Record<number, { time: string; isDefault: boolean }[]> = {};
       for (const s of res.data?.weekly || []) {
         const d = s.dayOfWeek as number;
         if (!grouped[d]) grouped[d] = [];
-        grouped[d].push(s.travelTime);
+        grouped[d].push({ time: s.travelTime, isDefault: s.source === 'route-default' });
       }
-      for (const d of Object.keys(grouped)) grouped[Number(d)].sort();
+      for (const d of Object.keys(grouped)) grouped[Number(d)].sort((a, b) => a.time.localeCompare(b.time));
       setWeekly(grouped);
     } catch {
       setWeekly({});
@@ -145,7 +145,7 @@ export default function ScheduleManagement() {
 
   const handleAddWeekly = async () => {
     if (!agencyId || !routeId || !newTime) return;
-    if ((weekly[selectedDay] || []).includes(newTime)) { flash('This time is already scheduled on that day', true); return; }
+    if ((weekly[selectedDay] || []).some(w => w.time === newTime)) { flash('This time is already scheduled on that day', true); return; }
     setActionLoading(`w-add-${selectedDay}-${newTime}`);
     try {
       await api.addWeeklySchedule({ agencyId, routeId, dayOfWeek: selectedDay, travelTime: newTime });
@@ -208,7 +208,7 @@ export default function ScheduleManagement() {
 
   const effectiveTimes = useMemo(() => {
     if (!routeId) return { configured: false, times: [] as string[] };
-    const base = new Set(weekly[new Date(selectedDate + 'T00:00:00').getDay()] || []);
+    const base = new Set((weekly[new Date(selectedDate + 'T00:00:00').getDay()] || []).map(w => w.time));
     for (const o of overrides) {
       if (o.action === 'add') base.add(o.travelTime);
       else base.delete(o.travelTime);
@@ -324,17 +324,21 @@ export default function ScheduleManagement() {
                 </div>
               ) : (
                 <div className="flex flex-wrap gap-2 mb-4">
-                  {timeSlotsForDay.map(time => {
+                  {timeSlotsForDay.map(slot => {
+                    const time = slot.time;
                     const key = `w-rem-${selectedDay}-${time}`;
                     return (
                       <motion.span key={time} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
                         className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-[var(--blue-bg)] border border-[var(--blue-border)] text-[var(--studio-accent)] text-xs font-bold">
                         <Clock size={11} />
                         {time}
-                        <button onClick={() => handleRemoveWeekly(time)} disabled={actionLoading === key}
-                          className="text-[var(--studio-accent)]/50 hover:text-[var(--tone-danger-ink)] cursor-pointer transition-colors border-none bg-transparent p-0 flex items-center" aria-label={`Remove ${time}`}>
-                          {actionLoading === key ? <Loader size={11} className="animate-spin" /> : <X size={11} />}
-                        </button>
+                        {slot.isDefault && <span className="text-[9px] font-bold uppercase text-[var(--studio-text-muted)]">default</span>}
+                        {!slot.isDefault && (
+                          <button onClick={() => handleRemoveWeekly(time)} disabled={actionLoading === key}
+                            className="text-[var(--studio-accent)]/50 hover:text-[var(--tone-danger-ink)] cursor-pointer transition-colors border-none bg-transparent p-0 flex items-center" aria-label={`Remove ${time}`}>
+                            {actionLoading === key ? <Loader size={11} className="animate-spin" /> : <X size={11} />}
+                          </button>
+                        )}
                       </motion.span>
                     );
                   })}

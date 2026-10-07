@@ -39,6 +39,7 @@ function splitHead(markup: string): { html: string; head: string } {
 import Onboarding from './pages/website/Onboarding';
 import Home from './pages/website/Home';
 import BookingGuide from './pages/website/BookingGuide';
+import PrivacyPolicy from './pages/website/PrivacyPolicy';
 import RouteLandingPage from './pages/website/RouteLandingPage';
 import RouteHubPage from './pages/website/RouteHubPage';
 import AgencyLandingPage from './pages/website/AgencyLandingPage';
@@ -51,9 +52,11 @@ export interface RenderResult {
 
 function matchPage(url: string): React.ReactNode {
   const path = url.split('?')[0];
-  if (path === '/' || path === '/welcome') return <Onboarding />;
-  if (path === '/book') return <Home />;
+  if (path === '/welcome') return <Onboarding />;
+  // The homepage is the booking landing page (same rich content as /book).
+  if (path === '/' || path === '/book') return <Home />;
   if (path === '/guide') return <BookingGuide />;
+  if (path === '/privacy') return <PrivacyPolicy />;
 
   // Account-area pages are pre-rendered as their own (noindex, self-canonical)
   // documents so crawlers never see the homepage shell clone served in their

@@ -164,9 +164,11 @@ export default function Onboarding() {
   return (
     <div className="min-h-screen bg-white flex flex-col">
       <SEO
-        description="Book East African bus tickets online in Rwanda at RURA-approved prices. Routes from Kigali to Kampala, Nairobi, Dar es Salaam, Mbarara and more, plus Mobile Money payment."
-        keywords="bus tickets Rwanda, East Africa bus ticket booking, Kigali bus tickets, RURA approved bus prices, Katisha, online bus booking Rwanda, Kigali to Kampala bus, bus travel East Africa"
-        canonical="/"
+        title="Choose your language"
+        description="Choose your preferred language to book bus tickets across Rwanda and East Africa with Katisha."
+        keywords="Katisha language, bus booking language, Kinyarwanda, Kiswahili, English, French"
+        canonical="/welcome"
+        noindex
         jsonLd={{
           "@context": "https://schema.org",
           "@type": "WebSite",

@@ -19,6 +19,18 @@ const TOWN_ALIASES: Record<string, string> = {
   Rusizi: 'Kamembe',
 };
 
+// Curated internal links — every route landing page links to the highest-value
+// route pages so crawlers discover the whole set and PageRank flows between them.
+const POPULAR_ROUTES = [
+  { slug: 'kigali-to-kampala', label: 'Kigali to Kampala bus' },
+  { slug: 'kigali-to-nairobi', label: 'Kigali to Nairobi bus' },
+  { slug: 'kigali-to-dar-es-salaam', label: 'Kigali to Dar es Salaam bus' },
+  { slug: 'kigali-to-mbarara', label: 'Kigali to Mbarara bus' },
+  { slug: 'kigali-to-musanze', label: 'Kigali to Musanze bus' },
+  { slug: 'kigali-to-huye', label: 'Kigali to Huye bus' },
+  { slug: 'kigali-to-rubavu', label: 'Kigali to Rubavu bus' },
+];
+
 interface ResolvedRoute {
   origin: string;
   destination: string;
@@ -146,6 +158,51 @@ export default function RouteLandingPage({ slug: slugProp }: { slug?: string } =
     ? `Book a ${originName} to ${destName} bus online at RURA-approved fares from RWF ${Number(resolved.minPrice).toLocaleString()}. Compare ${resolved.agencies.length} bus agencies, departures & live tracking. Pay with MTN MoMo, Airtel Money & M-Pesa.`
     : `Book bus tickets from ${originName} to ${destName} in Rwanda online. Compare agencies, prices and schedules with Katisha.`;
 
+  // Route-specific FAQ content. These answer the natural-language queries
+  // travellers actually type ("how do I get a bus ticket from Kigali to
+  // Kampala") and back both the visible FAQ section and FAQPage structured
+  // data, which Google can surface as a rich result / featured snippet.
+  const agencyNames = resolved ? resolved.agencies.map(r => r.agency?.name).filter(Boolean) : [];
+  const duration = resolved
+    ? (resolved.agencies.find(r => r.estimatedDuration)?.estimatedDuration as string | undefined) || ''
+    : '';
+
+  const faqs = resolved
+    ? [
+        {
+          q: `How do I book a bus ticket from ${originName} to ${destName} online?`,
+          a: `Go to katisha.today, choose ${originName} as your departure and ${destName} as your destination, pick your travel date and seat, then pay with MTN Mobile Money, Airtel Money or M-Pesa. Your ${originName} to ${destName} e-ticket is sent instantly — no need to queue at the station.`,
+        },
+        {
+          q: `How much is a bus ticket from ${originName} to ${destName}?`,
+          a:
+            resolved.minPrice > 0
+              ? `Fares from ${originName} to ${destName} start from RWF ${Number(resolved.minPrice).toLocaleString()} on Katisha. Prices are RURA-approved and shown live when you search, so what you see is what you pay.`
+              : `Fares from ${originName} to ${destName} are RURA-approved and shown live when you search on Katisha, so you always pay the official price.`,
+        },
+        {
+          q: `How long does the bus from ${originName} to ${destName} take?`,
+          a: duration
+            ? `The ${originName} to ${destName} bus takes around ${duration} depending on traffic and stops. Exact times are shown for each departure on the route page.`
+            : `Journey times vary by agency and departure. Exact durations are listed with each scheduled bus when you search ${originName} to ${destName} on Katisha.`,
+        },
+        {
+          q: `Which bus agencies operate from ${originName} to ${destName}?`,
+          a: agencyNames.length
+            ? `${agencyNames.slice(0, 8).join(', ')}${agencyNames.length > 8 ? ' and more' : ''} serve the ${originName} to ${destName} route. You can compare their schedules and fares side by side on Katisha and book the one that suits you.`
+            : `Several licensed bus agencies serve the ${originName} to ${destName} route. Compare their available schedules and fares on Katisha before you book.`,
+        },
+        {
+          q: `Can I pay for my ${originName} to ${destName} bus ticket with Mobile Money?`,
+          a: `Yes. Katisha accepts MTN Mobile Money, Airtel Money and M-Pesa for ${originName} to ${destName} bus tickets. Payment is secure and your e-ticket is issued immediately after the transaction is confirmed.`,
+        },
+        {
+          q: `Can I track my ${originName} to ${destName} bus?`,
+          a: `Yes. After booking, use your reference code on the Katisha track page to follow your ${originName} to ${destName} journey in real time and see updated arrival information.`,
+        },
+      ]
+    : [];
+
   const jsonLd = resolved
     ? {
         '@context': 'https://schema.org',
@@ -153,7 +210,7 @@ export default function RouteLandingPage({ slug: slugProp }: { slug?: string } =
           {
             '@type': 'BreadcrumbList',
             itemListElement: [
-              { '@type': 'ListItem', position: 1, name: 'Katisha', item: `${BASE_URL}/book` },
+              { '@type': 'ListItem', position: 1, name: 'Katisha', item: `${BASE_URL}/` },
               { '@type': 'ListItem', position: 2, name: `${originName} to ${destName} bus`, item: `${BASE_URL}/bus/${routeKey}` },
             ],
           },
@@ -165,7 +222,7 @@ export default function RouteLandingPage({ slug: slugProp }: { slug?: string } =
             provider: {
               '@type': 'TravelAgency',
               name: 'Katisha',
-              url: `${BASE_URL}/book`,
+              url: `${BASE_URL}/`,
             },
             areaServed: {
               '@type': 'City',
@@ -179,6 +236,14 @@ export default function RouteLandingPage({ slug: slugProp }: { slug?: string } =
               offerCount: String(resolved.agencies.length || 1),
               availability: 'https://schema.org/InStock',
             },
+          },
+          {
+            '@type': 'FAQPage',
+            mainEntity: faqs.map(f => ({
+              '@type': 'Question',
+              name: f.q,
+              acceptedAnswer: { '@type': 'Answer', text: f.a },
+            })),
           },
         ],
       }
@@ -322,6 +387,70 @@ export default function RouteLandingPage({ slug: slugProp }: { slug?: string } =
                   <Link to="/guide" className="no-underline" style={{ color: 'var(--blue-dark)' }}>How it works</Link>
                 </div>
               </div>
+            </div>
+          </section>
+        )}
+
+        {resolved && (
+          <section className="w-full px-4 sm:px-8 py-10 border-t border-[var(--border)]">
+            <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-10">
+              <div className="lg:col-span-2">
+                <h2 className="text-lg sm:text-xl font-bold mb-3 text-[var(--text)]">
+                  How to book a {originName} to {destName} bus ticket online
+                </h2>
+                <ol className="list-decimal pl-5 space-y-2 text-sm text-[var(--text-sub)]">
+                  <li>
+                    Open <Link to="/" className="no-underline" style={{ color: 'var(--blue-dark)' }}>katisha.today</Link> and
+                    enter <strong>{originName}</strong> as your departure and <strong>{destName}</strong> as your destination.
+                  </li>
+                  <li>Choose your travel date, compare every agency, departure time and fare, then pick your seat.</li>
+                  <li>Pay securely with MTN Mobile Money, Airtel Money or M-Pesa.</li>
+                  <li>Receive your e-ticket instantly by SMS and email, then show the QR code when boarding.</li>
+                </ol>
+
+                <h2 className="text-lg sm:text-xl font-bold mt-10 mb-3 text-[var(--text)]">
+                  Frequently asked questions: {originName} to {destName} bus
+                </h2>
+                <div className="divide-y divide-[var(--border)] border-t border-b border-[var(--border)]">
+                  {faqs.map(f => (
+                    <details key={f.q} className="group py-4">
+                      <summary className="flex items-center justify-between gap-3 cursor-pointer list-none font-semibold text-sm text-[var(--text)]">
+                        {f.q}
+                        <span className="text-[var(--blue-dark)] shrink-0 text-lg leading-none group-open:hidden">+</span>
+                        <span className="text-[var(--blue-dark)] shrink-0 text-lg leading-none hidden group-open:block">–</span>
+                      </summary>
+                      <p className="mt-2 text-sm leading-relaxed text-[var(--text-sub)]">{f.a}</p>
+                    </details>
+                  ))}
+                </div>
+              </div>
+
+              <aside>
+                <h3 className="text-sm font-bold uppercase tracking-[0.14em] text-[var(--text-muted)] mb-4">
+                  Popular bus routes
+                </h3>
+                <nav className="flex flex-col gap-2.5 text-sm">
+                  {POPULAR_ROUTES.map(r => (
+                    <Link key={r.slug} to={`/bus/${r.slug}`} className="no-underline hover:underline" style={{ color: 'var(--blue-dark)' }}>
+                      {r.label}
+                    </Link>
+                  ))}
+                </nav>
+                <h3 className="text-sm font-bold uppercase tracking-[0.14em] text-[var(--text-muted)] mt-8 mb-4">
+                  Browse all routes
+                </h3>
+                <nav className="flex flex-col gap-2.5 text-sm">
+                  <Link to="/bus/rwanda" className="no-underline hover:underline" style={{ color: 'var(--blue-dark)' }}>
+                    Rwanda intercity bus routes
+                  </Link>
+                  <Link to="/bus/east-africa" className="no-underline hover:underline" style={{ color: 'var(--blue-dark)' }}>
+                    East Africa cross-border bus routes
+                  </Link>
+                  <Link to="/guide" className="no-underline hover:underline" style={{ color: 'var(--blue-dark)' }}>
+                    How bus booking works
+                  </Link>
+                </nav>
+              </aside>
             </div>
           </section>
         )}

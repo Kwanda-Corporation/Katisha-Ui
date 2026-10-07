@@ -36,6 +36,12 @@ export default function SEO({
   const pageUrl = canonical ? `${BASE_URL}${canonical}` : BASE_URL;
   const pageImage = ogImage || DEFAULT_OG;
   const pageKeywords = keywords || DEFAULT_KEYWORDS;
+  // Self-referencing hreflang by default so crawlers get a consistent set on
+  // every indexable page (the site serves one canonical URL per locale today).
+  const alternates = hreflang || [
+    { lang: 'en', href: pageUrl },
+    { lang: 'x-default', href: pageUrl },
+  ];
 
   return (
     <Helmet>
@@ -44,12 +50,19 @@ export default function SEO({
       <meta name="description" content={pageDesc} />
       <meta name="keywords" content={pageKeywords} />
 
-      {noindex && <meta name="robots" content="noindex, nofollow" />}
+      <meta
+        name="robots"
+        content={
+          noindex
+            ? 'noindex, nofollow'
+            : 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1'
+        }
+      />
 
       <link rel="canonical" href={pageUrl} />
 
       {!noindex &&
-        (hreflang || []).map(({ lang, href }) => (
+        alternates.map(({ lang, href }) => (
           <link key={lang} rel="alternate" hrefLang={lang} href={href} />
         ))}
 

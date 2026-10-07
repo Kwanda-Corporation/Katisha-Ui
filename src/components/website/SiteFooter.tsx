@@ -9,6 +9,18 @@ const QUICK_LINKS = [
   { to: '/guide', key: 'nav.howItWorks' },
 ];
 
+const POPULAR_ROUTES = [
+  { to: '/bus/kigali-to-kampala', label: 'Kigali to Kampala bus' },
+  { to: '/bus/kigali-to-nairobi', label: 'Kigali to Nairobi bus' },
+  { to: '/bus/kigali-to-dar-es-salaam', label: 'Kigali to Dar es Salaam bus' },
+  { to: '/bus/kigali-to-mbarara', label: 'Kigali to Mbarara bus' },
+  { to: '/bus/kigali-to-musanze', label: 'Kigali to Musanze bus' },
+  { to: '/bus/kigali-to-huye', label: 'Kigali to Huye bus' },
+  { to: '/bus/kigali-to-rubavu', label: 'Kigali to Rubavu bus' },
+  { to: '/bus/rwanda', label: 'Rwanda intercity routes' },
+  { to: '/bus/east-africa', label: 'East Africa cross-border routes' },
+];
+
 const CONTACT_LINES = ['support@katisha.today', '+250 793 216 191', '+250 722 829 315', 'Norsken House, KG 7 Ave, Kigali, Rwanda'];
 
 const PAYMENT_METHODS = ['MTN Mobile Money (MoMo)', 'Airtel Money', 'M-Pesa'];
@@ -74,6 +86,25 @@ export default function SiteFooter() {
               ))}
             </ul>
           </div>
+        </div>
+
+        {/* Popular routes — sitewide internal links so every page passes link
+            equity to the route landing pages crawlers should index. */}
+        <div className="mb-10">
+          <h4 className="text-sm font-semibold uppercase tracking-[0.15em] mb-4 text-white/60">
+            Popular bus routes
+          </h4>
+          <nav className="flex flex-wrap gap-x-6 gap-y-2.5">
+            {POPULAR_ROUTES.map((route) => (
+              <Link
+                key={route.to}
+                to={route.to}
+                className="text-[13px] text-white/85 hover:text-white no-underline transition-colors"
+              >
+                {route.label}
+              </Link>
+            ))}
+          </nav>
         </div>
 
         <div className="pt-6 border-t border-white/15 flex flex-col sm:flex-row items-center justify-between gap-3">

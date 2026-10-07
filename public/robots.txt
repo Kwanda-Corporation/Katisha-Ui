@@ -21,8 +21,9 @@ Disallow: /set-password
 Disallow: /ticket
 Disallow: /payment
 Disallow: /api/
-Allow: /api/seo/sitemap-routes.xml
 Disallow: /unauthorized
+Allow: /bus/
+Allow: /agency/
 
 # Sitemaps
 Sitemap: https://katisha.today/sitemap.xml

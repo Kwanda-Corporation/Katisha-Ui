@@ -32,8 +32,79 @@ const templateFile = path.join(distDir, '.ssr-shell.html');
 
 const API_BASE = (process.env.PRERENDER_API || 'https://api.katisha.today/api').replace(/\/$/, '');
 
+const SITE_URL = 'https://katisha.today';
+
 const slugify = (s) =>
   String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+
+const xmlEscape = (s) =>
+  String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+
+// Writes a self-contained sitemap.xml directly into dist/ so crawlers get every
+// indexable URL even though the public site's /api/* proxy is not guaranteed to
+// be reachable at request time. This replaces the old sitemap-index that pointed
+// at https://katisha.today/api/seo/sitemap-routes.xml (which 502s).
+function writeSitemap(routes, agencies, dynamicRoutes) {
+  const now = new Date().toISOString().slice(0, 10);
+  const entries = [];
+  const add = (loc, priority, changefreq, lastmod = now) =>
+    entries.push({ loc, priority, changefreq, lastmod });
+
+  // Core public pages. (/book canonicalises to /, so it is intentionally not
+  // listed as a separate URL to avoid a duplicate entry in the sitemap.)
+  add(`${SITE_URL}/`, '1.0', 'daily');
+  add(`${SITE_URL}/bus/rwanda`, '0.9', 'weekly');
+  add(`${SITE_URL}/bus/east-africa`, '0.9', 'weekly');
+  add(`${SITE_URL}/guide`, '0.8', 'weekly');
+  add(`${SITE_URL}/privacy`, '0.3', 'yearly');
+
+  // Canonical route landing pages (one per origin→destination).
+  const seen = new Set();
+  for (const r of routes) {
+    const origin = r.origin || r.from;
+    const dest = r.destination || r.to;
+    if (!origin || !dest) continue;
+    const key = `${slugify(origin)}-to-${slugify(dest)}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    const lastmod = r.updatedAt ? new Date(r.updatedAt).toISOString().slice(0, 10) : now;
+    add(`${SITE_URL}/bus/${key}`, '0.8', 'weekly', lastmod);
+  }
+
+  // Any extra dynamic landing routes discovered by the renderer.
+  for (const route of dynamicRoutes) {
+    if (!route.startsWith('/bus/')) continue;
+    const key = route.slice('/bus/'.length);
+    if (key === 'rwanda' || key === 'east-africa') continue;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    add(`${SITE_URL}${route}`, '0.7', 'weekly');
+  }
+
+  // Agency landing pages.
+  for (const a of agencies) {
+    const id = a._id || a.id;
+    if (!id || !a.name) continue;
+    const lastmod = a.updatedAt ? new Date(a.updatedAt).toISOString().slice(0, 10) : now;
+    add(`${SITE_URL}/agency/${id}/${slugify(a.name)}`, '0.6', 'weekly', lastmod);
+  }
+
+  const body = entries
+    .map(
+      (e) =>
+        `  <url>\n    <loc>${xmlEscape(e.loc)}</loc>\n    <lastmod>${e.lastmod}</lastmod>\n    <changefreq>${e.changefreq}</changefreq>\n    <priority>${e.priority}</priority>\n  </url>`
+    )
+    .join('\n');
+
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${body}\n</urlset>\n`;
+  writeFileSync(path.join(distDir, 'sitemap.xml'), xml, 'utf-8');
+  console.log(`[prerender] wrote sitemap.xml with ${entries.length} URLs`);
+}
 
 // ── Public, canonical, indexable static pages ───────────────────────────────
 const STATIC_ROUTES = [
@@ -56,7 +127,13 @@ const HEAD_REMOVE_PATTERNS = [
   /<meta name="title"[\s\S]*?\/>/gi,
   /<meta name="description"[\s\S]*?\/>/gi,
   /<meta name="keywords"[\s\S]*?\/>/gi,
+  // The shell declares a global `index, follow` robots meta; strip it so each
+  // page's own robots directive wins (important for noindexed account pages).
+  /<meta name="robots"[\s\S]*?\/>/gi,
   /<link rel="canonical"[^>]*\/>/gi,
+  // The shell's hreflang alternates all point at the homepage; strip them so
+  // each page emits its own self-referencing alternates (or none for noindex).
+  /<link rel="alternate"[\s\S]*?\/>/gi,
   /<meta property="og:title"[\s\S]*?\/>/gi,
   /<meta property="og:description"[\s\S]*?\/>/gi,
   /<meta property="og:url"[\s\S]*?\/>/gi,
@@ -166,6 +243,10 @@ try {
       console.error(`[prerender] FAIL ${route}:`, err?.message || err);
     }
   }
+  // Write a complete static sitemap for every public URL (independent of the
+  // backend sitemap endpoint, which is not reachable via the public /api proxy).
+  writeSitemap(routes, agencies, DYNAMIC_ROUTES);
+
   console.log(`\n[prerender] Done: ${rendered}/${routesToRender.length} pages pre-rendered (${routes.length} routes, ${agencies.length} agencies loaded).`);
 } finally {
   await vite.close();

@@ -11,10 +11,14 @@ export default function WebsiteHome() {
   return (
     <div className="flex flex-col min-h-screen bg-white">
       <SEO
-        title="Book a Bus Ticket to East Africa"
-        description="Book East African bus tickets online in Rwanda at RURA-approved prices. Compare routes from Kigali to Kampala, Nairobi, Dar es Salaam, Mbarara and more, across Jaguar Express, Simba Express, Trinity Express & Taqwa Classic Coaches. Pay online with Mobile Money. Real-time tracking."
-        canonical="/book"
-        keywords="book bus ticket Rwanda, online bus booking Rwanda, bus tickets Rwanda, Kigali bus tickets, East Africa bus booking, RURA approved bus fares, Katisha booking, bus transport East Africa, Kigali to Kampala bus, Kigali to Nairobi bus, Kigali to Dar es Salaam bus, online mobile money bus payment"
+        title="Book a Bus Ticket Online in Rwanda & East Africa"
+        description="Book bus tickets online in Rwanda and across East Africa at RURA-approved prices. Compare routes from Kigali to Kampala, Nairobi, Dar es Salaam, Mbarara, Musanze, Huye & Rubavu. Pay with MTN Mobile Money, Airtel Money & M-Pesa. Instant e-tickets and live bus tracking."
+        canonical="/"
+        keywords="book bus ticket Rwanda, online bus booking Rwanda, bus tickets Rwanda, East Africa bus booking, bus ticket East Africa, Kigali bus tickets, Kigali to Kampala bus, Kigali to Nairobi bus, Kigali to Dar es Salaam bus, Kigali to Mbarara bus, Kigali to Musanze bus, bus from Kigali, RURA approved bus fares, Katisha booking, mobile money bus payment, book bus online East Africa"
+        hreflang={[
+          { lang: 'en', href: 'https://katisha.today/' },
+          { lang: 'x-default', href: 'https://katisha.today/' },
+        ]}
         jsonLd={{
           "@context": "https://schema.org",
           "@graph": [
@@ -68,6 +72,9 @@ export default function WebsiteHome() {
       <TopNav />
 
       <main className="flex-1 w-full">
+        {/* Page-level H1 — the booking wizard's own heading is an H2, so this
+            gives crawlers a clear, keyword-rich primary heading for the page. */}
+        <h1 className="sr-only">Book bus tickets online in Rwanda and East Africa — Katisha</h1>
         <div className="w-full mx-auto py-1.5 sm:py-0">
           <BookingWizard key={searchParams.get('to') || searchParams.get('destination') || 'default'} />
         </div>

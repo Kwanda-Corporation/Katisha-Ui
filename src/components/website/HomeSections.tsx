@@ -29,10 +29,10 @@ const agencySlug = (name: string) => (name || '').toLowerCase().replace(/[^a-z0-
 // Kigali → destination routes that exist in the seed data; durations come from
 // each route's estimatedDuration, not invented. East African routes only.
 const regionalDestinations = [
-  { key: 'kampala', to: 'Kampala', time: '9h' },
-  { key: 'nairobi', to: 'Nairobi', time: '20h' },
-  { key: 'dar', to: 'Dar es Salaam', img: 'dar-es-salaam', time: '26h' },
-  { key: 'mbarara', to: 'Mbarara', time: '7h' },
+  { key: 'kampala', to: 'Kampala', slug: 'kigali-to-kampala', time: '9h' },
+  { key: 'nairobi', to: 'Nairobi', slug: 'kigali-to-nairobi', time: '20h' },
+  { key: 'dar', to: 'Dar es Salaam', slug: 'kigali-to-dar-es-salaam', img: 'dar-es-salaam', time: '26h' },
+  { key: 'mbarara', to: 'Mbarara', slug: 'kigali-to-mbarara', time: '7h' },
 ];
 
 const destinations = [...regionalDestinations];
@@ -106,8 +106,8 @@ function DestinationPanel({
 
           <div className="relative mt-10">
             <Link
-              to={`/book?to=${encodeURIComponent(dest.to)}`}
-              aria-label={`${t('guide.bookNow')} — ${dest.to}`}
+              to={`/bus/${dest.slug}`}
+              aria-label={`${t('guide.bookNow')} — ${dest.to} bus tickets`}
               className="group inline-flex items-center gap-2 rounded-md  full bg-blue-700 px-7 py-3.5 text-sm font-bold text-white no-underline transition-transform duration-200 hover:-translate-y-0.5"
             >
               {t('guide.bookNow')}
