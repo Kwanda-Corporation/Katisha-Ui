@@ -431,7 +431,6 @@ export default function BookingWizard() {
     onlinePaymentFee = quote.processing_fee;
     onlineTotal = quote.total_price;
   }
-  const totalDue = fareTotal + serviceFeeTotal;
 
   // Per-seat "everything included" price that matches the payment screen total
   // (ticket + service fee + processing fee) for the current seat count, so the
