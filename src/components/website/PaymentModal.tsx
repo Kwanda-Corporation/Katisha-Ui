@@ -370,12 +370,6 @@ export interface PaymentModalProps {
   destination?: string;
   /** Optional via point, accepted for API compatibility. */
   via?: string;
-  /** Ticket price paid to the operator (price × seats). */
-  ticketPrice?: number;
-  /** Katisha service fee (7% of the ticket price). */
-  serviceFee?: number;
-  /** Processing fee covering both the deposit and the payout fee. */
-  processingFee?: number;
   submitting?: boolean;
   onSubmit: () => void;
   submitError?: string;
@@ -411,9 +405,6 @@ export default function PaymentModal({
   onToggleFreeTicket,
   ussdCode,
   ussdHighlight,
-  ticketPrice,
-  serviceFee,
-  processingFee,
 }: PaymentModalProps) {
   const { t } = useTranslation();
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethodId>('mtn');
@@ -479,29 +470,6 @@ export default function PaymentModal({
 
         {/* Main panel */}
         <div className="flex-1 min-w-0 flex flex-col overflow-y-auto">
-          {!useFreeTicket && ticketPrice != null && serviceFee != null && processingFee != null && (
-            <div className="px-5 pt-4 sm:px-7 sm:pt-5 pb-3 border-b border-[#E5E7EB]">
-              <div className="rounded-[16px] bg-[#F6F7F9] px-4 py-3 space-y-1.5 text-sm">
-                <div className="flex items-center justify-between text-[#52525B]">
-                  <span>{t('booking.ticketPrice')}</span>
-                  <span className="tabular-nums">{Number(ticketPrice).toLocaleString()} {currency}</span>
-                </div>
-                <div className="flex items-center justify-between text-[#52525B]">
-                  <span>{t('booking.serviceFee')}</span>
-                  <span className="tabular-nums">+ {Number(serviceFee).toLocaleString()} {currency}</span>
-                </div>
-                <div className="flex items-center justify-between text-[#52525B]">
-                  <span>{t('booking.processingFee')}</span>
-                  <span className="tabular-nums">+ {Number(processingFee).toLocaleString()} {currency}</span>
-                </div>
-                <div className="flex items-center justify-between pt-1.5 mt-1.5 border-t border-[#E5E7EB] font-bold text-[#111827]">
-                  <span>{t('booking.total')}</span>
-                  <span className="tabular-nums">{total.toLocaleString()} {currency}</span>
-                </div>
-              </div>
-            </div>
-          )}
-
           {!useFreeTicket && (
             <div className="px-5 pt-4 sm:px-7 sm:pt-5 pb-3 border-b border-[#E5E7EB]">
               <div className="flex items-center justify-between gap-3 mb-3">

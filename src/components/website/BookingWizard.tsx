@@ -422,13 +422,9 @@ export default function BookingWizard() {
   // always 7% of the ticket value; the processing fee covers both the pawaPay
   // deposit and payout fees and never eats into the service fee.
   const depositMno = mnoFromPaymentMethod(form.paymentMethod || 'mom');
-  let serviceFeeTotal = 0;
-  let onlinePaymentFee = 0;
   let onlineTotal = 0;
   if (fareTotal > 0) {
     const quote = ticketQuote({ ticketPrice: fareTotal, depositMno, payoutMno: 'MTN' });
-    serviceFeeTotal = quote.service_fee;
-    onlinePaymentFee = quote.processing_fee;
     onlineTotal = quote.total_price;
   }
 
@@ -1797,9 +1793,6 @@ export default function BookingWizard() {
         }}
         contactPhoneError={errors.contactPhone}
         total={onlineTotal}
-        ticketPrice={fareTotal}
-        serviceFee={serviceFeeTotal}
-        processingFee={onlinePaymentFee}
         origin={form.origin}
         destination={form.destination}
         via={form.via}
