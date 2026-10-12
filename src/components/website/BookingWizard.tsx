@@ -16,7 +16,7 @@ import i18n from '../../i18n';
 import { searchRoutesOffline } from '../../services/offlineData';
 import { cacheTicketWithImage, cacheTicket } from '../../services/ticketCache';
 import { useOnline } from '../../contexts/OnlineContext';
-import { systemFeeFor } from '../../utils/serviceFee';
+import { ticketQuote, mnoFromPaymentMethod } from '../../utils/serviceFee';
 
 function FieldError({ message }: { message?: string }) {
   if (!message) return null;
@@ -281,7 +281,6 @@ export default function BookingWizard() {
 
   // Payment channel is always online via PawaPay
   const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [paymentConfig, setPaymentConfig] = useState<{ depositRate: number; payoutRate: number; payoutFixed: number } | null>(null);
 
   // Deep-link hydration: /book?to=Huye&agency=...&date=... from SEO landing
   // pages. Pre-fills the destination (origin is fixed to Kigali), jumps to the
@@ -418,27 +417,31 @@ export default function BookingWizard() {
   const selectedRoute = availableRoutes.find(r => r._id === form.routeId);
   const effectivePrice = selectedRoute?.effectivePrice || availableRoutes[0]?.price || 0;
   const fareTotal = effectivePrice * form.seats || 0;
-  const serviceFeeTotal = systemFeeFor(form.journeyType, effectivePrice, form.seats);
+
+  // Deterministic quote — mirrors the backend engine exactly. Service fee is
+  // always 7% of the ticket value; the processing fee covers both the pawaPay
+  // deposit and payout fees and never eats into the service fee.
+  const depositMno = mnoFromPaymentMethod(form.paymentMethod || 'mom');
+  let serviceFeeTotal = 0;
+  let onlinePaymentFee = 0;
+  let onlineTotal = 0;
+  if (fareTotal > 0) {
+    const quote = ticketQuote({ ticketPrice: fareTotal, depositMno, payoutMno: 'MTN' });
+    serviceFeeTotal = quote.service_fee;
+    onlinePaymentFee = quote.processing_fee;
+    onlineTotal = quote.total_price;
+  }
   const totalDue = fareTotal + serviceFeeTotal;
 
-  // Katisha total = Ticket Price + Katisha Service Fee + Transaction Fee
-  // Transaction Fee = (Payout Amount × 1%) + 60 RWF
-  const onlinePaymentFee = paymentConfig
-    ? Math.round(fareTotal * paymentConfig.payoutRate) + paymentConfig.payoutFixed
-    : Math.round(fareTotal * 0.01) + 60;
-  const onlineTotal = totalDue + onlinePaymentFee;
-
   // Per-seat "everything included" price that matches the payment screen total
-  // (ticket + service fee + transaction fee) for the current seat count, so the
+  // (ticket + service fee + processing fee) for the current seat count, so the
   // agency card always agrees with the PaymentModal.
   const perSeatTotalFor = (price: number) => {
     const seats = Math.max(1, form.seats);
     const fare = price * seats;
-    const fee = systemFeeFor(form.journeyType, price, seats);
-    const txn = paymentConfig
-      ? Math.round(fare * paymentConfig.payoutRate) + paymentConfig.payoutFixed
-      : Math.round(fare * 0.01) + 60;
-    return Math.round((fare + fee + txn) / seats);
+    if (fare <= 0) return 0;
+    const quote = ticketQuote({ ticketPrice: fare, depositMno, payoutMno: 'MTN' });
+    return Math.round(quote.total_price / seats);
   };
   const phoneDisplay = phoneInput;
   const contactPhoneDisplay = contactPhoneInput;
@@ -492,27 +495,7 @@ export default function BookingWizard() {
     };
   }, []);
 
-// Fetch payment configuration (PawaPay fee rates)
-  useEffect(() => {
-    api.getPaymentConfig()
-      .then((res: any) => {
-        const data = res?.data || res;
-        setPaymentConfig({
-          depositRate: data?.pawapayDepositFeeRate ?? 0.018791,
-          payoutRate: data?.pawapayPayoutFeeRate ?? 0.01,
-          payoutFixed: data?.pawapayPayoutFixed ?? 60,
-        });
-      })
-      .catch(() => {
-        setPaymentConfig({
-          depositRate: 0.018791,
-          payoutRate: 0.01,
-          payoutFixed: 60,
-        });
-      });
-  }, []);
-
-  // Play success sound when booking is confirmed
+// Play success sound when booking is confirmed
   useEffect(() => {
     if (bookingResult?.status === 'paid' && !hasPlayedSound.current) {
       hasPlayedSound.current = true;
@@ -1678,60 +1661,6 @@ export default function BookingWizard() {
         </div>
       )}
 
-      {/* Progress bar */}
-      <div className="hidden md:block mt-2 mb-8">
-        <div className="flex items-start">
-          {STEP_TITLES.map((label, i) => {
-            const idx = stepToIndex(step);
-            const done = i < idx;
-            const active = i === idx;
-            return (
-              <Fragment key={label}>
-                {i > 0 && (
-                  <div className="relative flex-1 mt-[13px] mx-2 border-t-2 border-dashed border-zinc-300">
-                    <motion.div
-                      className="absolute inset-y-0 left-0 border-t-2 border-[var(--blue)]"
-                      style={{ top: '-2px', width: 0 }}
-                      initial={false}
-                      animate={{ width: done ? '100%' : '0%' }}
-                      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                    />
-                  </div>
-                )}
-                <div className="flex flex-col items-center gap-2 shrink-0 w-24">
-                  <span className="relative isolate flex items-center justify-center">
-                    {active && (
-                      <span
-                        aria-hidden="true"
-                        className="absolute -inset-1.5 -z-10 rotate-3 rounded-full bg-blue-400"
-                      />
-                    )}
-                    <span
-                      className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-all duration-300 ${
-                        done
-                          ? 'bg-[var(--blue)] border-[var(--blue)] text-white shadow-[0_2px_10px_rgba(29,78,216,0.45)]'
-                          : active
-                            ? 'border-[var(--text)] bg-white text-[var(--text)]'
-                            : 'border-zinc-300 bg-white text-[var(--text-muted)]'
-                      }`}
-                    >
-                      {done ? <Check size={13} /> : i + 1}
-                    </span>
-                  </span>
-                  <span
-                    className={`text-[11px] leading-tight text-center transition-colors duration-300 ${
-                      active ? 'font-bold text-[var(--text)]' : done ? 'font-semibold text-[var(--text)]' : 'font-medium text-[var(--text-muted)]'
-                    }`}
-                  >
-                    {label}
-                  </span>
-                </div>
-              </Fragment>
-            );
-          })}
-        </div>
-      </div>
-
       {/* Step content */}
       <AnimatePresence mode="wait">
         <motion.div
@@ -1869,6 +1798,9 @@ export default function BookingWizard() {
         }}
         contactPhoneError={errors.contactPhone}
         total={onlineTotal}
+        ticketPrice={fareTotal}
+        serviceFee={serviceFeeTotal}
+        processingFee={onlinePaymentFee}
         origin={form.origin}
         destination={form.destination}
         via={form.via}

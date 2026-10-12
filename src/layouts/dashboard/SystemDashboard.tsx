@@ -144,6 +144,10 @@ export default function SystemDashboard() {
   const weekSystemFees = revenue.weekSystemFees ?? 0
   const monthSystemFees = revenue.monthSystemFees ?? 0
 
+  const adminStats = adminData?.stats || {}
+  const processingFeesTotal = adminStats.processingFees ?? 0
+  const paidByUsersTotal = adminStats.paidByUsers ?? Math.round(revenueTotal + revenueFees + processingFeesTotal)
+
   const platformMargin = revenueTotal > 0 ? Math.round((revenueFees / revenueTotal) * 100) : 0
 
   const greetingKey = (() => {
@@ -274,11 +278,30 @@ export default function SystemDashboard() {
     },
     { key: 'travelTime', header: t('dashboard.ops.time'), render: (b) => <span className="text-[var(--studio-text-sub)]">{b.travelTime}</span> },
     {
-      key: 'amount',
-      header: t('dashboard.ops.amount'),
+      key: 'ticket',
+      header: t('dashboard.ops.colTicket'),
       align: 'right',
-      sortValue: (b) => (b.totalAmount || 0) + (b.systemFee || 0),
-      render: (b) => <span className="font-semibold">{rwf((b.totalAmount || 0) + (b.systemFee || 0))}</span>,
+      sortValue: (b) => (b.totalAmount || 0),
+      render: (b) => <span className="text-[var(--studio-text-sub)]">{rwf(b.totalAmount || 0)}</span>,
+    },
+    {
+      key: 'paid',
+      header: t('dashboard.ops.colPaid'),
+      align: 'right',
+      sortValue: (b) => (b.totalAmount || 0) + (b.systemFee || 0) + (b.paymentFee || 0),
+      render: (b) => <span className="font-semibold">{rwf((b.totalAmount || 0) + (b.systemFee || 0) + (b.paymentFee || 0))}</span>,
+    },
+    {
+      key: 'earning',
+      header: t('dashboard.ops.colEarn'),
+      align: 'right',
+      render: (b) => <span className="font-semibold text-[var(--studio-accent)]">{rwf(b.systemFee || 0)}</span>,
+    },
+    {
+      key: 'proc',
+      header: t('dashboard.ops.colProc'),
+      align: 'right',
+      render: (b) => <span className="text-[var(--studio-text-sub)]">{rwf(b.paymentFee || 0)}</span>,
     },
     {
       key: 'payment',
@@ -562,6 +585,8 @@ export default function SystemDashboard() {
             <div className="space-y-4">
               {[
                 { key: 'gross', label: t('dashboard.ops.grossRevenue'), value: revenueTotal, color: 'var(--studio-text)' },
+                { key: 'paid', label: t('dashboard.ops.paidByUsers'), value: paidByUsersTotal, color: ACCENT },
+                { key: 'proc', label: t('dashboard.ops.processingFees'), value: processingFeesTotal, color: 'var(--tone-warning-dot)' },
                 { key: 'fees', label: t('dashboard.ops.platformFees'), value: revenueFees, color: ACCENT },
                 { key: 'net', label: t('dashboard.ops.paidToAgencies'), value: revenueNet, color: 'var(--tone-info-dot)' },
               ].map((item) => {
