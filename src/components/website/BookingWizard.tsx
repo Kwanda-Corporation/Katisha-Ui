@@ -106,6 +106,19 @@ const getKigaliTodayStr = (): string => {
 
 const kigaliTodayDate = (): Date => new Date(`${getKigaliTodayStr()}T00:00:00`);
 
+/** Current wall-clock time in Kigali as `HH:mm`, for filtering passed departures. */
+const getKigaliNowHM = (): string => {
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Africa/Kigali',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).formatToParts(new Date());
+  const h = parts.find(p => p.type === 'hour')?.value ?? '00';
+  const m = parts.find(p => p.type === 'minute')?.value ?? '00';
+  return `${h === '24' ? '00' : h}:${m}`;
+};
+
 const formatDateStr = (d: Date): string =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
@@ -304,10 +317,8 @@ export default function BookingWizard() {
       return;
     }
 
-    const tomorrow = new Date(kigaliTodayDate());
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowStr = formatDateStr(tomorrow);
-    const travelDate = date && !isNaN(Date.parse(date)) && date >= tomorrowStr ? date : '';
+    const todayStr = getKigaliTodayStr();
+    const travelDate = date && !isNaN(Date.parse(date)) && date >= todayStr ? date : '';
 
     setForm(f => ({
       ...f,
@@ -417,6 +428,35 @@ export default function BookingWizard() {
   const selectedRoute = availableRoutes.find(r => r._id === form.routeId);
   const effectivePrice = selectedRoute?.effectivePrice || availableRoutes[0]?.price || 0;
   const fareTotal = effectivePrice * form.seats || 0;
+
+  // Every departure the chosen route could offer, minus the times already
+  // blocked by the schedule. Used to decide whether "today" still has a usable
+  // departure and to disable hours that have already passed.
+  const bookableSlots = useMemo(() => {
+    const routeTimes = Array.isArray(selectedRoute?.departureTimes)
+      ? [...selectedRoute.departureTimes].sort()
+      : [];
+    const slots = (scheduleConfigured && scheduleTimes.length > 0)
+      ? scheduleTimes
+      : (routeTimes.length > 0 ? routeTimes : TIME_SLOTS);
+    return slots.filter((t: string) => !blockedTimes.includes(t));
+  }, [selectedRoute, scheduleConfigured, scheduleTimes, blockedTimes]);
+
+  /** Today only stays bookable while at least one departure is still ahead. */
+  const hasBookableTimeForDate = (dateStr: string): boolean => {
+    if (dateStr !== getKigaliTodayStr()) return true;
+    if (bookableSlots.length === 0) return false;
+    const nowHM = getKigaliNowHM();
+    return bookableSlots.some((t: string) => t > nowHM);
+  };
+
+  /** Earliest date the user may pick: today when a departure remains, else tomorrow. */
+  const earliestBookableDateStr = (): string => {
+    const d = kigaliTodayDate();
+    if (hasBookableTimeForDate(formatDateStr(d))) return formatDateStr(d);
+    d.setDate(d.getDate() + 1);
+    return formatDateStr(d);
+  };
 
   // Deterministic quote — mirrors the backend engine exactly. Service fee is
   // always 7% of the ticket value; the processing fee covers both the pawaPay
@@ -540,9 +580,7 @@ export default function BookingWizard() {
   // data already loaded. Once a specific date is picked, refetches for it.
   useEffect(() => {
     if (!form.routeId) { setBlockedTimes([]); setScheduleConfigured(false); setScheduleTimes([]); return; }
-    const prefetchDate = kigaliTodayDate();
-    prefetchDate.setDate(prefetchDate.getDate() + 2);
-    const travelDate = form.travelDate || formatDateStr(prefetchDate);
+    const travelDate = form.travelDate || getKigaliTodayStr();
     let cancelled = false;
     api.getBlockedTimes({ routeId: form.routeId, travelDate })
       .then(res => { if (!cancelled) setBlockedTimes(res.data?.blockedTimes || []); })
@@ -746,9 +784,14 @@ export default function BookingWizard() {
           }
 
           const todayStr = getKigaliTodayStr();
-          if (form.travelDate <= todayStr) {
-            setErrors({ travelDate: t('booking.bookTomorrow') || 'You can only book travel from tomorrow onwards. Please choose another date.' });
+          if (form.travelDate < todayStr) {
+            setErrors({ travelDate: t('booking.selectTravelDate') || 'Please choose a valid travel date.' });
             setShowDateModal(true);
+            return;
+          }
+          if (form.travelDate === todayStr && form.travelTime <= getKigaliNowHM()) {
+            setErrors({ travelTime: t('booking.departureNoLongerAvailable') || 'This departure is no longer available. Please select another time.' });
+            setShowTimeModal(true);
             return;
           }
         } catch {
@@ -859,7 +902,9 @@ export default function BookingWizard() {
     } catch (err: any) {
       const raw = String(err?.message || '');
       let msg = raw || t('booking.bookingFailed');
-      if (raw.includes('Travel date must be tomorrow')) {
+      if (raw.includes('already left')) {
+        msg = t('booking.departureNoLongerAvailable') || raw;
+      } else if (raw.includes('Travel date must be tomorrow')) {
         msg = t('booking.bookTomorrow');
       } else if (raw.includes('have been closed')) {
         msg = t('booking.departureNoLongerAvailable');
@@ -1433,7 +1478,7 @@ export default function BookingWizard() {
             </button>
           </div>
           <div className="min-h-0 overflow-y-auto px-5 sm:px-8 pb-6 -mx-0">
-          <div className="bg-white rounded-md border border-[var(--border)] shadow-sm p-4">
+          <div className="bg-white rounded-md shadow-sm p-4">
             <div className="flex items-center justify-between mb-3">
               <motion.button whileTap={{ scale: 0.9 }} onClick={() => {
                   const prevMonth = selectedMonth === 0 ? 11 : selectedMonth - 1;
@@ -1462,42 +1507,42 @@ export default function BookingWizard() {
               ))}
             </div>
             <div className="grid grid-cols-7 gap-1 sm:gap-0.5">
-              {generateCalendarDays().map((day, i) => {
-                if (day === null) return <div key={`e${i}`} />;
-                const dateStr = `${selectedYear}-${(selectedMonth + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+              {(() => {
+                const earliestStr = earliestBookableDateStr();
                 const todayStr = getKigaliTodayStr();
-                const isToday = dateStr === todayStr;
-                const isSelected = form.travelDate === dateStr;
-                const minDays = 2;
-                const minDate = kigaliTodayDate();
-                minDate.setDate(minDate.getDate() + minDays);
-                const minDateStr = formatDateStr(minDate);
-                const isPast = dateStr < minDateStr;
-                const isBlocked = blockedDates.includes(dateStr);
-                const disabled = isPast || isBlocked;
-                return (
-                  <motion.button key={day} disabled={disabled}
-                    whileTap={disabled ? {} : { scale: 0.93 }}
-                    onClick={() => {
-                      const changed = form.travelDate !== dateStr;
-                      setForm(f => f.travelDate === dateStr ? f : { ...f, travelDate: dateStr, travelTime: '' });
-                      setShowDateModal(false);
-                      // Flow straight into departure-time selection after a
-                      // date is picked; the schedule/blocked-times effect
-                      // refetches for the new date automatically.
-                      if (changed) setShowTimeModal(true);
-                    }}
-                    className={`w-full h-11 sm:h-10 rounded-md text-base sm:text-sm font-medium flex items-center justify-center transition-all duration-200 cursor-pointer ${
-                      isSelected ? 'bg-[var(--blue)] text-white shadow-[0_3px_10px_-3px_rgba(29, 78, 216,0.6)]' :
-                      disabled ? (isBlocked ? 'text-red-300 cursor-not-allowed line-through decoration-red-400' : 'text-[var(--text-muted)] cursor-not-allowed line-through decoration-red-400') :
-                      isToday ? 'bg-[var(--blue-bg)] text-[var(--blue-dark)] ring-1 ring-[var(--blue-border)]' :
-                      'hover:bg-[#F9FAFB] text-[var(--text)]'
-                    }`}
-                  >
-                    {day}
-                  </motion.button>
-                );
-              })}
+                return generateCalendarDays().map((day, i) => {
+                  if (day === null) return <div key={`e${i}`} />;
+                  const dateStr = `${selectedYear}-${(selectedMonth + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+                  const isToday = dateStr === todayStr;
+                  const isSelected = form.travelDate === dateStr;
+                  // Past days, blocked days and a today with no remaining
+                  // departure are hidden outright — only bookable dates show.
+                  if (dateStr < earliestStr || blockedDates.includes(dateStr) || !hasBookableTimeForDate(dateStr)) {
+                    return <div key={day} />;
+                  }
+                  return (
+                    <motion.button key={day}
+                      whileTap={{ scale: 0.93 }}
+                      onClick={() => {
+                        const changed = form.travelDate !== dateStr;
+                        setForm(f => f.travelDate === dateStr ? f : { ...f, travelDate: dateStr, travelTime: '' });
+                        setShowDateModal(false);
+                        // Flow straight into departure-time selection after a
+                        // date is picked; the schedule/blocked-times effect
+                        // refetches for the new date automatically.
+                        if (changed) setShowTimeModal(true);
+                      }}
+                      className={`w-full h-11 sm:h-10 rounded-md text-base sm:text-sm font-medium flex items-center justify-center transition-all duration-200 cursor-pointer ${
+                        isSelected ? 'bg-[var(--blue)] text-white shadow-[0_3px_10px_-3px_rgba(29, 78, 216,0.6)]' :
+                        isToday ? 'bg-[var(--blue-bg)] text-[var(--blue-dark)] ring-1 ring-[var(--blue-border)]' :
+                        'hover:bg-[#F9FAFB] text-[var(--text)]'
+                      }`}
+                    >
+                      {day}
+                    </motion.button>
+                  );
+                });
+              })()}
             </div>
           </div>
           </div>
@@ -1543,7 +1588,11 @@ export default function BookingWizard() {
             </div>
           ) : (() => {
             const isTimeDisabled = (time: string): boolean => {
-              return blockedTimes.includes(time);
+              if (blockedTimes.includes(time)) return true;
+              // On the same-day travel the hours that have already passed are
+              // not offered, so the last bookable departure is always ahead.
+              if (form.travelDate === getKigaliTodayStr() && time <= getKigaliNowHM()) return true;
+              return false;
             };
 
             const selectedRoute = availableRoutes.find(r => r._id === form.routeId);
