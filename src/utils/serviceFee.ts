@@ -9,7 +9,7 @@
  * `total_price` to us through pawaPay (a DEPOSIT); pawaPay takes a deposit fee
  * out of that total; the operator is paid EXACTLY the ticket price `T` (a
  * PAYOUT) and pawaPay takes a payout fee for that. Whatever is left must be at
- * least our service fee (7% of T):
+ * least our service fee (3.5% of T):
  *
  *   total_price - deposit_fee - T (operator) - payout_fee >= service_fee
  *
@@ -47,7 +47,7 @@ export interface TicketPricingConfig {
  *   payout_rate  : MTN = 1%, AIRTEL = 1%
  */
 export const TICKET_PRICING: TicketPricingConfig = {
-  serviceFeeRate: 0.07,
+  serviceFeeRate: 0.035,
   depositRate: { MTN: 0.031, AIRTEL: 0.025 },
   payoutRate: { MTN: 0.01, AIRTEL: 0.01 },
   payoutFixed: { MTN: 60, AIRTEL: 0 },
@@ -68,7 +68,7 @@ export function roundHalfUp(value: number): number {
   return Math.floor(value + 0.5);
 }
 
-/** Service fee = 7% of the ticket value, rounded half up. */
+/** Service fee = 3.5% of the ticket value, rounded half up. */
 export function serviceFeeFor(
   ticketPrice: number,
   config: TicketPricingConfig = TICKET_PRICING
