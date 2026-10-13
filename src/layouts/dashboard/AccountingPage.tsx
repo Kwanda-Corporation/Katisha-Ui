@@ -106,6 +106,12 @@ export default function AccountingPage() {
   const [pin, setPin] = useState('');
   const [executing, setExecuting] = useState(false);
 
+  const [pinModalOpen, setPinModalOpen] = useState(false);
+  const [newPin, setNewPin] = useState('');
+  const [confirmPin, setConfirmPin] = useState('');
+  const [pinSaving, setPinSaving] = useState(false);
+  const [pinError, setPinError] = useState('');
+
   useEffect(() => { loadData(); }, []);
 
   const loadData = async () => {
@@ -191,6 +197,9 @@ export default function AccountingPage() {
   const selectedTotal = selectedBookings.reduce((sum, b) => sum + (Number(b.amount) || 0), 0);
 
   const pinComplete = pin.length === PIN_LENGTH && /^\d+$/.test(pin);
+  const newPinComplete = newPin.length === PIN_LENGTH && /^\d+$/.test(newPin);
+  const pinsMatch = newPinComplete && newPin === confirmPin;
+  const canSetPin = pinsMatch && !pinSaving;
   const phoneClean = destPhone.trim().replace(/[\s()-]/g, '');
   const phoneValid = /^\+?[0-9]{9,15}$/.test(phoneClean);
   const walletShort =
@@ -209,6 +218,42 @@ export default function AccountingPage() {
     if (!executing) {
       setConfirmOpen(false);
       setPin('');
+    }
+  };
+
+  const openPinModal = () => {
+    setPinError('');
+    setNewPin('');
+    setConfirmPin('');
+    setPinModalOpen(true);
+  };
+
+  const closePinModal = () => {
+    if (!pinSaving) setPinModalOpen(false);
+  };
+
+  const handleSetPin = async () => {
+    setPinError('');
+    if (newPin.length !== PIN_LENGTH || !/^\d+$/.test(newPin)) {
+      setPinError(`PIN must be exactly ${PIN_LENGTH} digits`);
+      return;
+    }
+    if (newPin !== confirmPin) {
+      setPinError('The two PINs do not match');
+      return;
+    }
+    setPinSaving(true);
+    try {
+      await api.setPayoutPin(newPin);
+      setPinModalOpen(false);
+      setNewPin('');
+      setConfirmPin('');
+      setPayout(prev => ({ ...prev, pinConfigured: true }));
+      setPayoutNotice('Payout PIN set successfully. Payouts are now enabled.');
+    } catch (err: any) {
+      setPinError(err.message || 'Failed to set payout PIN');
+    } finally {
+      setPinSaving(false);
     }
   };
 
@@ -321,14 +366,22 @@ export default function AccountingPage() {
               destination number, then authorise with the payout PIN.
             </p>
           </div>
+          {payout.pinConfigured === false && (
+            <button onClick={openPinModal}
+              className="ml-auto shrink-0 h-10 px-4 rounded-md text-sm font-medium flex items-center gap-2 cursor-pointer bg-[var(--studio-accent)] hover:opacity-90 transition-all text-white"
+            >
+              <KeyRound size={14} />
+              Set Payout PIN
+            </button>
+          )}
         </div>
 
         {payout.pinConfigured === false && (
           <div className="m-5 flex items-start gap-2.5 p-3 rounded-md" style={{ background: 'var(--tone-danger-fill)', border: '1px solid var(--tone-danger-line)' }}>
             <ShieldAlert size={16} className="shrink-0 mt-0.5" style={{ color: 'var(--tone-danger-ink)' }} />
             <p className="text-xs font-medium" style={{ color: 'var(--tone-danger-ink)' }}>
-              Payouts are disabled: the server has no PAYOUT_PIN configured. Set it in the server
-              environment and restart before any money can be released.
+              Payouts are disabled until a payout PIN is set. Use the Set Payout PIN button above
+              to create one — it is stored encrypted and can be used immediately.
             </p>
           </div>
         )}
@@ -614,6 +667,85 @@ export default function AccountingPage() {
             >
               {executing ? <Loader size={14} className="animate-spin" /> : <Send size={14} />}
               Send {fmt(selectedTotal)} RWF
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* ── Set payout PIN ─────────────────────────────────────────────── */}
+      <Modal
+        open={pinModalOpen}
+        onClose={closePinModal}
+        title="Set payout PIN"
+        subtitle="This PIN authorises every manual payout. Store it somewhere safe — it cannot be viewed once set."
+        maxWidth={480}
+      >
+        <div className="space-y-5">
+          <div>
+            <label className="text-xs font-semibold uppercase tracking-wider text-[var(--studio-text-sub)] flex items-center gap-1.5 mb-2">
+              <KeyRound size={13} /> New PIN
+            </label>
+            <input
+              type="password"
+              inputMode="numeric"
+              autoComplete="new-password"
+              maxLength={PIN_LENGTH}
+              value={newPin}
+              onChange={e => setNewPin(e.target.value.replace(/\D/g, '').slice(0, PIN_LENGTH))}
+              placeholder="••••••••"
+              className="w-full h-10 px-4 rounded-md border text-sm tracking-[0.4em] focus:outline-none focus:ring-2 focus:ring-zinc-400/40"
+              style={{ borderColor: newPin && !newPinComplete ? 'var(--tone-danger-line)' : 'var(--studio-border)' }}
+            />
+          </div>
+
+          <div>
+            <label className="text-xs font-semibold uppercase tracking-wider text-[var(--studio-text-sub)] flex items-center gap-1.5 mb-2">
+              <KeyRound size={13} /> Confirm PIN
+            </label>
+            <input
+              type="password"
+              inputMode="numeric"
+              autoComplete="new-password"
+              maxLength={PIN_LENGTH}
+              value={confirmPin}
+              onChange={e => setConfirmPin(e.target.value.replace(/\D/g, '').slice(0, PIN_LENGTH))}
+              onKeyDown={e => { if (e.key === 'Enter' && canSetPin) handleSetPin(); }}
+              placeholder="••••••••"
+              className="w-full h-10 px-4 rounded-md border text-sm tracking-[0.4em] focus:outline-none focus:ring-2 focus:ring-zinc-400/40"
+              style={{ borderColor: confirmPin && !pinsMatch ? 'var(--tone-danger-line)' : 'var(--studio-border)' }}
+            />
+            <p className="text-xs text-[var(--studio-text-sub)] mt-1.5">
+              {confirmPin && !pinsMatch
+                ? 'The two PINs do not match.'
+                : `${PIN_LENGTH}-digit PIN required.`}
+            </p>
+          </div>
+
+          {pinError && (
+            <div className="flex items-start gap-2.5 p-3 rounded-md" style={{ background: 'var(--tone-danger-fill)', border: '1px solid var(--tone-danger-line)' }}>
+              <p className="text-xs font-medium" style={{ color: 'var(--tone-danger-ink)' }}>{pinError}</p>
+            </div>
+          )}
+
+          <div className="flex items-start gap-2.5 p-3 rounded-md" style={{ background: 'var(--tone-warning-fill)', border: '1px solid var(--tone-warning-line)' }}>
+            <AlertTriangle size={16} className="shrink-0 mt-0.5" style={{ color: 'var(--tone-warning-ink)' }} />
+            <p className="text-xs font-medium" style={{ color: 'var(--tone-warning-ink)' }}>
+              The PIN is encrypted in the database. If you lose it, you will set a new one to
+              regain access.
+            </p>
+          </div>
+
+          <div className="flex gap-3 pt-1">
+            <button onClick={closePinModal} disabled={pinSaving}
+              className="flex-1 h-10 rounded-md text-sm font-medium cursor-pointer border border-[var(--studio-border)] bg-white text-[var(--studio-text-sub)] hover:bg-[var(--fill-hover)] disabled:opacity-50"
+            >
+              Cancel
+            </button>
+            <button onClick={handleSetPin} disabled={!canSetPin}
+              className="flex-1 h-10 rounded-md text-sm font-medium flex items-center justify-center gap-2 cursor-pointer bg-[var(--studio-accent)] text-white hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+            >
+              {pinSaving ? <Loader size={14} className="animate-spin" /> : <KeyRound size={14} />}
+              Set PIN
             </button>
           </div>
         </div>

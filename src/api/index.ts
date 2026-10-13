@@ -250,6 +250,8 @@ export const api = {
   getPayableBookings: () => request('/accounting/payouts/payable'),
   updatePayoutPhone: (phone: string, method?: string) =>
     request('/accounting/payouts/phone', { method: 'PUT', body: JSON.stringify({ phone, method }) }),
+  setPayoutPin: (pin: string) =>
+    request('/accounting/payouts/pin', { method: 'POST', body: JSON.stringify({ pin }) }),
   executePayout: (bookingIds: string[], phoneNumber: string, pin: string) =>
     request('/accounting/payouts/execute', {
       method: 'POST',
