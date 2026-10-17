@@ -52,9 +52,13 @@ export interface RenderResult {
 
 function matchPage(url: string): React.ReactNode {
   const path = url.split('?')[0];
-  if (path === '/welcome') return <Onboarding />;
-  // The homepage is the booking landing page (same rich content as /book).
-  if (path === '/' || path === '/book') return <Home />;
+  // The homepage and /welcome both render the language-selection page, matching
+  // the client router (routes.tsx). The page also renders a visually-hidden,
+  // crawler-only content block (HomeSeoContent) so the pre-rendered HTML fully
+  // describes the bus-booking product even though users only see the picker.
+  if (path === '/' || path === '/welcome') return <Onboarding />;
+  // The booking landing page (same rich content as /book).
+  if (path === '/book') return <Home />;
   if (path === '/guide') return <BookingGuide />;
   if (path === '/privacy') return <PrivacyPolicy />;
 

@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Snowflake } from 'lucide-react'
 import SEO from '../../components/seo/SEO'
+import HomeSeoContent from '../../components/seo/HomeSeoContent'
 import { useAuth } from '../../contexts/AuthContext'
 import ReactCountryFlag from 'react-country-flag'
 import { SCRIPT_FONT, Sparkles, SquigglyUnderline } from '../../components/website/HandDrawn'
@@ -164,26 +165,14 @@ export default function Onboarding() {
   return (
     <div className="min-h-screen bg-white flex flex-col">
       <SEO
-        title="Travel like a King | Katisha"
-        description="Choose your preferred language to book bus tickets across Rwanda and East Africa with Katisha."
-        keywords="Katisha language, bus booking language, Kinyarwanda, Kiswahili, English, French"
+        title="Rwanda & East Africa Bus Tickets"
+        description="Book bus tickets online in Rwanda and across East Africa at RURA-approved prices. Compare routes from Kigali to Kampala, Nairobi, Dar es Salaam, Mwanza, Lubumbashi & more, choose your seat, and pay with MTN Mobile Money, Airtel Money or M-Pesa. Instant e-tickets and live journey tracking with Jaguar Express, Simba Coaches, Trinity Express and Taqwa Classic Coaches."
+        keywords="bus tickets Rwanda, Rwanda bus tickets, East Africa bus tickets, bus ticket booking Rwanda, book bus tickets Rwanda, online bus booking Rwanda, Kigali bus tickets, Kigali to Kampala bus, Kigali to Nairobi bus, Kigali to Dar es Salaam bus, Kigali to Mwanza bus, Kigali to Lubumbashi bus, cross-border bus Rwanda, RURA approved bus prices, Katisha bus booking, MTN Mobile Money bus payment, Airtel Money bus payment, M-Pesa bus payment, Jaguar Express, Simba Coaches, Trinity Express, Taqwa Classic Coaches"
         canonical="/"
-        jsonLd={{
-          "@context": "https://schema.org",
-          "@type": "WebSite",
-          "@id": "https://katisha.today/#website",
-          "url": "https://katisha.today/",
-          "name": "Katisha",
-          "description": "Bus ticket booking platform for Rwanda & East Africa.",
-          "publisher": { "@id": "https://katisha.today/#organization" },
-          "inLanguage": ["en", "rw", "sw", "fr"],
-          "potentialAction": {
-            "@type": "SearchAction",
-            "target": "https://katisha.today/book?origin={origin}&destination={destination}",
-            "query-input": "required name=origin destination"
-          }
-        }}
       />
+      {/* Crawler-only content: describes the full bus-booking service and every
+          East Africa route for search engines. Visually hidden from users. */}
+      <HomeSeoContent />
       {/* Centered content */}
       <div className="flex-1 flex items-center justify-center px-6 pb-20">
         <div className="w-full max-w-[440px]">
@@ -197,9 +186,9 @@ export default function Onboarding() {
             >
               <div className="relative text-center mb-8">
                 <Sparkles className="pointer-events-none absolute -top-10 right-2 h-10 w-24 text-[var(--blue)]/50" />
-                <h1 className="font-[var(--font-body)] text-[1.75rem] font-semibold text-[var(--text)]">
+                <h2 className="font-[var(--font-body)] text-[1.75rem] font-semibold text-[var(--text)]">
                   <TypewriterText text={t('onboarding.chooseLanguage')} />
-                </h1>
+                </h2>
                 <div className="mt-1 inline-block">
                   <span className="text-xl text-[var(--blue)]" style={{ fontFamily: SCRIPT_FONT, fontWeight: 600 }}>
                     {t('onboarding.selectLanguageScript') || 'welcome aboard!'}
