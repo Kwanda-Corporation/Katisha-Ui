@@ -171,7 +171,7 @@ export default function Onboarding() {
         canonical="/"
       />
       {/* Centered content */}
-      <div className="flex-1 flex items-center justify-center px-6 py-16">
+      <div className="flex items-center justify-center px-6 py-16 min-h-screen">
         <div className="w-full max-w-[440px]">
           <AnimatePresence mode="wait">
             <motion.div

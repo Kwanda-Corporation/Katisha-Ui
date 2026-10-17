@@ -128,10 +128,11 @@ export default function HomeSeoContent() {
         <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
       </Helmet>
 
-      <div className="max-w-7xl mx-auto">
-        <header className="max-w-3xl">
-          <h1 className="text-2xl sm:text-3xl font-bold text-[var(--text)]">
-            Book Bus Tickets Online in Rwanda &amp; East Africa
+      <div className="max-w-7xl mx-auto flex flex-col items-center text-center space-y-12 sm:space-y-16">
+        <header className="max-w-3xl flex flex-col items-center">
+          <h1 className="text-2xl sm:text-3xl font-bold">
+            <span className="text-[var(--blue)]">Book Bus Tickets Online in</span>{' '}
+            <span className="text-[var(--text)]">Rwanda &amp; East Africa</span>
           </h1>
           <p className="mt-4 text-sm sm:text-base leading-relaxed text-[var(--text-sub)]">
             Katisha is an online bus ticket booking platform for Rwanda and East Africa. Search,
@@ -154,15 +155,17 @@ export default function HomeSeoContent() {
         </header>
 
         {/* Curated, indexable route pages — the internal links that matter. */}
-        <h2 className="mt-12 text-lg sm:text-xl font-bold text-[var(--text)]">
-          Popular bus routes from Kigali
-        </h2>
-        <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="w-full flex flex-col items-center">
+          <h2 className="text-lg sm:text-xl font-bold">
+            <span className="text-[var(--blue)]">Popular bus routes</span>{' '}
+            <span className="text-[var(--text)]">from Kigali</span>
+          </h2>
+        <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
           {KEY_ROUTES.map((r) => (
             <Link
               key={r.slug}
               to={`/bus/${r.slug}`}
-              className="no-underline rounded-lg border border-[var(--border)] bg-white p-5 transition-colors hover:border-[var(--blue)]"
+              className="no-underline rounded-lg border border-[var(--border)] bg-white p-5 transition-colors hover:border-[var(--blue)] flex flex-col items-center text-center"
             >
               <div className="flex items-center justify-between gap-2">
                 <span className="text-base font-semibold text-[var(--text)]">
@@ -174,14 +177,17 @@ export default function HomeSeoContent() {
             </Link>
           ))}
         </div>
+        </div>
 
         {/* How booking works */}
-        <h2 className="mt-14 text-lg sm:text-xl font-bold text-[var(--text)]">
-          How to book a bus ticket on Katisha
-        </h2>
-        <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="w-full flex flex-col items-center mt-14">
+          <h2 className="text-lg sm:text-xl font-bold">
+            <span className="text-[var(--blue)]">How to book a bus ticket</span>{' '}
+            <span className="text-[var(--text)]">on Katisha</span>
+          </h2>
+        <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
           {BOOKING_STEPS.map((step, i) => (
-            <div key={step.title} className="rounded-lg border border-[var(--border)] bg-[#FAFBFC] p-5">
+            <div key={step.title} className="rounded-lg border border-[var(--border)] bg-[#FAFBFC] p-5 flex flex-col items-center text-center">
               <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-[var(--blue)] text-sm font-bold text-white">
                 {i + 1}
               </span>
@@ -190,39 +196,49 @@ export default function HomeSeoContent() {
             </div>
           ))}
         </div>
+        </div>
 
         {/* Operators, payment and intercity routes */}
-        <div className="mt-14 grid grid-cols-1 lg:grid-cols-3 gap-10">
-          <div>
-            <h2 className="text-lg sm:text-xl font-bold text-[var(--text)]">Bus operators on Katisha</h2>
+        <div className="mt-14 grid grid-cols-1 lg:grid-cols-3 gap-10 w-full">
+          <div className="flex flex-col items-center text-center">
+            <h2 className="text-lg sm:text-xl font-bold">
+              <span className="text-[var(--blue)]">Bus operators</span>{' '}
+              <span className="text-[var(--text)]">on Katisha</span>
+            </h2>
             <p className="mt-3 text-sm leading-relaxed text-[var(--text-sub)]">
               Katisha partners with licensed Rwandan and regional bus operators. Each runs its own
               schedules, buses and seat layouts, so every option for a route is listed together for
               easy comparison.
             </p>
-            <ul className="mt-3 text-sm leading-relaxed text-[var(--text-sub)] list-disc pl-5">
+            <ul className="mt-3 text-sm leading-relaxed text-[var(--text-sub)] list-none pl-0 flex flex-col items-center">
               {OPERATORS.map((o) => (
                 <li key={o}>{o}</li>
               ))}
             </ul>
           </div>
 
-          <div>
-            <h2 className="text-lg sm:text-xl font-bold text-[var(--text)]">Payment methods</h2>
+          <div className="flex flex-col items-center text-center">
+            <h2 className="text-lg sm:text-xl font-bold">
+              <span className="text-[var(--blue)]">Payment</span>{' '}
+              <span className="text-[var(--text)]">methods</span>
+            </h2>
             <p className="mt-3 text-sm leading-relaxed text-[var(--text-sub)]">
               Pay securely with mobile money. All transactions are processed instantly and the
               e-ticket is issued as soon as payment is confirmed. Fares are set in Rwandan Francs
               (RWF) at RURA-approved prices.
             </p>
-            <ul className="mt-3 text-sm leading-relaxed text-[var(--text-sub)] list-disc pl-5">
+            <ul className="mt-3 text-sm leading-relaxed text-[var(--text-sub)] list-none pl-0 flex flex-col items-center">
               {PAYMENT_METHODS.map((m) => (
                 <li key={m}>{m}</li>
               ))}
             </ul>
           </div>
 
-          <div>
-            <h2 className="text-lg sm:text-xl font-bold text-[var(--text)]">Rwanda &amp; East Africa routes</h2>
+          <div className="flex flex-col items-center text-center">
+            <h2 className="text-lg sm:text-xl font-bold">
+              <span className="text-[var(--blue)]">Rwanda &amp; East Africa</span>{' '}
+              <span className="text-[var(--text)]">routes</span>
+            </h2>
             <p className="mt-3 text-sm leading-relaxed text-[var(--text-sub)]">
               Book intercity travel within Rwanda between Kigali, Musanze, Huye, Rubavu, Rusizi,
               Nyagatare and Kayonza, or cross-border journeys to Kampala, Nairobi, Dar es Salaam,
@@ -241,35 +257,42 @@ export default function HomeSeoContent() {
         </div>
 
         {/* FAQ */}
-        <h2 className="mt-14 text-lg sm:text-xl font-bold text-[var(--text)]">Frequently asked questions</h2>
-        <div className="mt-4 max-w-3xl divide-y divide-[var(--border)] border-t border-b border-[var(--border)]">
-          {FAQS.map((f) => (
-            <details key={f.q} className="group py-4">
-              <summary className="flex items-center justify-between gap-3 cursor-pointer list-none font-semibold text-sm text-[var(--text)]">
-                {f.q}
-                <span className="text-[var(--blue-dark)] shrink-0 text-lg leading-none group-open:hidden">+</span>
-                <span className="text-[var(--blue-dark)] shrink-0 text-lg leading-none hidden group-open:block">–</span>
-              </summary>
-              <p className="mt-2 text-sm leading-relaxed text-[var(--text-sub)]">{f.a}</p>
-            </details>
-          ))}
+        <div className="w-full flex flex-col items-center mt-14">
+          <h2 className="text-lg sm:text-xl font-bold">
+            <span className="text-[var(--blue)]">Frequently asked</span>{' '}
+            <span className="text-[var(--text)]">questions</span>
+          </h2>
+          <div className="mt-4 w-full max-w-3xl divide-y divide-[var(--border)] border-t border-b border-[var(--border)] text-left">
+            {FAQS.map((f) => (
+              <details key={f.q} className="group py-4">
+                <summary className="flex items-center justify-between gap-3 cursor-pointer list-none font-semibold text-sm text-[var(--text)] text-left">
+                  {f.q}
+                  <span className="text-[var(--blue-dark)] shrink-0 text-lg leading-none group-open:hidden">+</span>
+                  <span className="text-[var(--blue-dark)] shrink-0 text-lg leading-none hidden group-open:block">−</span>
+                </summary>
+                <p className="mt-2 text-sm leading-relaxed text-[var(--text-sub)] text-left">{f.a}</p>
+              </details>
+            ))}
+          </div>
         </div>
 
-        <p className="mt-10 text-sm leading-relaxed text-[var(--text-sub)]">
-          Questions? Email{' '}
-          <a href="mailto:support@katisha.today" className="no-underline font-medium" style={{ color: 'var(--blue-dark)' }}>
-            support@katisha.today
-          </a>{' '}
-          or call{' '}
-          <a href="tel:+250793216191" className="no-underline font-medium" style={{ color: 'var(--blue-dark)' }}>
-            +250 793 216 191
-          </a>
-          . Katisha is based in Kigali, Rwanda. Read our{' '}
-          <Link to="/privacy" className="no-underline font-medium" style={{ color: 'var(--blue-dark)' }}>
-            privacy policy
-          </Link>
-          .
-        </p>
+        <footer className="mt-10 w-full flex justify-center">
+          <p className="text-xs leading-relaxed text-[var(--text-sub)] text-center max-w-2xl">
+            Questions? Email{' '}
+            <a href="mailto:support@katisha.today" className="no-underline font-medium" style={{ color: 'var(--blue-dark)' }}>
+              support@katisha.today
+            </a>{' '}
+            or call{' '}
+            <a href="tel:+250793216191" className="no-underline font-medium" style={{ color: 'var(--blue-dark)' }}>
+              +250 793 216 191
+            </a>
+            . Katisha is based in Kigali, Rwanda. Read our{' '}
+            <Link to="/privacy" className="no-underline font-medium" style={{ color: 'var(--blue-dark)' }}>
+              privacy policy
+            </Link>
+            .
+          </p>
+        </footer>
       </div>
     </section>
   );
