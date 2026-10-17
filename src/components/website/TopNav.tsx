@@ -139,9 +139,9 @@ export default function TopNav() {
     setBannerDismissed(true);
   };
 
-  // On the booking screen the signed-out nav promotes the promoter offer
-  // instead of Sign in / Sign up (the mobile menu still carries both).
-  const showEarnCta = location.pathname === '/book' || location.pathname === '/';
+  // Normalized pathname: nginx 301s directory routes to a trailing slash
+  // (e.g. /book -> /book/), so compare active tabs against the trimmed path.
+  const path = location.pathname.replace(/\/+$/, '') || '/';
 
   const renderProfileDropdown = () => (
     <motion.div
@@ -293,14 +293,14 @@ export default function TopNav() {
           <Link
             to="/book"
             className="px-2.5 sm:px-3.5 py-1.5 rounded-lg text-[13px] sm:text-[15px] font-semibold transition-all duration-200 no-underline whitespace-nowrap"
-            style={location.pathname === '/book' || location.pathname === '/' ? { background: 'var(--blue)', color: 'white' } : { color: 'var(--text-muted)' }}
+            style={path === '/book' || path === '/' ? { background: 'var(--blue)', color: 'white' } : { color: 'var(--text-muted)' }}
           >
             {t('nav.bookTicket')}
           </Link>
           <Link
             to="/track"
             className="px-2.5 sm:px-3.5 py-1.5 rounded-lg text-[13px]  sm:text-[15px] font-semibold transition-all duration-200 no-underline whitespace-nowrap"
-            style={location.pathname.startsWith('/track') || location.pathname.startsWith('/my-bookings') ? { background: 'var(--blue)', color: 'white' } : { color: 'var(--text-black)' }}
+            style={path.startsWith('/track') || path.startsWith('/my-bookings') ? { background: 'var(--blue)', color: 'white' } : { color: 'var(--text-black)' }}
           >
             {t('nav.trackBooking')}
             <div className="w-full hover:bg-blue-400 transition-all durration-500 h-[2px] bg-blue-700"></div>
@@ -387,24 +387,15 @@ export default function TopNav() {
             </div>
           ) : (
             <>
-              {showEarnCta ? (
-                <Link
-                  to="/dashboard/promoter/setup"
-                  className="hidden sm:inline-flex items-center px-1 py-1.5 text-[13px] font-semibold no-underline transition-opacity hover:opacity-75"
-                  style={{ color: 'var(--blue-dark)' }}
-                >
-                  Become a promoter
-                </Link>
-              ) : (
-                <>
-                  <Link to="/login" className="hidden sm:inline-flex items-center px-3 py-1.5 rounded-lg text-[13px] font-semibold no-underline transition-all hover:bg-[#F9FAFB]" style={{ color: 'var(--text-sub)' }}>
-                    {t('auth.signIn')}
-                  </Link>
-                  <Link to="/register" className="hidden sm:inline-flex px-3 py-1.5 rounded-lg text-[13px] font-semibold no-underline bg-blue-600" style={{ color: 'white' }}>
-                    {t('auth.signUp')}
-                  </Link>
-                </>
-              )}
+              {/* Signed-out navbar: promote the promoter offer on every page
+                  (Sign in / Sign up live in the mobile menu). */}
+              <Link
+                to="/dashboard/promoter/setup"
+                className="hidden sm:inline-flex items-center px-1 py-1.5 text-[13px] font-semibold no-underline transition-opacity hover:opacity-75"
+                style={{ color: 'var(--blue-dark)' }}
+              >
+                Become a promoter
+              </Link>
               {/* Mobile: account/menu button (replaces the hamburger + icon sign-in) */}
               <div className="relative md:hidden" ref={profileRef}>
                 <button
