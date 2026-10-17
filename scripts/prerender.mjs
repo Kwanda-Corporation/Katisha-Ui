@@ -148,6 +148,17 @@ function stripConflictingHead(template) {
   return out;
 }
 
+// The SPA fallback shell keeps the generic title/description/OG tags (so link
+// previews for client-only routes such as /ticket/… still work) but drops the
+// homepage-only robots/canonical/hreflang tags, which would otherwise claim
+// every client route as a duplicate of the homepage.
+function stripHomepageOnlyHead(template) {
+  return template
+    .replace(/<meta name="robots"[\s\S]*?\/>/gi, '')
+    .replace(/<link rel="canonical"[^>]*\/>/gi, '')
+    .replace(/<link rel="alternate"[\s\S]*?\/>/gi, '');
+}
+
 function buildOutputPath(route) {
   const norm = route.replace(/^\/|\/$/g, '');
   return norm === '' ? 'index.html' : path.join(norm, 'index.html');
@@ -221,6 +232,17 @@ try {
   const baseTemplate = stripConflictingHead(template);
   const embedJson = JSON.stringify({ routes, agencies });
   const embedScript = `<script id="__KATISHA_SSR__" type="application/json">${embedJson}</script>`;
+
+  // SPA fallback shell served by nginx for every client-side route that has no
+  // pre-rendered file (dashboard/auth, /book?… deep links, via-town variants,
+  // unknown paths). Marked noindex so those URLs stop resolving to a duplicate
+  // of the homepage ("Alternate page with proper canonical tag").
+  const spaShell = stripHomepageOnlyHead(template).replace(
+    '</head>',
+    '  <meta name="robots" content="noindex, follow" />\n</head>'
+  );
+  writeFileSync(path.join(distDir, 'spa.html'), spaShell, 'utf-8');
+  console.log('[prerender] wrote spa.html (noindex SPA fallback shell)');
 
   let rendered = 0;
   for (const route of routesToRender) {
