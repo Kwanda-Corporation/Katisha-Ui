@@ -262,7 +262,7 @@ export default function TopNav() {
     <header className="sticky top-0 z-30 bg-white border-b border-zinc-200" >
       {announcement && !bannerDismissed && (
         <div className="text-white" style={{ background: 'var(--blue)' }}>
-          <div className="flex items-center gap-2 px-3 sm:px-5 md:px-8 py-1">
+          <div className="flex items-center gap-2 px-3 sm:px-5 md:px-8 py-2">
             <Megaphone size={12} className="shrink-0" aria-hidden="true" />
             <p className="flex-1 min-w-0 text-[11px] sm:text-[12px] font-medium truncate">
               <span className="font-bold">{bannerTitle}</span>
