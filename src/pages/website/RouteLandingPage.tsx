@@ -8,6 +8,7 @@ import { ssrData } from '../../ssrData';
 import SEO from '../../components/seo/SEO';
 import TopNav from '../../components/website/TopNav';
 import SiteFooter from '../../components/website/SiteFooter';
+import { KEY_ROUTES } from '../../config/seoPages';
 
 const BASE_URL = 'https://katisha.today';
 
@@ -18,18 +19,6 @@ const slugify = (s: string) =>
 const TOWN_ALIASES: Record<string, string> = {
   Rusizi: 'Kamembe',
 };
-
-// Curated internal links — every route landing page links to the highest-value
-// route pages so crawlers discover the whole set and PageRank flows between them.
-const POPULAR_ROUTES = [
-  { slug: 'kigali-to-kampala', label: 'Kigali to Kampala bus' },
-  { slug: 'kigali-to-nairobi', label: 'Kigali to Nairobi bus' },
-  { slug: 'kigali-to-dar-es-salaam', label: 'Kigali to Dar es Salaam bus' },
-  { slug: 'kigali-to-mbarara', label: 'Kigali to Mbarara bus' },
-  { slug: 'kigali-to-musanze', label: 'Kigali to Musanze bus' },
-  { slug: 'kigali-to-huye', label: 'Kigali to Huye bus' },
-  { slug: 'kigali-to-rubavu', label: 'Kigali to Rubavu bus' },
-];
 
 interface ResolvedRoute {
   origin: string;
@@ -134,6 +123,10 @@ export default function RouteLandingPage({ slug: slugProp }: { slug?: string } =
   const originName = resolved?.origin || rawFrom.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
   const destName = resolved?.destination || rawTo.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
   const routeKey = `${slugify(originName)}-to-${slugify(destName)}`;
+
+  // Curated sibling routes that search engines index, excluding this page, so
+  // every kept route page cross-links the others (discovery + link equity).
+  const relatedRoutes = KEY_ROUTES.filter((r) => r.slug !== routeKey);
 
   // Via / district-alias variants (e.g. /bus/kigali-to-gatuna) are
   // consolidated onto the route's real destination page. Redirect them there
@@ -427,10 +420,10 @@ export default function RouteLandingPage({ slug: slugProp }: { slug?: string } =
 
               <aside>
                 <h3 className="text-sm font-bold uppercase tracking-[0.14em] text-[var(--text-muted)] mb-4">
-                  Popular bus routes
+                  Popular bus routes from Kigali
                 </h3>
                 <nav className="flex flex-col gap-2.5 text-sm">
-                  {POPULAR_ROUTES.map(r => (
+                  {relatedRoutes.map(r => (
                     <Link key={r.slug} to={`/bus/${r.slug}`} className="no-underline hover:underline" style={{ color: 'var(--blue-dark)' }}>
                       {r.label}
                     </Link>

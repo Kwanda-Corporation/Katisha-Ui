@@ -1,4 +1,5 @@
 import TopNav from '../../components/website/TopNav';
+import SiteFooter from '../../components/website/SiteFooter';
 import SEO from '../../components/seo/SEO';
 
 const SECTIONS: Array<{ title: string; body: string[] }> = [
@@ -79,6 +80,7 @@ export default function PrivacyPolicy() {
           </section>
         ))}
       </main>
+      <SiteFooter />
     </div>
   );
 }

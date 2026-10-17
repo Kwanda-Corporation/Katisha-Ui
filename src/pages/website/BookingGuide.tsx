@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router';
 import TopNav from '../../components/website/TopNav';
+import SiteFooter from '../../components/website/SiteFooter';
 import { useTranslation } from 'react-i18next';
 import SEO from '../../components/seo/SEO';
 import { Reveal } from '../../components/website/ScrollReveal';
@@ -553,6 +554,8 @@ export default function BookingGuide() {
         {/* Soft wave out of the page */}
         <WaveDivider className="h-12 w-full text-[var(--blue-bg)]" />
       </main>
+
+      <SiteFooter />
     </div>
   );
 }

@@ -170,11 +170,8 @@ export default function Onboarding() {
         keywords="bus tickets Rwanda, Rwanda bus tickets, East Africa bus tickets, bus ticket booking Rwanda, book bus tickets Rwanda, online bus booking Rwanda, Kigali bus tickets, Kigali to Kampala bus, Kigali to Nairobi bus, Kigali to Dar es Salaam bus, Kigali to Mwanza bus, Kigali to Lubumbashi bus, cross-border bus Rwanda, RURA approved bus prices, Katisha bus booking, MTN Mobile Money bus payment, Airtel Money bus payment, M-Pesa bus payment, Jaguar Express, Simba Coaches, Trinity Express, Taqwa Classic Coaches"
         canonical="/"
       />
-      {/* Crawler-only content: describes the full bus-booking service and every
-          East Africa route for search engines. Visually hidden from users. */}
-      <HomeSeoContent />
       {/* Centered content */}
-      <div className="flex-1 flex items-center justify-center px-6 pb-20">
+      <div className="flex-1 flex items-center justify-center px-6 py-16">
         <div className="w-full max-w-[440px]">
           <AnimatePresence mode="wait">
             <motion.div
@@ -217,6 +214,10 @@ export default function Onboarding() {
           </AnimatePresence>
         </div>
       </div>
+
+      {/* Visible landing content: describes the bus-booking service for both
+          users and search engines, rendered below the language picker. */}
+      <HomeSeoContent />
 
       {/* Persistent promoter entry point. Anchored top-left so it reads as the
           newest thing on the screen; hidden from crawlers. */}

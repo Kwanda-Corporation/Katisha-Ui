@@ -6,6 +6,7 @@ import { ssrData } from '../../ssrData';
 import SEO from '../../components/seo/SEO';
 import TopNav from '../../components/website/TopNav';
 import SiteFooter from '../../components/website/SiteFooter';
+import { KEY_ROUTES } from '../../config/seoPages';
 
 const BASE_URL = 'https://katisha.today';
 
@@ -22,19 +23,21 @@ interface RouteGroup {
   estimatedDuration?: string;
 }
 
-const SCOPE_CONFIG: Record<
-  HubScope,
-  {
-    title: string;
-    description: string;
-    eyebrow: string;
-    h1: string;
-    intro: string;
-    routeType: string;
-    emptyTitle: string;
-    emptyBody: string;
-  }
-> = {
+interface ScopeConfig {
+  title: string;
+  description: string;
+  eyebrow: string;
+  h1: string;
+  intro: string;
+  routeType: string;
+  emptyTitle: string;
+  emptyBody: string;
+  aboutTitle: string;
+  about: string[];
+  faqs: { q: string; a: string }[];
+}
+
+const SCOPE_CONFIG: Record<HubScope, ScopeConfig> = {
   rwanda: {
     title: 'Bus Booking Rwanda',
     description:
@@ -46,6 +49,37 @@ const SCOPE_CONFIG: Record<
     routeType: 'intercity',
     emptyTitle: 'Rwanda intercity routes',
     emptyBody: 'Routes are being updated. Browse the booking page or contact us on +250 793 216 191.',
+    aboutTitle: 'Intercity bus travel in Rwanda',
+    about: [
+      'Katisha lists every active intercity bus route in Rwanda in one place, so you can compare operators, departure times and RURA-approved fares before you book. Popular intercity journeys include Kigali to Musanze (Ruhengeri), Kigali to Huye (Butare), Kigali to Rubavu (Gisenyi), Kigali to Rusizi (Kamembe), Kigali to Nyagatare and Kigali to Kayonza.',
+      'Booking is entirely online: choose your route and travel date, select your seat on the bus, pay with MTN Mobile Money, Airtel Money or M-Pesa, and receive an instant e-ticket. You can track your bus in real time and manage upcoming trips from the My Tickets page.',
+    ],
+    faqs: [
+      {
+        q: 'How do I book an intercity bus ticket in Rwanda?',
+        a: 'Search your route on katisha.today — for example Kigali to Musanze — choose the date and departure, pick your seat, and pay with MTN Mobile Money, Airtel Money or M-Pesa. Your e-ticket is issued instantly.',
+      },
+      {
+        q: 'How much is an intercity bus ticket in Rwanda?',
+        a: 'All fares on Katisha are RURA-approved prices. The exact fare depends on the route and operator and is shown live when you search, so the price you see is the price you pay.',
+      },
+      {
+        q: 'Which towns in Rwanda can I book on Katisha?',
+        a: 'Katisha covers intercity travel between major Rwandan towns and cities, including Kigali, Musanze, Huye, Rubavu, Rusizi, Nyagatare and Kayonza.',
+      },
+      {
+        q: 'Can I choose my seat on the bus?',
+        a: 'Yes. After selecting a departure you choose your exact seat from an interactive seat map before paying.',
+      },
+      {
+        q: 'What payment methods are accepted in Rwanda?',
+        a: 'Katisha accepts MTN Mobile Money (MoMo), Airtel Money and M-Pesa. Payment is processed instantly and your ticket is confirmed straight away.',
+      },
+      {
+        q: 'How early should I arrive at the bus station?',
+        a: 'Aim to arrive at least 30 minutes before departure so you have time to find your bus and load luggage. Check your e-ticket for the exact departure point.',
+      },
+    ],
   },
   'east-africa': {
     title: 'East Africa Bus Booking',
@@ -58,6 +92,37 @@ const SCOPE_CONFIG: Record<
     routeType: 'east_africa',
     emptyTitle: 'East Africa cross-border routes',
     emptyBody: 'Cross-border routes are being updated. Browse the booking page or contact us on +250 793 216 191.',
+    aboutTitle: 'Cross-border bus travel from Kigali',
+    about: [
+      'Katisha connects Kigali to Uganda, Kenya, Tanzania, DR Congo and beyond. Each route page lists the licensed operators, RURA-approved fares, departure times and journey duration so you can compare every option before you book.',
+      'Cross-border journeys are long-distance, so book ahead to secure the best seats and departures. Pay online with MTN Mobile Money, Airtel Money or M-Pesa, receive your e-ticket instantly, and track your bus while you travel.',
+    ],
+    faqs: [
+      {
+        q: 'Which countries can I reach by bus from Kigali?',
+        a: 'From Kigali you can book cross-border buses to Uganda (Kampala, Mbarara, Jinja), Kenya (Nairobi, Nakuru, Kisumu), Tanzania (Dar es Salaam, Arusha, Mwanza, Kigoma and more), DR Congo (Lubumbashi, Kasumbalesa), Zambia, Malawi, Zimbabwe, Mozambique and South Africa.',
+      },
+      {
+        q: 'How much is a bus from Kigali to Kampala?',
+        a: 'Fares from Kigali to Kampala are RURA-approved and vary by operator. The live price for each departure is shown when you search the route on Katisha, so you always pay the official fare.',
+      },
+      {
+        q: 'Do I need a passport for cross-border bus travel?',
+        a: 'Yes. Cross-border trips cross an international border, so carry a valid passport or the travel document required for your destination and any transit countries, and check visa requirements before you travel.',
+      },
+      {
+        q: 'How long do cross-border buses from Kigali take?',
+        a: 'Journey times depend on the destination, the operator and border-crossing time. The estimated duration is listed with each scheduled departure on the route page.',
+      },
+      {
+        q: 'Can I pay online for a cross-border bus ticket?',
+        a: 'Yes. You can pay for cross-border tickets with MTN Mobile Money, Airtel Money or M-Pesa on Katisha, and your e-ticket is issued instantly after payment.',
+      },
+      {
+        q: 'Can I track my cross-border bus?',
+        a: 'Yes. After booking, enter your reference code on the Katisha track page to follow your journey and see updated arrival information.',
+      },
+    ],
   },
 };
 
@@ -157,6 +222,14 @@ export default function RouteHubPage({ scope = 'rwanda' }: { scope?: HubScope } 
           position: i + 1,
           name: `${g.origin} to ${g.destination} bus`,
           url: `${BASE_URL}/bus/${slugify(g.origin)}-to-${slugify(g.destination)}`,
+        })),
+      },
+      {
+        '@type': 'FAQPage',
+        mainEntity: cfg.faqs.map((f) => ({
+          '@type': 'Question',
+          name: f.q,
+          acceptedAnswer: { '@type': 'Answer', text: f.a },
         })),
       },
     ].filter(Boolean),
@@ -265,6 +338,95 @@ export default function RouteHubPage({ scope = 'rwanda' }: { scope?: HubScope } 
                 })}
               </div>
             )}
+          </div>
+        </section>
+
+        {/* Editorial content + FAQ: real, unique copy that explains the hub and
+            gives search engines something to rank beyond the route list. */}
+        <section className="w-full px-4 sm:px-8 py-10 border-t border-[var(--border)] bg-[#FAFBFC]">
+          <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-10">
+            <div className="lg:col-span-2">
+              <h2 className="text-lg sm:text-xl font-bold mb-3 text-[var(--text)]">{cfg.aboutTitle}</h2>
+              {cfg.about.map((paragraph, i) => (
+                <p key={i} className="text-sm leading-relaxed mb-3 text-[var(--text-sub)]">
+                  {paragraph}
+                </p>
+              ))}
+              <p className="text-sm leading-relaxed text-[var(--text-sub)]">
+                Ready to travel?{' '}
+                <Link to="/book" className="no-underline font-medium" style={{ color: 'var(--blue-dark)' }}>
+                  Search and book a bus ticket
+                </Link>{' '}
+                or read the{' '}
+                <Link to="/guide" className="no-underline font-medium" style={{ color: 'var(--blue-dark)' }}>
+                  step-by-step booking guide
+                </Link>
+                .{' '}
+                {scope === 'east-africa' ? (
+                  <>
+                    You can also browse{' '}
+                    <Link to="/bus/rwanda" className="no-underline font-medium" style={{ color: 'var(--blue-dark)' }}>
+                      Rwanda intercity bus routes
+                    </Link>
+                    .
+                  </>
+                ) : (
+                  <>
+                    Compare{' '}
+                    <Link to="/bus/east-africa" className="no-underline font-medium" style={{ color: 'var(--blue-dark)' }}>
+                      East Africa cross-border bus routes
+                    </Link>
+                    .
+                  </>
+                )}
+              </p>
+
+              <h2 className="text-lg sm:text-xl font-bold mt-10 mb-3 text-[var(--text)]">
+                Frequently asked questions
+              </h2>
+              <div className="divide-y divide-[var(--border)] border-t border-b border-[var(--border)]">
+                {cfg.faqs.map((f) => (
+                  <details key={f.q} className="group py-4">
+                    <summary className="flex items-center justify-between gap-3 cursor-pointer list-none font-semibold text-sm text-[var(--text)]">
+                      {f.q}
+                      <span className="text-[var(--blue-dark)] shrink-0 text-lg leading-none group-open:hidden">+</span>
+                      <span className="text-[var(--blue-dark)] shrink-0 text-lg leading-none hidden group-open:block">–</span>
+                    </summary>
+                    <p className="mt-2 text-sm leading-relaxed text-[var(--text-sub)]">{f.a}</p>
+                  </details>
+                ))}
+              </div>
+            </div>
+
+            <aside>
+              <h3 className="text-sm font-bold uppercase tracking-[0.14em] text-[var(--text-muted)] mb-4">
+                Popular bus routes from Kigali
+              </h3>
+              <nav className="flex flex-col gap-2.5 text-sm">
+                {KEY_ROUTES.map((r) => (
+                  <Link key={r.slug} to={`/bus/${r.slug}`} className="no-underline hover:underline" style={{ color: 'var(--blue-dark)' }}>
+                    {r.label}
+                  </Link>
+                ))}
+              </nav>
+              <h3 className="text-sm font-bold uppercase tracking-[0.14em] text-[var(--text-muted)] mt-8 mb-4">
+                More
+              </h3>
+              <nav className="flex flex-col gap-2.5 text-sm">
+                <Link to="/book" className="no-underline hover:underline" style={{ color: 'var(--blue-dark)' }}>
+                  Book a bus ticket
+                </Link>
+                <Link to="/guide" className="no-underline hover:underline" style={{ color: 'var(--blue-dark)' }}>
+                  How bus booking works
+                </Link>
+                <Link to="/bus/rwanda" className="no-underline hover:underline" style={{ color: 'var(--blue-dark)' }}>
+                  Rwanda intercity bus routes
+                </Link>
+                <Link to="/bus/east-africa" className="no-underline hover:underline" style={{ color: 'var(--blue-dark)' }}>
+                  East Africa cross-border routes
+                </Link>
+              </nav>
+            </aside>
           </div>
         </section>
       </main>

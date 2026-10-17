@@ -1,22 +1,21 @@
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { WaveDivider } from './HandDrawn';
+import { KEY_ROUTES } from '../../config/seoPages';
 
 const QUICK_LINKS = [
   { to: '/book', key: 'nav.bookTicket' },
   { to: '/track', key: 'nav.trackBooking' },
   { to: '/my-bookings', label: 'My Bookings' },
   { to: '/guide', key: 'nav.howItWorks' },
+  { to: '/privacy', label: 'Privacy Policy' },
 ];
 
+// Only the curated, indexable route pages are linked here: pointing the
+// sitewide footer at dozens of noindex pages would waste crawl budget and
+// dilute the internal links that matter (see src/config/seoPages.ts).
 const POPULAR_ROUTES = [
-  { to: '/bus/kigali-to-kampala', label: 'Kigali to Kampala bus' },
-  { to: '/bus/kigali-to-nairobi', label: 'Kigali to Nairobi bus' },
-  { to: '/bus/kigali-to-dar-es-salaam', label: 'Kigali to Dar es Salaam bus' },
-  { to: '/bus/kigali-to-mbarara', label: 'Kigali to Mbarara bus' },
-  { to: '/bus/kigali-to-musanze', label: 'Kigali to Musanze bus' },
-  { to: '/bus/kigali-to-huye', label: 'Kigali to Huye bus' },
-  { to: '/bus/kigali-to-rubavu', label: 'Kigali to Rubavu bus' },
+  ...KEY_ROUTES.map((r) => ({ to: `/bus/${r.slug}`, label: r.label })),
   { to: '/bus/rwanda', label: 'Rwanda intercity routes' },
   { to: '/bus/east-africa', label: 'East Africa cross-border routes' },
 ];
