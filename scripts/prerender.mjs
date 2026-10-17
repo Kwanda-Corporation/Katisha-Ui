@@ -45,65 +45,61 @@ const xmlEscape = (s) =>
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&apos;');
 
-// Writes a self-contained sitemap.xml directly into dist/ so crawlers get every
-// indexable URL even though the public site's /api/* proxy is not guaranteed to
-// be reachable at request time. This replaces the old sitemap-index that pointed
-// at https://katisha.today/api/seo/sitemap-routes.xml (which 502s).
-function writeSitemap(routes, agencies, dynamicRoutes) {
+// The curated set of pages we deliberately expose to search engines: the
+// homepage, the two regional hubs, the booking guide, the privacy page, and a
+// handful of the most important route landing pages.
+//
+// Every other route/agency landing page is still fully pre-rendered (users and
+// social scrapers get real content) but is served with `noindex` and kept out
+// of the sitemap. That concentrates Google's crawl budget on a small set of
+// high-value URLs instead of 200+ thin, near-duplicate ones - the reason those
+// pages sat in "Crawled/Discovered - currently not indexed".
+const INDEXABLE_ROUTES = [
+  { path: '/', priority: '1.0', changefreq: 'daily' },
+  { path: '/bus/rwanda', priority: '0.9', changefreq: 'weekly' },
+  { path: '/bus/east-africa', priority: '0.9', changefreq: 'weekly' },
+  { path: '/guide', priority: '0.8', changefreq: 'weekly' },
+  { path: '/privacy', priority: '0.3', changefreq: 'yearly' },
+  { path: '/bus/kigali-to-kampala', priority: '0.8', changefreq: 'weekly' },
+  { path: '/bus/kigali-to-nairobi', priority: '0.8', changefreq: 'weekly' },
+  { path: '/bus/kigali-to-dar-es-salaam', priority: '0.8', changefreq: 'weekly' },
+  { path: '/bus/kigali-to-mwanza', priority: '0.8', changefreq: 'weekly' },
+  { path: '/bus/kigali-to-arusha', priority: '0.8', changefreq: 'weekly' },
+  { path: '/bus/kigali-to-kigoma', priority: '0.8', changefreq: 'weekly' },
+];
+const INDEXABLE_PATHS = new Set(INDEXABLE_ROUTES.map((r) => r.path));
+
+// A page is pruned from the index when it is a database-driven landing page
+// (/bus/… or /agency/…) that is not part of the curated set above. Static pages
+// (/book, /welcome, /my-bookings, /track) manage their own robots/canonical.
+function isPrunedFromIndex(route) {
+  if (!route.startsWith('/bus/') && !route.startsWith('/agency/')) return false;
+  return !INDEXABLE_PATHS.has(route);
+}
+
+// Writes a self-contained sitemap.xml directly into dist/ listing only the
+// curated, indexable URLs (the previous version listed every route + agency,
+// which is what produced the "Page with redirect"/"not indexed" noise).
+function writeSitemap(routes) {
   const now = new Date().toISOString().slice(0, 10);
-  const entries = [];
-  const add = (loc, priority, changefreq, lastmod = now) =>
-    entries.push({ loc, priority, changefreq, lastmod });
-
-  // Core public pages. (/book canonicalises to /, so it is intentionally not
-  // listed as a separate URL to avoid a duplicate entry in the sitemap.)
-  add(`${SITE_URL}/`, '1.0', 'daily');
-  add(`${SITE_URL}/bus/rwanda`, '0.9', 'weekly');
-  add(`${SITE_URL}/bus/east-africa`, '0.9', 'weekly');
-  add(`${SITE_URL}/guide`, '0.8', 'weekly');
-  add(`${SITE_URL}/privacy`, '0.3', 'yearly');
-
-  // Canonical route landing pages (one per origin→destination).
-  const seen = new Set();
-  for (const r of routes) {
-    const origin = r.origin || r.from;
-    const dest = r.destination || r.to;
-    if (!origin || !dest) continue;
-    const key = `${slugify(origin)}-to-${slugify(dest)}`;
-    if (seen.has(key)) continue;
-    seen.add(key);
-    const lastmod = r.updatedAt ? new Date(r.updatedAt).toISOString().slice(0, 10) : now;
-    add(`${SITE_URL}/bus/${key}`, '0.8', 'weekly', lastmod);
-  }
-
-  // Any extra dynamic landing routes discovered by the renderer.
-  for (const route of dynamicRoutes) {
-    if (!route.startsWith('/bus/')) continue;
-    const key = route.slice('/bus/'.length);
-    if (key === 'rwanda' || key === 'east-africa') continue;
-    if (seen.has(key)) continue;
-    seen.add(key);
-    add(`${SITE_URL}${route}`, '0.7', 'weekly');
-  }
-
-  // Agency landing pages.
-  for (const a of agencies) {
-    const id = a._id || a.id;
-    if (!id || !a.name) continue;
-    const lastmod = a.updatedAt ? new Date(a.updatedAt).toISOString().slice(0, 10) : now;
-    add(`${SITE_URL}/agency/${id}/${slugify(a.name)}`, '0.6', 'weekly', lastmod);
-  }
-
-  const body = entries
-    .map(
-      (e) =>
-        `  <url>\n    <loc>${xmlEscape(e.loc)}</loc>\n    <lastmod>${e.lastmod}</lastmod>\n    <changefreq>${e.changefreq}</changefreq>\n    <priority>${e.priority}</priority>\n  </url>`
-    )
-    .join('\n');
+  const body = INDEXABLE_ROUTES.map((entry) => {
+    let lastmod = now;
+    if (entry.path.startsWith('/bus/')) {
+      const key = entry.path.slice('/bus/'.length);
+      const match = routes.find(
+        (r) =>
+          r.origin &&
+          r.destination &&
+          `${slugify(r.origin)}-to-${slugify(r.destination)}` === key
+      );
+      if (match?.updatedAt) lastmod = new Date(match.updatedAt).toISOString().slice(0, 10);
+    }
+    return `  <url>\n    <loc>${xmlEscape(`${SITE_URL}${entry.path}`)}</loc>\n    <lastmod>${lastmod}</lastmod>\n    <changefreq>${entry.changefreq}</changefreq>\n    <priority>${entry.priority}</priority>\n  </url>`;
+  }).join('\n');
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${body}\n</urlset>\n`;
   writeFileSync(path.join(distDir, 'sitemap.xml'), xml, 'utf-8');
-  console.log(`[prerender] wrote sitemap.xml with ${entries.length} URLs`);
+  console.log(`[prerender] wrote sitemap.xml with ${INDEXABLE_ROUTES.length} URLs`);
 }
 
 // ── Public, canonical, indexable static pages ───────────────────────────────
@@ -251,8 +247,15 @@ try {
       const outPath = path.join(distDir, buildOutputPath(route));
       mkdirSync(path.dirname(outPath), { recursive: true });
 
-      let doc = head
-        ? `${baseTemplate.slice(0, baseTemplate.lastIndexOf('</head>'))}\n${head}\n</head>${baseTemplate.slice(baseTemplate.lastIndexOf('</head>') + '</head>'.length)}`
+      // Pruned landing pages stay fully rendered for users, but must not be
+      // indexed: replace the page's own robots meta with `noindex, follow`.
+      let pageHead = head;
+      if (head && isPrunedFromIndex(route)) {
+        pageHead = `${head.replace(/<meta name="robots"[^>]*\/?>/gi, '')}<meta name="robots" content="noindex, follow"/>`;
+      }
+
+      let doc = pageHead
+        ? `${baseTemplate.slice(0, baseTemplate.lastIndexOf('</head>'))}\n${pageHead}\n</head>${baseTemplate.slice(baseTemplate.lastIndexOf('</head>') + '</head>'.length)}`
         : baseTemplate;
 
       doc = doc.replace('<div id="root"></div>', `<div id="root">${html}</div>`);
@@ -265,9 +268,8 @@ try {
       console.error(`[prerender] FAIL ${route}:`, err?.message || err);
     }
   }
-  // Write a complete static sitemap for every public URL (independent of the
-  // backend sitemap endpoint, which is not reachable via the public /api proxy).
-  writeSitemap(routes, agencies, DYNAMIC_ROUTES);
+  // Write the curated sitemap (only the indexable pages).
+  writeSitemap(routes);
 
   console.log(`\n[prerender] Done: ${rendered}/${routesToRender.length} pages pre-rendered (${routes.length} routes, ${agencies.length} agencies loaded).`);
 } finally {

@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Base sitemap. `npm run build:seo` (prerender.mjs) overwrites this in dist/ with
-  the full, database-driven URL set (every route + agency landing page). This
-  fallback keeps the core pages discoverable when prerendering is skipped.
+  Base sitemap listing only the curated, indexable pages. `npm run build:seo`
+  (prerender.mjs) overwrites this in dist/ with the same curated set plus live
+  <lastmod> dates. Every other route/agency page is still pre-rendered but
+  served noindex, so it is intentionally not listed here.
 -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
@@ -29,5 +30,35 @@
     <loc>https://katisha.today/privacy</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://katisha.today/bus/kigali-to-kampala</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://katisha.today/bus/kigali-to-nairobi</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://katisha.today/bus/kigali-to-dar-es-salaam</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://katisha.today/bus/kigali-to-mwanza</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://katisha.today/bus/kigali-to-arusha</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://katisha.today/bus/kigali-to-kigoma</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
 </urlset>
