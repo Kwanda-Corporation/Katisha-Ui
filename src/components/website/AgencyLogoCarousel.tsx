@@ -62,7 +62,7 @@ function CarouselItem({ agency, index, x, baseX }: {
         aria-label={`${t('agencies.viewRoutes')} — ${agency.name}`}
         className="group relative flex h-full w-full flex-col overflow-hidden rounded-2xl border border-[var(--border)] bg-white transition-colors duration-200 hover:border-[var(--blue)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blue)] no-underline"
       >
-        <div className={`relative flex flex-1 items-center justify-center overflow-hidden p-6 ${agency.darkBg ? 'bg-gradient-to-br from-[#1D4ED8] to-[#1E40AF]' : 'bg-white'}`}>
+        <div className={`relative flex flex-1 items-center justify-center overflow-hidden p-6 ${agency.darkBg ? 'bg-gradient-to-br from-[#0854AE] to-[#064187]' : 'bg-white'}`}>
           <img
             src={agency.logo}
             alt={agency.name}

@@ -21,7 +21,9 @@
     "phone": "Telefoni",
     "networkError": "Ik’itabantu. Ongagero ukure.",
     "optional": "Yarihashobora",
-    "email": "Imeyili"
+    "email": "Imeyili",
+    "dismiss": "Funga",
+    "refresh": "Vugurura"
   },
   "auth": {
     "signIn": "Injira",
@@ -133,7 +135,7 @@
     "logIn": "Injira"
   },
   "onboarding": {
-    "chooseLanguage": "Hitamo ururimi",
+    "chooseLanguage": "Genda nk'umusirimu, biroroshye.",
     "selectLanguage": "Hitamo ururimi ukunda kugira ngo ukomeze",
     "signInDesc": "Injira kuri konti yawe",
     "registerDesc": "Iyandikishe nk'umukoresha mushya",
@@ -162,7 +164,7 @@
     "desc4": "Hitamo muri sosiyete za bisi ziboneka",
     "desc5": "Andika amakuru y'umugenzi",
     "desc6": "Suzuma amakuru urangize gufata itike",
-    "tripTitle": "Tegura urugendo rwawe",
+    "tripTitle": "Genda nk'umusirimu, biroroshye.",
     "tripDesc": "Hitamo inzira yawe n'igihe cyo kugenda ",
     "payOnline": "Kwishyura kuri interineti",
     "journeyType": "Ubwoko bw'urugendo",
@@ -473,7 +475,8 @@
     "comingSoon": "Buri kwegere",
     "paymentFailedEyebrow": "Kwishyura kurangiye",
     "paymentConfirmedEyebrow": "Kwishyura kwakemezwe",
-    "openingTicket": "Turatangira iticketshi ryawe"
+    "openingTicket": "Turatangira iticketshi ryawe",
+    "onPromotion": "Ibiciro biri kuri promotion"
   },
   "status": {
     "pending": "Birategereje",
@@ -651,7 +654,9 @@
       "csvAgency": "Ikigo",
       "csvBookings": "Amahoro",
       "csvRevenue": "Amafaranga",
-      "csvSystemFees": "Amashuru y’urubuga"
+      "csvSystemFees": "Amashuru y’urubuga",
+      "promotion": "Promosiyo",
+      "agencyOnPromotion": "Iri shami rifite promosiyo iri gukora"
     }
   },
   "route": {
@@ -726,7 +731,8 @@
     "dashboard": "Dashboard",
     "referrals": "Abafunguye link",
     "earnings": "Amafaranga",
-    "payouts": "Kwishyura"
+    "payouts": "Kwishyura",
+    "promotions": "Promosiyo"
   },
   "footer": {
     "description": "Urubuga rwo kodesha itike za bisi mu Rwanda n'Uburasirazuba bwa Afurika. Kwishyura ukoresheje MTN Mobile Money, Airtel Money & M-Pesa. Gukurikirana igihe nyacyo.",
@@ -1038,5 +1044,56 @@
     "empty": "Nta bapromoter babonetse",
     "emptyDesc": "Nta bapromoter babonetse. Ongera ugerageze cyangwa hindura uburyo bwo gushakisha.",
     "referrals": "Abakoresheje link"
+  },
+  "promotions": {
+    "title": "Promosiyo",
+    "subtitle": "Shyira ibiciro by’inzira kuri promosiyo kandi ucunge amagabanyabiciro abakiriya babona.",
+    "statRoutes": "Inzira",
+    "statActive": "Kuri promosiyo",
+    "statAvgDiscount": "Impuzandengo y’igabanyabiciro",
+    "statExpiring": "Birenga vuba",
+    "searchPlaceholder": "Shakisha ku shami, aho uva cyangwa aho ujya",
+    "filterAll": "Inzira zose",
+    "filterOn": "Kuri promosiyo",
+    "filterOff": "Zitari kuri promosiyo",
+    "empty": "Nta nzira ihuye n’iyi shungura",
+    "unknownAgency": "Shami ritazwi",
+    "set": "Shyira kuri promosiyo",
+    "end": "Rangiza promosiyo",
+    "modalTitle": "Shyira igiciro kuri promosiyo",
+    "currentPrice": "Igiciro kirimo",
+    "promoPrice": "Igiciro cya promosiyo (RWF)",
+    "discountPreview": "Abakiriya bazigama {{pct}}%",
+    "endsAt": "Itariki irangiriraho (bidategetswe)",
+    "endsAtHint": "Siga ubusa niba promosiyo idafite itariki irangiriraho.",
+    "label": "Izina ry’igenamiterere (bidategetswe)",
+    "labelPlaceholder": "urugero: Iganjyarubuga rya wikendi",
+    "save": "Bika promosiyo"
+  },
+  "announcements": {
+    "title": "Amatangazo",
+    "subtitle": "Tangaza ubutumwa ku gace k’amakuru k’urubuga kandi umenyeshe amatsinda yawe.",
+    "statTotal": "Amatangazo",
+    "statActive": "Akora",
+    "statBanner": "Agace k’amakuru",
+    "live": "Kiriho",
+    "compose": "Itangazo rishya",
+    "fieldTitle": "Umutwe",
+    "titlePlaceholder": "Umutwe w’itangazo",
+    "fieldMessage": "Ubutumwa",
+    "messagePlaceholder": "Andika itangazo ryawe...",
+    "notifyLabel": "Ohereza kandi imenyesha rya porogaramu",
+    "targetAll": "Bose",
+    "targetAgency": "Abayobozi b’amashami",
+    "targetAgents": "Abakozi",
+    "published": "Itangazo ryatangajwe",
+    "error": "Ntibyashobotse gutangaza itangazo",
+    "confirmDelete": "Gusiba iri tangazo? Ntibishobora gusubirwaho.",
+    "publish": "Tangaza itangazo",
+    "publishedTitle": "Amatangazo yatangajwe",
+    "empty": "Nta kintu kiratangajwe",
+    "hide": "Hisha ku gace k’amakuru",
+    "show": "Erekana ku gace k’amakuru",
+    "delete": "Siba"
   }
 }

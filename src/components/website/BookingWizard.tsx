@@ -375,7 +375,7 @@ export default function BookingWizard() {
           onClick={onOpen}
           className={`group w-full h-[54px] rounded-md border-[1.5px] bg-white pl-3 pr-3.5 text-left text-base outline-none cursor-pointer transition-all duration-200 flex items-center justify-between gap-2.5 ${
             hasValue ? 'text-[var(--text)]' : 'text-[var(--text-muted)]'
-          } border-[var(--blue)] hover:border-[var(--blue-dark)] focus-visible:border-[var(--blue-dark)] focus-visible:ring-4 focus-visible:ring-[var(--blue-bg)] hover:shadow-[0_3px_12px_-5px_rgba(29, 78, 216,0.45)]`}
+          } border-[var(--blue)] hover:border-[var(--blue-dark)] focus-visible:border-[var(--blue-dark)] focus-visible:ring-4 focus-visible:ring-[var(--blue-bg)] hover:shadow-[0_3px_12px_-5px_rgba(8, 84, 174,0.45)]`}
         >
           <span className="flex items-center gap-2.5 min-w-0 flex-1">
             <span className="w-9 h-9 rounded-md bg-[var(--blue-bg)] text-[var(--blue-dark)] flex items-center justify-center shrink-0 transition-colors duration-200 group-hover:bg-[var(--blue)] group-hover:text-white">
@@ -1104,16 +1104,18 @@ export default function BookingWizard() {
         ) : (
           <>
             <div className="flex flex-col gap-0.5">
-              {filteredRoutes.map((route, i) => {
+              {filteredRoutes.map((route) => {
                 const selected = form.routeId === route._id;
                 const routePrice = Number(route.effectivePrice || route.price) || 0;
+                const originalPrice = Number(route.originalPrice) || 0;
+                const hasPromo = !!route.promotionActive && originalPrice > routePrice;
                 const showVia = route.via && route.via.trim().toLowerCase() !== form.destination.trim().toLowerCase();
                 return (
                   <motion.button key={route._id}
                     type="button"
                     initial={{ opacity: 0, y: 6 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.15, delay: Math.min(i * 0.03, 0.2) }}
+                    transition={{ duration: 0.1 }}
                     whileTap={{ scale: 0.99 }}
                     onClick={() => handleAgencySelect(route)}
                     className={`w-full flex items-center justify-between gap-3 px-2.5 py-2.5 rounded-sm text-left cursor-pointer border-none transition-colors duration-150 ${
@@ -1129,24 +1131,44 @@ export default function BookingWizard() {
                           <span className={`text-[15px] font-medium truncate ${selected ? 'font-semibold' : ''}`}>
                             {route.agency?.name || t('booking.unknownAgency')}
                           </span>
+                          {hasPromo && (
+                            <Star size={13} className="inline shrink-0 ml-1 mb-0.5 text-[#F59E0B]" fill="currentColor" aria-label={t('booking.onPromotion')} />
+                          )}
                           {route.agency?.featured && (
                             <Star size={12} className="inline shrink-0 ml-1 mb-0.5 text-[#FCD34D]" fill="currentColor" />
                           )}
                         </span>
+                        {showVia && (
+                          <span className="sm:hidden inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide text-[var(--blue)]">
+                            <Route size={10} /> via {route.via}
+                          </span>
+                        )}
                         <span className="text-[11px] text-[var(--text-muted)] truncate">
                           {form.origin} → {form.destination}
                           {route.estimatedDuration ? ` · ${route.estimatedDuration}` : ''}
                         </span>
                       </span>
                       {showVia && (
-                        <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-sm bg-[var(--blue-bg)] text-[var(--blue)] shrink-0">
+                        <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-sm bg-[var(--blue-bg)] text-[var(--blue)] shrink-0">
                           <Route size={10} /> via {route.via}
                         </span>
                       )}
                     </span>
                     <span className="flex items-center gap-2 shrink-0">
-                      <span className={`text-[13px] font-semibold whitespace-nowrap ${selected ? 'text-[var(--blue-dark)]' : 'text-[var(--text)]'}`}>
-                        {perSeatTotalFor(routePrice).toLocaleString()} {t('booking.currency')}
+                      <span className="flex flex-col items-end leading-tight">
+                        {hasPromo && (
+                          <span className="text-[11px] font-medium text-black line-through">
+                            {perSeatTotalFor(originalPrice).toLocaleString()} {t('booking.currency')}
+                          </span>
+                        )}
+                        <span className={`text-[13px] font-semibold whitespace-nowrap ${hasPromo ? 'text-red-600' : selected ? 'text-[var(--blue-dark)]' : 'text-[var(--text)]'}`}>
+                          {perSeatTotalFor(routePrice).toLocaleString()} {t('booking.currency')}
+                        </span>
+                        {hasPromo && (
+                          <span className="text-[10px] font-semibold text-[var(--blue)]">
+                            {t('booking.onPromotion')}
+                          </span>
+                        )}
                       </span>
                       {selected && <Check size={16} className="shrink-0 text-[var(--blue)]" />}
                     </span>
@@ -1175,7 +1197,7 @@ export default function BookingWizard() {
           onClick={() => setShowAgencyModal(true)}
           className={`group w-full h-[54px] rounded-md border-[1.5px] bg-white pl-3 pr-3.5 text-left text-base outline-none cursor-pointer transition-all duration-200 flex items-center justify-between gap-2.5 ${
             chosen ? 'text-[var(--text)]' : 'text-[var(--text-muted)]'
-          } border-[var(--blue)] hover:border-[var(--blue-dark)] focus-visible:border-[var(--blue-dark)] focus-visible:ring-4 focus-visible:ring-[var(--blue-bg)] hover:shadow-[0_3px_12px_-5px_rgba(29,78,216,0.45)]`}
+          } border-[var(--blue)] hover:border-[var(--blue-dark)] focus-visible:border-[var(--blue-dark)] focus-visible:ring-4 focus-visible:ring-[var(--blue-bg)] hover:shadow-[0_3px_12px_-5px_rgba(8, 84, 174,0.45)]`}
         >
           <span className="flex items-center gap-2.5 min-w-0 flex-1">
             <span className="w-9 h-9 rounded-md bg-[var(--blue-bg)] text-[var(--blue-dark)] flex items-center justify-center shrink-0 transition-colors duration-200 group-hover:bg-[var(--blue)] group-hover:text-white">
@@ -1383,7 +1405,7 @@ export default function BookingWizard() {
                           onClick={() => field && selectLocation(field, city)}
                           initial={{ opacity: 0, y: 6 }}
                           animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.15 }}
+                          transition={{ duration: 0.1 }}
                           className={`w-full flex items-center justify-between gap-2 px-2.5 py-2.5 rounded-sm text-left cursor-pointer border-none transition-colors duration-150 ${
                             field !== null && form[field] === city && !form.via ? 'bg-[var(--blue-bg)] text-[var(--blue-dark)]' : 'text-[var(--text)] hover:bg-[#F9FAFB]'
                           }`}
@@ -1408,7 +1430,7 @@ export default function BookingWizard() {
                                 onClick={() => selectViaDestination(city, via)}
                                 initial={{ opacity: 0, y: 6 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.15 }}
+                                transition={{ duration: 0.1 }}
                                 className={`w-full flex items-center justify-between gap-2 px-2.5 py-2 rounded-sm text-left cursor-pointer border-none transition-colors duration-150 ${
                                   isSel ? 'bg-[var(--blue-bg)] text-[var(--blue-dark)]' : 'text-[var(--text)] hover:bg-[var(--blue-bg)]'
                                 }`}
@@ -1533,7 +1555,7 @@ export default function BookingWizard() {
                         if (changed) setShowTimeModal(true);
                       }}
                       className={`w-full h-11 sm:h-10 rounded-md text-base sm:text-sm font-medium flex items-center justify-center transition-all duration-200 cursor-pointer ${
-                        isSelected ? 'bg-[var(--blue)] text-white shadow-[0_3px_10px_-3px_rgba(29, 78, 216,0.6)]' :
+                        isSelected ? 'bg-[var(--blue)] text-white shadow-[0_3px_10px_-3px_rgba(8, 84, 174,0.6)]' :
                         isToday ? 'bg-[var(--blue-bg)] text-[var(--blue-dark)] ring-1 ring-[var(--blue-border)]' :
                         'hover:bg-[#F9FAFB] text-[var(--text)]'
                       }`}
@@ -1634,14 +1656,14 @@ export default function BookingWizard() {
                     <span className="text-base sm:text-sm font-medium uppercase tracking-wide text-[var(--text-muted)]">{title}</span>
                   </div>
                   <div className="grid grid-cols-3 gap-1.5">
-                    {slots.map((time, i) => {
+                    {slots.map((time) => {
                       const isSelected = form.travelTime === time;
                       const isDisabled = isTimeDisabled(time);
                       return (
                         <motion.button key={time}
                           initial={{ opacity: 0, scale: 0.9 }}
                           animate={{ opacity: 1, scale: 1 }}
-                          transition={{ duration: 0.15, delay: 0.12 + i * 0.015, ease: [0.22, 1, 0.36, 1] }}
+                          transition={{ duration: 0.1, ease: [0.22, 1, 0.36, 1] }}
                           whileHover={isDisabled ? undefined : { scale: 1.04 }}
                           whileTap={isDisabled ? undefined : { scale: 0.95 }}
                           disabled={isDisabled}
@@ -1696,7 +1718,7 @@ export default function BookingWizard() {
 
       {!isOnline && (
         <div           className="flex items-center gap-2 px-3.5 py-2.5 mb-4 rounded-md text-sm font-medium"
-          style={{ background: 'rgba(29, 78, 216, 0.08)', color: 'var(--blue-dark)', border: '1px solid rgba(29, 78, 216, 0.2)' }}
+          style={{ background: 'rgba(8, 84, 174, 0.08)', color: 'var(--blue-dark)', border: '1px solid rgba(8, 84, 174, 0.2)' }}
         >
           <Info size={14} className="shrink-0" />
           <span>
@@ -1777,7 +1799,7 @@ export default function BookingWizard() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
-          className="mt-7 pt-5 border-t border-zinc-300 "
+          className="hidden sm:block mt-7 pt-5 border-t border-zinc-300 "
         >
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 text-base font-medium text-[var(--text-sub)]">
             <motion.div className="flex items-start gap-2 flex-1"

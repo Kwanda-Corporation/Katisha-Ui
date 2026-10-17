@@ -1,8 +1,9 @@
 import React from 'react'
 import {
   AppWindow, Users, Building2, Route, Clock, DollarSign,
-  Bell, Megaphone, Signal, Ticket, UserPlus, ListChecks,
+  Bell, Megaphone, Ticket, UserPlus, ListChecks,
   LayoutDashboard, Share2, Wallet, HandCoins, Settings, ShieldCheck,
+  BadgePercent,
 } from 'lucide-react'
 
 export interface StudioNavItem {
@@ -40,7 +41,7 @@ export const STUDIO_NAV: Record<string, StudioNavConfig> = {
     system: [
       { id: 'notifications', labelKey: 'nav.notifications', path: '/dashboard/notifications', icon: <Bell size={size} /> },
       { id: 'announcements', labelKey: 'nav.announcements', path: '/dashboard/announcements', icon: <Megaphone size={size} /> },
-      { id: 'reports', labelKey: 'nav.reports', path: '/dashboard/reports', icon: <Signal size={size} /> },
+      { id: 'promotions', labelKey: 'nav.promotions', path: '/dashboard/promotions', icon: <BadgePercent size={size} /> },
     ],
   },
   agency_admin: {

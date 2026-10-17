@@ -194,7 +194,7 @@ export default function AgencyLandingPage({ id: idProp, slug: slugProp }: { id?:
                 </div>
 
                 <div className="relative mt-6 flex flex-wrap justify-center gap-2">
-                  <StickyCallout arrow="down" className="pointer-events-none absolute -top-14 right-[8%] hidden lg:inline-block" paperClass="bg-[rgba(29,78,216,0.08)] text-[var(--blue-dark)]">
+                  <StickyCallout arrow="down" className="pointer-events-none absolute -top-14 right-[8%] hidden lg:inline-block" paperClass="bg-[rgba(8, 84, 174,0.08)] text-[var(--blue-dark)]">
                     RURA-approved fares
                   </StickyCallout>
                   {agency.phone && (

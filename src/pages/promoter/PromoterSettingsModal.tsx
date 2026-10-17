@@ -182,7 +182,7 @@ export default function PromoterSettingsModal({
         aria-modal="true"
         aria-label={t('studio.settings')}
         tabIndex={-1}
-        className="bg-white w-full flex flex-col outline-none h-[89dvh] rounded-t-2xl sm:rounded-2xl shadow-[0_-12px_40px_-12px_rgba(15,23,42,0.25)] sm:shadow-[0_30px_80px_rgba(15,23,42,0.16)]"
+        className="bg-white w-full flex flex-col outline-none h-[97dvh] sm:h-[89dvh] rounded-t-2xl sm:rounded-2xl shadow-[0_-12px_40px_-12px_rgba(15,23,42,0.25)] sm:shadow-[0_30px_80px_rgba(15,23,42,0.16)]"
         style={{
           maxWidth: 560,
         }}

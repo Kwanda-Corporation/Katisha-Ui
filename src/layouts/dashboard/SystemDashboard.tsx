@@ -6,7 +6,7 @@ import {
 import {
   DollarSign, Ticket, Route, Users, Building2,
   Download, RefreshCw, Clock, Wallet,
-  Smartphone, Globe,
+  Smartphone, Globe, Star,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
@@ -84,18 +84,21 @@ export default function SystemDashboard() {
   const { t } = useTranslation()
   const [data, setData] = useState<any>(null)
   const [adminData, setAdminData] = useState<any>(null)
+  const [promotions, setPromotions] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
   const [recentPage, setRecentPage] = useState(1)
 
   const loadAnalytics = useCallback(async () => {
     try {
-      const [analyticsRes, adminRes] = await Promise.all([
+      const [analyticsRes, adminRes, promotionsRes] = await Promise.all([
         api.getSystemAnalytics(),
         api.getAdminDashboard(),
+        api.getPromotions().catch(() => null),
       ])
       if (analyticsRes.data) setData(analyticsRes.data)
       if (adminRes.data) setAdminData(adminRes.data)
+      if (promotionsRes?.data?.promotions) setPromotions(promotionsRes.data.promotions)
       setLastUpdated(new Date())
     } catch {} finally {
       setLoading(false)
@@ -193,6 +196,16 @@ export default function SystemDashboard() {
   const topAgencies = useMemo(() => agencies.slice(0, 6), [agencies])
   const maxAgencyRevenue = Math.max(...topAgencies.map((a: any) => a.revenue || 0), 1)
   const mixTotal = (bookingMix.guest || 0) + (bookingMix.registered || 0)
+
+  // Agencies that currently have at least one route on promotion, keyed by name.
+  const promoAgencyNames = useMemo(
+    () => new Set(
+      promotions
+        .map((p: any) => (p.agency?.name || '').toLowerCase())
+        .filter(Boolean)
+    ),
+    [promotions]
+  )
 
   const csvExport = () => {
     if (!agencies.length) return
@@ -809,6 +822,7 @@ export default function SystemDashboard() {
             {topAgencies.map((a: any, i: number) => {
               const rev = a.revenue || 0
               const pct = Math.min((rev / maxAgencyRevenue) * 100, 100)
+              const isPromo = promoAgencyNames.has((a.name || '').toLowerCase())
               return (
                 <div key={a.name + i}>
                   <div className="flex items-center justify-between gap-2 text-sm mb-1.5">
@@ -817,6 +831,15 @@ export default function SystemDashboard() {
                         {i + 1}
                       </span>
                       <span className="truncate text-[var(--studio-text)]">{a.name}</span>
+                      {isPromo && (
+                        <span
+                          className="inline-flex items-center gap-1 shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded-full"
+                          style={{ background: 'rgba(245,158,11,0.15)', color: '#B45309' }}
+                          title={t('dashboard.ops.agencyOnPromotion')}
+                        >
+                          <Star size={9} fill="currentColor" /> {t('dashboard.ops.promotion')}
+                        </span>
+                      )}
                     </span>
                     <span className="text-xs text-[var(--studio-text-muted)] shrink-0">
                       {t('dashboard.ops.agenciesMeta', { count: a.count, revenue: rwf(rev) })}
@@ -825,7 +848,7 @@ export default function SystemDashboard() {
                   <div className="w-full h-2 rounded-full bg-[var(--studio-muted-fill)] overflow-hidden">
                     <div
                       className="h-full rounded-full transition-all duration-700"
-                      style={{ width: `${pct}%`, background: ACCENT }}
+                      style={{ width: `${pct}%`, background: isPromo ? '#F59E0B' : ACCENT }}
                     />
                   </div>
                 </div>

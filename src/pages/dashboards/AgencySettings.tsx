@@ -387,7 +387,7 @@ export default function AgencySettings() {
 
         {/* Messages */}
         {error && <div className="flex items-start gap-2.5 p-3.5 rounded-md" style={{ background: '#FEE2E2', border: '1px solid #FCA5A5' }}><p className="text-xs font-medium" style={{ color: '#DC2626' }}>{error}</p></div>}
-        {success && <div className="p-3.5 rounded-md" style={{ background: '#1E40AF' }}><p className="text-xs font-medium" style={{ color: '#FFFFFF' }}>{success}</p></div>}
+        {success && <div className="p-3.5 rounded-md" style={{ background: '#064187' }}><p className="text-xs font-medium" style={{ color: '#FFFFFF' }}>{success}</p></div>}
 
         {/* Save buttons */}
         {editing && (

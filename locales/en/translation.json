@@ -21,7 +21,9 @@
     "phone": "Phone",
     "networkError": "Network error. Please try again.",
     "optional": "Optional",
-    "email": "Email"
+    "email": "Email",
+    "dismiss": "Dismiss",
+    "refresh": "Refresh"
   },
   "auth": {
     "signIn": "Sign In",
@@ -133,7 +135,7 @@
     "logIn": "Log In"
   },
   "onboarding": {
-    "chooseLanguage": "Choose your language",
+    "chooseLanguage": "Travel like a King",
     "selectLanguage": "Select your preferred language to continue",
     "selectLanguageScript": "welcome aboard!",
     "signInDesc": "Access your existing account",
@@ -162,7 +164,7 @@
     "desc4": "Choose from available bus agencies",
     "desc5": "Enter passenger information",
     "desc6": "Review and complete your booking",
-    "tripTitle": "Plan your trip",
+    "tripTitle": "Travel like a King",
     "tripDesc": "Choose your route and departure time",
     "journeyType": "Journey Type",
     "eastAfrica": "East African Travel",
@@ -473,7 +475,8 @@
     "comingSoon": "Soon",
     "paymentFailedEyebrow": "Payment declined",
     "paymentConfirmedEyebrow": "Payment confirmed",
-    "openingTicket": "Opening your ticket"
+    "openingTicket": "Opening your ticket",
+    "onPromotion": "On promotion"
   },
   "status": {
     "pending": "Pending",
@@ -621,7 +624,7 @@
       "route": "Route",
       "date": "Date",
       "time": "Time",
-"amount": "Amount",
+      "amount": "Amount",
       "colTicket": "Ticket",
       "colPaid": "Paid",
       "colEarn": "Earn",
@@ -651,7 +654,9 @@
       "csvAgency": "Agency",
       "csvBookings": "Bookings",
       "csvRevenue": "Revenue",
-      "csvSystemFees": "System Fees"
+      "csvSystemFees": "System Fees",
+      "promotion": "Promotion",
+      "agencyOnPromotion": "This agency has an active promotion"
     }
   },
   "route": {
@@ -726,7 +731,8 @@
     "dashboard": "Dashboard",
     "referrals": "Referrals",
     "earnings": "Earnings",
-    "payouts": "Payouts"
+    "payouts": "Payouts",
+    "promotions": "Promotions"
   },
   "footer": {
     "description": "Rwanda's leading bus ticket booking platform. Book intercity and cross-border bus routes online from Kigali. Pay with MTN Mobile Money, Airtel Money & M-Pesa. Real-time tracking, instant e-tickets.",
@@ -1038,5 +1044,56 @@
     "empty": "No promoters here",
     "emptyDesc": "Promoter applications will appear here for review.",
     "referrals": "Referrals"
+  },
+  "promotions": {
+    "title": "Promotions",
+    "subtitle": "Put route fares on promotion and manage the discounts customers see.",
+    "statRoutes": "Routes",
+    "statActive": "On promotion",
+    "statAvgDiscount": "Avg. discount",
+    "statExpiring": "Expiring soon",
+    "searchPlaceholder": "Search by agency, origin or destination",
+    "filterAll": "All routes",
+    "filterOn": "On promotion",
+    "filterOff": "Not on promotion",
+    "empty": "No routes match this filter",
+    "unknownAgency": "Unknown agency",
+    "set": "Set promotion",
+    "end": "End promotion",
+    "modalTitle": "Set a promotion",
+    "currentPrice": "Current price",
+    "promoPrice": "Promotion price (RWF)",
+    "discountPreview": "Customers save {{pct}}%",
+    "endsAt": "End date (optional)",
+    "endsAtHint": "Leave empty for an open-ended promotion.",
+    "label": "Label (optional)",
+    "labelPlaceholder": "e.g. Weekend offer",
+    "save": "Save promotion"
+  },
+  "announcements": {
+    "title": "Announcements",
+    "subtitle": "Publish a message to the website top banner and notify your teams.",
+    "statTotal": "Announcements",
+    "statActive": "Active",
+    "statBanner": "Website banner",
+    "live": "Live",
+    "compose": "New announcement",
+    "fieldTitle": "Title",
+    "titlePlaceholder": "Announcement title",
+    "fieldMessage": "Message",
+    "messagePlaceholder": "Write your announcement...",
+    "notifyLabel": "Also send an in-app notification",
+    "targetAll": "Everyone",
+    "targetAgency": "Agency admins",
+    "targetAgents": "Agents",
+    "published": "Announcement published",
+    "error": "Could not publish the announcement",
+    "confirmDelete": "Delete this announcement? This cannot be undone.",
+    "publish": "Publish announcement",
+    "publishedTitle": "Published announcements",
+    "empty": "Nothing published yet",
+    "hide": "Hide from banner",
+    "show": "Show on banner",
+    "delete": "Delete"
   }
 }

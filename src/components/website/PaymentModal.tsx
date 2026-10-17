@@ -37,12 +37,13 @@ interface ModalFrameProps {
 
 /**
  * The booking selectors (destination, agency, date, hour, payment) are all
- * built on this so they share one size: a fixed 89% of the viewport. On a phone
- * the panel is a bottom sheet flush with the left, right and bottom edges; from
- * the `sm` breakpoint up it is a centred card. `dvh` keeps the ratio honest when
- * mobile browser chrome collapses.
+ * built on this so they share one size: 97% of the viewport on phones and 89%
+ * from the `sm` breakpoint up. On a phone the panel is a bottom sheet flush
+ * with the left, right and bottom edges; from the `sm` breakpoint up it is a
+ * centred card. `dvh` keeps the ratio honest when mobile browser chrome
+ * collapses.
  */
-export const MODAL_VIEWPORT_HEIGHT = '89dvh';
+export const MODAL_VIEWPORT_HEIGHT = 'var(--modal-h, 89dvh)';
 
 export function ModalFrame({ open, onClose, labelledBy, children, maxWidth = 1000, sheet = false, height }: ModalFrameProps) {
   const panelRef = useRef<HTMLDivElement>(null);
@@ -50,7 +51,7 @@ export function ModalFrame({ open, onClose, labelledBy, children, maxWidth = 100
   const onCloseRef = useRef(onClose);
   const [keyboardOffset, setKeyboardOffset] = useState(0);
 
-  const sheetHeight = height ?? '80dvh';
+  const sheetHeight = height ?? 'var(--modal-sheet-h, 80dvh)';
 
   useEffect(() => {
     onCloseRef.current = onClose;
@@ -135,7 +136,7 @@ export function ModalFrame({ open, onClose, labelledBy, children, maxWidth = 100
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.2, ease: 'easeOut' }}
+            transition={{ duration: 0.15, ease: 'easeOut' }}
             onClick={onClose}
           />
           {sheet ? (
@@ -162,7 +163,7 @@ export function ModalFrame({ open, onClose, labelledBy, children, maxWidth = 100
                 initial={{ y: '100%', opacity: 0.6 }}
                 animate={{ y: 0, opacity: 1 }}
                 exit={{ y: '100%', opacity: 0.6 }}
-                transition={{ type: 'spring', damping: 30, stiffness: 340 }}
+                transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
                 onClick={e => e.stopPropagation()}
               >
                 <div className="shrink-0 flex justify-center pt-3 pb-1 sm:hidden">
@@ -198,7 +199,7 @@ export function ModalFrame({ open, onClose, labelledBy, children, maxWidth = 100
                 initial={{ opacity: 0, scale: 0.96 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.96 }}
-                transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+                transition={{ duration: 0.16, ease: [0.22, 1, 0.36, 1] }}
                 onClick={e => e.stopPropagation()}
               >
                 {children}
@@ -276,7 +277,7 @@ function PaymentMethodIconsRow({
                 onClick={() => method.enabled && onSelect(method.id)}
                 aria-label={label}
                 aria-pressed={isSelected}
-                className={`rounded-full transition-all duration-150 cursor-pointer ${isSelected ? 'ring-2 ring-[#1D4ED8] ring-offset-1 ring-offset-[#F6F7F9]' : 'opacity-75'}`}
+                className={`rounded-full transition-all duration-150 cursor-pointer ${isSelected ? 'ring-2 ring-[#0854AE] ring-offset-1 ring-offset-[#F6F7F9]' : 'opacity-75'}`}
               >
                 {method.icon}
               </button>
@@ -476,7 +477,7 @@ export default function PaymentModal({
                 <h4 className="text-[15px] font-bold text-[#111827]">
                   {t('booking.payOption1', { method: providerName })}
                 </h4>
-                <span className="md:hidden text-[16px] font-extrabold text-[#1D4ED8] tabular-nums whitespace-nowrap shrink-0">
+                <span className="md:hidden text-[16px] font-extrabold text-[#0854AE] tabular-nums whitespace-nowrap shrink-0">
                   {total.toLocaleString()} {currency}
                 </span>
               </div>
@@ -495,7 +496,7 @@ export default function PaymentModal({
                   className={`w-full h-12 sm:h-14 rounded-[14px] sm:rounded-[16px] border bg-white pl-11 pr-4 text-base outline-none placeholder:text-[#A1A1AA] transition-all duration-200 ${
                     phoneError
                       ? 'border-[#FCA5A5] focus:border-[#EF4444] focus:ring-2 focus:ring-[#EF4444]/20'
-                      : 'border-gray-400 border-dashed focus:border-[#1E40AF] focus:ring-2 focus:ring-[#1E40AF]/20'
+                      : 'border-gray-400 border-dashed focus:border-[#064187] focus:ring-2 focus:ring-[#064187]/20'
                   }`}
                 />
               </div>
@@ -522,7 +523,7 @@ export default function PaymentModal({
                     value={guestName}
                     onChange={e => onGuestNameChange?.(e.target.value)}
                     placeholder={t('booking.guestNamePlaceholder')}
-                    className="w-full h-12 rounded-[14px] border border-[#E5E7EB] bg-white pl-11 pr-4 text-sm outline-none placeholder:text-[#A1A1AA] focus:border-[#1E40AF] focus:ring-2 focus:ring-[#1E40AF]/20 transition-all duration-200"
+                    className="w-full h-12 rounded-[14px] border border-[#E5E7EB] bg-white pl-11 pr-4 text-sm outline-none placeholder:text-[#A1A1AA] focus:border-[#064187] focus:ring-2 focus:ring-[#064187]/20 transition-all duration-200"
                   />
                 </div>
               </div>
@@ -533,9 +534,9 @@ export default function PaymentModal({
                 <button
                   type="button"
                   onClick={onToggleExtraContactPhone}
-                  className="w-full flex items-center gap-3 rounded-[14px] border border-dashed border-[#D1D5DB] bg-white px-4 py-3 text-left hover:border-[#1E40AF] hover:bg-[#F8FAFC] transition-all duration-200 cursor-pointer"
+                  className="w-full flex items-center gap-3 rounded-[14px] border border-dashed border-[#D1D5DB] bg-white px-4 py-3 text-left hover:border-[#064187] hover:bg-[#F8FAFC] transition-all duration-200 cursor-pointer"
                 >
-                  <span className="w-7 h-7 rounded-full bg-[#EFF6FF] text-[#1E40AF] flex items-center justify-center shrink-0">
+                  <span className="w-7 h-7 rounded-full bg-[#EFF6FF] text-[#064187] flex items-center justify-center shrink-0">
                     <Plus size={14} />
                   </span>
                   <span className="text-sm font-semibold text-[#111827]">{t('booking.addContactPhone')}</span>
@@ -570,7 +571,7 @@ export default function PaymentModal({
                       className={`w-full h-12 rounded-[14px] border bg-white pl-11 pr-4 text-sm outline-none placeholder:text-[#A1A1AA] transition-all duration-200 ${
                         contactPhoneError
                           ? 'border-[#FCA5A5] focus:border-[#EF4444] focus:ring-2 focus:ring-[#EF4444]/20'
-                          : 'border-[#E5E7EB] focus:border-[#1E40AF] focus:ring-2 focus:ring-[#1E40AF]/20'
+                          : 'border-[#E5E7EB] focus:border-[#064187] focus:ring-2 focus:ring-[#064187]/20'
                       }`}
                     />
                   </div>
@@ -588,19 +589,19 @@ export default function PaymentModal({
                   aria-pressed={useFreeTicket}
                   className={`w-full flex items-center gap-4 px-4 py-3 rounded-[14px] border transition-all duration-200 cursor-pointer ${
                     useFreeTicket
-                      ? 'bg-[#F4F4F5] border-[#1E40AF] shadow-[0_0_0_3px_rgba(37,99,235,0.10)]'
+                      ? 'bg-[#F4F4F5] border-[#064187] shadow-[0_0_0_3px_rgba(37,99,235,0.10)]'
                       : 'bg-white border-[#E5E7EB] hover:shadow-[0_4px_14px_-6px_rgba(15,23,42,0.12)]'
                   }`}
                 >
                   <span
                     className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-colors duration-200 ${
-                      useFreeTicket ? 'bg-[#F4F4F5] text-[#1E40AF]' : 'bg-[#F1F5F9] text-[#64748B]'
+                      useFreeTicket ? 'bg-[#F4F4F5] text-[#064187]' : 'bg-[#F1F5F9] text-[#64748B]'
                     }`}
                   >
                     <Check size={16} />
                   </span>
                   <span className="text-left flex-1 min-w-0">
-                    <span className={`block text-sm ${useFreeTicket ? 'font-bold text-[#1D4ED8]' : 'font-semibold text-[#111827]'}`}>
+                    <span className={`block text-sm ${useFreeTicket ? 'font-bold text-[#0854AE]' : 'font-semibold text-[#111827]'}`}>
                       {t('booking.useFreeTicket')}
                     </span>
                     <span className="block text-xs text-[#52525B]">
@@ -608,7 +609,7 @@ export default function PaymentModal({
                     </span>
                   </span>
                 </button>
-                {useFreeTicket && <p className="mt-2 text-xs text-[#1E40AF]">{t('booking.freeBookingInfo')}</p>}
+                {useFreeTicket && <p className="mt-2 text-xs text-[#064187]">{t('booking.freeBookingInfo')}</p>}
               </div>
             )}
 

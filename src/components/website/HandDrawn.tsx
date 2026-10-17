@@ -151,7 +151,7 @@ export function StickyCallout({
   children,
   className = '',
   arrow = 'left',
-  paperClass = 'bg-[rgba(29,78,216,0.08)] text-[var(--blue-dark)]',
+  paperClass = 'bg-[rgba(8, 84, 174,0.08)] text-[var(--blue-dark)]',
   arrowClass = '',
 }: {
   children: ReactNode;

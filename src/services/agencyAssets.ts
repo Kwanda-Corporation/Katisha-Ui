@@ -6,6 +6,7 @@ const AGENCY_LOGO_MAP: Record<string, string> = {
   jaguar: '/images/agencies/jaguar.webp',
   trinity: '/images/agencies/trinity.webp',
   simba: '/images/agencies/simba.webp',
+  taqwa: '/images/agencies/taqwa.webp',
   mash: '/images/agencies/mashpoa.webp',
 };
 

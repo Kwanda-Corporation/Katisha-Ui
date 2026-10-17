@@ -21,7 +21,9 @@
     "phone": "Simu",
     "networkError": "Hitilafu ya mtandao. Tafuta tena.",
     "optional": "Si lazima",
-    "email": "Barua pepe"
+    "email": "Barua pepe",
+    "dismiss": "Funga",
+    "refresh": "Onyesha upya"
   },
   "auth": {
     "signIn": "Ingia",
@@ -133,7 +135,7 @@
     "logIn": "Ingia"
   },
   "onboarding": {
-    "chooseLanguage": "Chagua lugha yako",
+    "chooseLanguage": "Safiri kama mfalme",
     "selectLanguage": "Chagua lugha unayopendelea kuendelea",
     "signInDesc": "Fikia akaunti yako",
     "registerDesc": "Jisajili kama mtumiaji mpya",
@@ -162,7 +164,7 @@
     "desc4": "Chagua kati ya mashirika ya basi yanayopatikana",
     "desc5": "Weka maelezo ya abiria",
     "desc6": "Kagua na kukamilisha uhifadhi wako",
-    "tripTitle": "Panga safari yako",
+    "tripTitle": "Safiri kama mfalme",
     "tripDesc": "Chagua njia yako na wakati wa kuondoka",
     "journeyType": "Aina ya Safari",
     "eastAfrica": "Usafiri wa Afrika Mashariki",
@@ -473,7 +475,8 @@
     "comingSoon": "Karibuni",
     "paymentFailedEyebrow": "Malipo yamkataa",
     "paymentConfirmedEyebrow": "Malipo yamekuthibitishwa",
-    "openingTicket": "Kufungua tikiti yako"
+    "openingTicket": "Kufungua tikiti yako",
+    "onPromotion": "Kwenye ofa"
   },
   "status": {
     "pending": "Inasubiri",
@@ -651,7 +654,9 @@
       "csvAgency": "Ofisi",
       "csvBookings": "Tikiti",
       "csvRevenue": "Mapato",
-      "csvSystemFees": "Ada za mfumo"
+      "csvSystemFees": "Ada za mfumo",
+      "promotion": "Ofa",
+      "agencyOnPromotion": "Wakala huyu ana ofa inayoendelea"
     }
   },
   "route": {
@@ -726,7 +731,8 @@
     "dashboard": "Dashibodi",
     "referrals": "Mapendekezo",
     "earnings": "Mapato",
-    "payouts": "Malipo"
+    "payouts": "Malipo",
+    "promotions": "Ofa"
   },
   "footer": {
     "description": "Jukwaa la kununua tiketi za basi Rwanda na Afrika Mashariki. Lipa kwa MTN Mobile Money, Airtel Money & M-Pesa. Fuatilia safari yako kwa wakati halisi.",
@@ -1037,5 +1043,56 @@
     "empty": "Hakuna watumishi",
     "emptyDesc": "Maombi ya kuwa watumishi yataonekana hapa kupitiwa kagongwa.",
     "referrals": "Mapendekezo"
+  },
+  "promotions": {
+    "title": "Ofa",
+    "subtitle": "Weka nauli za njia kwenye ofa na usimamie punguzo wateja wanaona.",
+    "statRoutes": "Njia",
+    "statActive": "Kwenye ofa",
+    "statAvgDiscount": "Punguzo wastani",
+    "statExpiring": "Zinaisha hivi karibuni",
+    "searchPlaceholder": "Tafuta kwa wakala, kuanzia au unakoenda",
+    "filterAll": "Njia zote",
+    "filterOn": "Kwenye ofa",
+    "filterOff": "Bila ofa",
+    "empty": "Hakuna njia inayolingana na kichujio hiki",
+    "unknownAgency": "Wakala haijulikani",
+    "set": "Weka ofa",
+    "end": "Maliza ofa",
+    "modalTitle": "Weka ofa",
+    "currentPrice": "Bei ya sasa",
+    "promoPrice": "Bei ya ofa (RWF)",
+    "discountPreview": "Wateja wataokoa {{pct}}%",
+    "endsAt": "Tarehe ya mwisho (si lazima)",
+    "endsAtHint": "Acha wazi kwa ofa isiyo na tarehe ya mwisho.",
+    "label": "Lebo (si lazima)",
+    "labelPlaceholder": "mf. Ofa ya wikendi",
+    "save": "Hifadhi ofa"
+  },
+  "announcements": {
+    "title": "Matangazo",
+    "subtitle": "Tangaza ujumbe kwenye bango la tovuti na ujulishe timu zako.",
+    "statTotal": "Matangazo",
+    "statActive": "Hai",
+    "statBanner": "Bango la tovuti",
+    "live": "Hai",
+    "compose": "Tangazo jipya",
+    "fieldTitle": "Kichwa",
+    "titlePlaceholder": "Kichwa cha tangazo",
+    "fieldMessage": "Ujumbe",
+    "messagePlaceholder": "Andika tangazo lako...",
+    "notifyLabel": "Tuma pia arifa ya ndani ya programu",
+    "targetAll": "Kila mtu",
+    "targetAgency": "Wasimamizi wa wakala",
+    "targetAgents": "Mawakala",
+    "published": "Tangazo limetangazwa",
+    "error": "Imeshindwa kutangaza tangazo",
+    "confirmDelete": "Futa tangazo hili? Hili haliwezi kutenduliwa.",
+    "publish": "Tangaza tangazo",
+    "publishedTitle": "Matangazo yaliyotangazwa",
+    "empty": "Hakuna kilichotangazwa bado",
+    "hide": "Ficha kwenye bango",
+    "show": "Onyesha kwenye bango",
+    "delete": "Futa"
   }
 }

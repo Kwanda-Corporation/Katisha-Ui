@@ -17,7 +17,7 @@ import i18n from '../i18n';
 // (they are defined in AppHeader.tsx and already in scope)
 
 // ── Local constants ───────────────────────────────────────────────────────────
-const PRIMARY = '#1D4ED8';
+const PRIMARY = '#0854AE';
 const NAVY    = '#0f172a';
 
 type Theme    = 'light' | 'dark';
@@ -169,7 +169,7 @@ function ProfileTab({
           display: 'flex', alignItems: 'center', gap: 7,
           padding: '8px 11px', borderRadius: 8,
           background: msg.type === 'ok' ? '#F4F4F5' : '#FEE2E2',
-          color: msg.type === 'ok' ? '#1E40AF' : '#DC2626',
+          color: msg.type === 'ok' ? '#064187' : '#DC2626',
           fontSize: 12, fontWeight: 500,
         }}>
           {msg.text}
@@ -263,8 +263,8 @@ function ProfileTab({
             label="Session"
             divider={false}
             right={
-              <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, color: '#1E40AF' }}>
-                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#1E40AF', display: 'inline-block' }} />
+              <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, color: '#064187' }}>
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#064187', display: 'inline-block' }} />
                 Active
               </span>
             }
@@ -413,7 +413,7 @@ function AgencyTab({
               <span style={{
                 display: 'flex', alignItems: 'center', gap: 5,
                 fontSize: 11, fontWeight: 600,
-                color: isActive ? '#1E40AF' : '#D97706',
+                color: isActive ? '#064187' : '#D97706',
                 background: isActive ? '#F4F4F5' : '#FEF3C7',
                 padding: '3px 9px', borderRadius: 20,
               }}>
@@ -439,7 +439,7 @@ function AgencyTab({
             display: 'flex', alignItems: 'center', gap: 7,
             marginBottom: 10, padding: '8px 11px', borderRadius: 8,
             background: msg.type === 'ok' ? '#F4F4F5' : '#FEE2E2',
-            color: msg.type === 'ok' ? '#1E40AF' : '#DC2626',
+            color: msg.type === 'ok' ? '#064187' : '#DC2626',
             fontSize: 12, fontWeight: 500,
           }}>
             {msg.type === 'ok' ? <Check size={12} /> : <AlertTriangle size={12} />}
@@ -455,7 +455,7 @@ function AgencyTab({
             width: '100%', padding: '10px 16px', borderRadius: 8,
             border: `1px solid ${isActive ? '#FECACA' : '#E4E4E7'}`,
             background: isActive ? '#FEE2E2' : '#F4F4F5',
-            color: isActive ? '#DC2626' : '#1E40AF',
+            color: isActive ? '#DC2626' : '#064187',
             fontSize: 13, fontWeight: 600, cursor: busy ? 'wait' : 'pointer',
             fontFamily: 'inherit', opacity: busy ? 0.6 : 1, transition: 'all 0.15s',
           }}

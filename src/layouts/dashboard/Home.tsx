@@ -174,7 +174,7 @@ function Home() {
         <div className="flex flex-col gap-4">
 
           {/* Students summary */}
-          <div className="rounded-md p-4 bg-gradient-to-br from-[var(--blue)] to-[#1E3A8A]">
+          <div className="rounded-md p-4 bg-gradient-to-br from-[var(--blue)] to-[#053165]">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-9 h-9 rounded-md bg-white/15 flex items-center justify-center">
                 <Users size={17} className="text-white" />

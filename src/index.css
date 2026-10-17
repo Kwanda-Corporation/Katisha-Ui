@@ -6,6 +6,15 @@
   --radius-xl: 0.875rem;
   --radius-2xl: 1rem;
   --radius-3xl: 1.25rem;
+
+  /* Brand blue ramp. Repoints Tailwind's `blue-*` utilities (used directly
+     across the app) onto the Katisha blue so they match the --blue tokens
+     instead of Tailwind's stock palette. Lighter tints (blue-50…500) are left
+     on the default scale. */
+  --color-blue-600: #0960C8;
+  --color-blue-700: #0854AE;
+  --color-blue-800: #064187;
+  --color-blue-900: #053165;
 }
 
 :root {
@@ -30,23 +39,28 @@
   --text-4xl: 2rem;
   --text-5xl: 2.5rem;
 
-  --blue: #1D4ED8;
-  --blue-dark: #1E40AF;
-  --blue-deep: #1E3A8A;
+  --blue: #0854AE;
+  --blue-dark: #064187;
+  --blue-deep: #053165;
   --blue-light: #F4F4F5;
   --blue-bg: #F4F4F5;
   /* Translucent brand ring for focus-visible. Needs its own token because the
      fixed dark-blue it replaced all but vanished on a black canvas. */
-  --focus-ring: rgba(29, 78, 216, 0.35);
+  --focus-ring: rgba(8, 84, 174, 0.35);
   --blue-border: #E4E4E7;
-  --blue-ink: #1E3A8A;
+  --blue-ink: #053165;
+
+  /* Modal panel heights. On phones the sheets fill 97% of the viewport; from the
+     `sm` breakpoint up they fall back to the previous proportions. */
+  --modal-h: 97dvh;
+  --modal-sheet-h: 97dvh;
 
   --green-cta: #74E24C;
   --green-cta-hover: #62D93C;
   --green-cta-active: #52C930;
   --green-ink: #0B3D0B;
 
-  --info: #1D4ED8;
+  --info: #0854AE;
   --white: #FFFFFF;
   --bg: #FFFFFF;
   --text: #1F2937;
@@ -58,7 +72,7 @@
   --error-border: #FCA5A5;
   --warning: #D97706;
   --warning-bg: #FFFBEB;
-  --success: #1D4ED8;
+  --success: #0854AE;
   --success-bg: #F4F4F5;
 
   --overlay: #111827;
@@ -69,10 +83,10 @@
   --status-pending-agent: #7C3AED;
   --status-awaiting: #D97706;
   --status-expired: #DC2626;
-  --status-paid: #1D4ED8;
+  --status-paid: #0854AE;
   --status-uploaded: #7C3AED;
-  --status-departed: #1D4ED8;
-  --status-completed: #1E40AF;
+  --status-departed: #0854AE;
+  --status-completed: #064187;
   --status-cancelled: #52525B;
 
   /* Semantic tones. Every status/badge pair is expressed as ink + fill + line
@@ -93,7 +107,7 @@
   --tone-danger-line: #FECACA;
   --tone-danger-dot: #EF4444;
 
-  --tone-info-ink: #1D4ED8;
+  --tone-info-ink: #0854AE;
   --tone-info-fill: #EFF6FF;
   --tone-info-line: #BFDBFE;
   --tone-info-dot: #3B82F6;
@@ -123,8 +137,8 @@
   --solid-warning-hover: #B45309;
   --solid-danger: #DC2626;
   --solid-danger-hover: #B91C1C;
-  --solid-info: #2563EB;
-  --solid-info-hover: #1D4ED8;
+  --solid-info: #0960C8;
+  --solid-info-hover: #0854AE;
 
   /* Neutral fills that replace the hand-picked near-white hexes the
      dashboards used for table headers, zebra rows and hover states. */
@@ -210,7 +224,7 @@
   --blue-light: #111827;
   --focus-ring: rgba(125, 168, 251, 0.45);
   --blue-bg: #0B1220;
-  --blue-border: #1E3A8A;
+  --blue-border: #053165;
   --blue-ink: #BFDBFE;
 
   --error: #F87171;
@@ -240,7 +254,7 @@
 
   --tone-info-ink: #93C5FD;
   --tone-info-fill: #0B1220;
-  --tone-info-line: #1E3A8A;
+  --tone-info-line: #053165;
   --tone-info-dot: #60A5FA;
 
   --tone-neutral-ink: #D4D4D8;
@@ -264,8 +278,8 @@
   --solid-warning-hover: #92400E;
   --solid-danger: #B91C1C;
   --solid-danger-hover: #991B1B;
-  --solid-info: #1D4ED8;
-  --solid-info-hover: #1E40AF;
+  --solid-info: #0854AE;
+  --solid-info-hover: #064187;
 
   --fill-subtle: #121317;
   --fill-hover: #17171B;
@@ -582,7 +596,7 @@ p {
   input:focus-visible,
   select:focus-visible,
   textarea:focus-visible {
-    outline: 2px solid rgba(29, 78, 216, 0.25);
+    outline: 2px solid rgba(8, 84, 174, 0.25);
     outline-offset: 0;
     border-color: var(--blue);
   }
@@ -613,7 +627,7 @@ p {
 }
 
 :focus-visible {
-  outline: 3px solid rgba(29, 78, 216, 0.25);
+  outline: 3px solid rgba(8, 84, 174, 0.25);
   outline-offset: 2px;
 }
 
@@ -701,9 +715,9 @@ p {
   width: 3px;
   border-radius: 14px 0 0 14px;
 }
-.booking-card-modern--pending::before { background: #1D4ED8; }
-.booking-card-modern--confirmed::before { background: #1D4ED8; }
-.booking-card-modern--issued::before { background: #1D4ED8; }
+.booking-card-modern--pending::before { background: #0854AE; }
+.booking-card-modern--confirmed::before { background: #0854AE; }
+.booking-card-modern--issued::before { background: #0854AE; }
 .booking-card-modern--rejected::before { background: #DC2626; }
 .booking-card-modern--cancelled::before { background: #71717A; }
 .booking-card-modern--expired::before { background: #DC2626; }
@@ -716,8 +730,8 @@ p {
   border-radius: 50%;
   flex-shrink: 0;
 }
-.status-dot--pending { background: #1D4ED8; }
-.status-dot--confirmed { background: #1D4ED8; }
+.status-dot--pending { background: #0854AE; }
+.status-dot--confirmed { background: #0854AE; }
 .status-dot--rejected { background: #DC2626; }
 .status-dot--cancelled { background: #71717A; }
 .status-dot--expired { background: #DC2626; }
@@ -816,7 +830,7 @@ p {
   transition: all 150ms;
 }
 .filter-chip--active {
-  background: rgba(29, 78, 216, 0.08);
+  background: rgba(8, 84, 174, 0.08);
   border-color: var(--blue);
   color: var(--blue);
 }
@@ -1059,6 +1073,13 @@ p {
   :root {
     --spacing-lg: 16px;
     --spacing-xl: 24px;
+  }
+}
+
+@media (min-width: 640px) {
+  :root {
+    --modal-h: 89dvh;
+    --modal-sheet-h: 80dvh;
   }
 }
 

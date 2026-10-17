@@ -1,9 +1,9 @@
 import {
-  AppWindow, Signal, Bell, Megaphone,
+  AppWindow, Bell, Megaphone,
   Ticket, Users, Building2,
   ListChecks, Route, UserPlus,
   DollarSign,
-  Settings, Clock,
+  Settings, Clock, BadgePercent,
 } from 'lucide-react';
 import { UserRole } from '../contexts/AuthContext';
 import React from 'react';
@@ -29,7 +29,7 @@ const iconSize = 15;
 export const ROLE_CONFIG: Record<UserRole, RoleConfig> = {
   [UserRole.SYSTEM_ADMIN]: {
     label: 'System Admin',
-    color: '#1D4ED8',
+    color: '#0854AE',
     bgColor: '#F4F4F5',
     subtitle: 'Full system access — all modules visible.',
     nav: [
@@ -43,13 +43,13 @@ export const ROLE_CONFIG: Record<UserRole, RoleConfig> = {
     systemNav: [
       { id: 1, name: 'Notifications', path: '/dashboard/notifications', icon: <Bell size={iconSize} /> },
       { id: 2, name: 'Announcements', path: '/dashboard/announcements', icon: <Megaphone size={iconSize} /> },
-      { id: 3, name: 'Reports', path: '/dashboard/reports', icon: <Signal size={iconSize} /> },
+      { id: 3, name: 'Promotions', path: '/dashboard/promotions', icon: <BadgePercent size={iconSize} /> },
     ],
   },
 
   [UserRole.AGENCY_ADMIN]: {
     label: 'Agency Admin',
-    color: '#1D4ED8',
+    color: '#0854AE',
     bgColor: '#F4F4F5',
     subtitle: 'Manage your transport agency fleet & drivers.',
     nav: [
@@ -67,7 +67,7 @@ export const ROLE_CONFIG: Record<UserRole, RoleConfig> = {
 
   [UserRole.AGENT]: {
     label: 'Agent',
-    color: '#1D4ED8',
+    color: '#0854AE',
     bgColor: '#F4F4F5',
     subtitle: 'Manage bookings on your assigned routes.',
     nav: [
@@ -80,7 +80,7 @@ export const ROLE_CONFIG: Record<UserRole, RoleConfig> = {
 
   [UserRole.PICKUP_AGENT]: {
     label: 'Pickup Agent',
-    color: '#1D4ED8',
+    color: '#0854AE',
     bgColor: '#F4F4F5',
     subtitle: 'Use the mobile app for pickups.',
     nav: [],
@@ -89,7 +89,7 @@ export const ROLE_CONFIG: Record<UserRole, RoleConfig> = {
 
   [UserRole.USER]: {
     label: 'User',
-    color: '#1D4ED8',
+    color: '#0854AE',
     bgColor: '#F4F4F5',
     subtitle: 'Book bus tickets and manage your travel.',
     nav: [],
@@ -98,7 +98,7 @@ export const ROLE_CONFIG: Record<UserRole, RoleConfig> = {
 
   [UserRole.PROMOTER]: {
     label: 'Promoter',
-    color: '#1D4ED8',
+    color: '#0854AE',
     bgColor: '#F4F4F5',
     subtitle: 'Manage referrals and earnings.',
     nav: [

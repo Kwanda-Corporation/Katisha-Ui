@@ -42,7 +42,7 @@ export default function GoogleProfileCompletion({ onComplete }: GoogleProfileCom
         <Card padding="lg">
           <div className="text-center mb-6">
             <div className="w-14 h-14 rounded-full mx-auto mb-4 flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #F4F4F5, #E4E4E7)' }}>
-              <Smartphone size={24} color="#1D4ED8" />
+              <Smartphone size={24} color="#0854AE" />
             </div>
             <h2 className="font-[var(--font-body)] text-xl font-bold text-[var(--text)]">
               {t('auth.completeProfile') || 'Complete Your Profile'}

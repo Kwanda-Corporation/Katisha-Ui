@@ -1,11 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router';
 import { useTranslation } from 'react-i18next';
-import { ChevronDown, Phone, Mail, Globe, LogOut, Menu } from 'lucide-react';
+import { ChevronDown, Phone, Mail, Globe, LogOut, Menu, Megaphone, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import BusAnimation from '../ui/BusAnimation';
 import Logo from '../ui/Logo';
 import ReactCountryFlag from 'react-country-flag';
+import { api } from '../../api';
 
 const LANGUAGES = [
   { code: 'en', label: 'English', countryCode: 'GB' },
@@ -87,6 +88,39 @@ export default function TopNav() {
   };
 
   const currentLang = LANGUAGES.find((l) => l.code === i18n.language) || LANGUAGES[0];
+
+  // Website announcement banner. Published by a system admin on the
+  // Announcements page and fetched without auth so signed-out visitors see it
+  // too. In development a sample is shown when nothing is published, so the
+  // design can be previewed locally.
+  const [announcement, setAnnouncement] = useState<{ _id?: string; title: string; message: string } | null>(null);
+  const [bannerDismissed, setBannerDismissed] = useState(false);
+
+  useEffect(() => {
+    let alive = true;
+    const apply = (active: { _id?: string; title: string; message: string } | null) => {
+      if (!alive) return;
+      const a = active ?? (import.meta.env.DEV
+        ? { _id: 'dev-sample', title: 'Test announcement', message: 'This is a preview of the website announcement banner. Publish one from the Announcements page.' }
+        : null);
+      if (!a) return;
+      const dismissed = localStorage.getItem('vdk_banner_dismissed');
+      setBannerDismissed(dismissed === (a._id || a.title));
+      setAnnouncement(a);
+    };
+    api.getActiveAnnouncement()
+      .then((res: any) => apply(res?.data?.announcement ?? null))
+      .catch(() => apply(null));
+    return () => { alive = false; };
+  }, []);
+
+  const dismissBanner = () => {
+    // The dev-only sample is not remembered, so it reappears on reload.
+    if (announcement && announcement._id !== 'dev-sample') {
+      localStorage.setItem('vdk_banner_dismissed', announcement._id || announcement.title);
+    }
+    setBannerDismissed(true);
+  };
 
   // On the booking screen the signed-out nav promotes the promoter offer
   // instead of Sign in / Sign up (the mobile menu still carries both).
@@ -209,6 +243,25 @@ export default function TopNav() {
 
   return (
     <header className="sticky top-0 z-30 bg-white border-b border-zinc-200" >
+      {announcement && !bannerDismissed && (
+        <div className="text-white" style={{ background: 'var(--blue)' }}>
+          <div className="flex items-center gap-2 px-3 sm:px-5 md:px-8 py-1">
+            <Megaphone size={12} className="shrink-0" aria-hidden="true" />
+            <p className="flex-1 min-w-0 text-[11px] sm:text-[12px] font-medium truncate">
+              <span className="font-bold">{announcement.title}</span>
+              {announcement.message ? ` — ${announcement.message}` : ''}
+            </p>
+            <button
+              type="button"
+              onClick={dismissBanner}
+              aria-label={t('common.dismiss') || 'Dismiss'}
+              className="shrink-0 p-0.5 rounded hover:bg-white/20 transition-colors border-none bg-transparent text-white cursor-pointer"
+            >
+              <X size={12} />
+            </button>
+          </div>
+        </div>
+      )}
       <div className="flex items-center h-14 px-3 sm:px-5 md:px-8 gap-3 sm:gap-5">
 
         {/* Brand */}

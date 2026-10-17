@@ -59,7 +59,7 @@ export default function PaymentMethodSelect({
               onClick={() => onSelect('momo_merchant')}
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.98 }}
-              className="w-full text-left p-4 sm:p-5 mt-1 rounded-[16px] border border-gray-400 hover:border-[#1E40AF] bg-white hover:shadow-[0_4px_20px_-6px_rgba(29,78,216,0.25)] transition-all duration-200 cursor-pointer group"
+              className="w-full text-left p-4 sm:p-5 mt-1 rounded-[16px] border border-gray-400 hover:border-[#064187] bg-white hover:shadow-[0_4px_20px_-6px_rgba(8, 84, 174,0.25)] transition-all duration-200 cursor-pointer group"
             >
               <div className="flex items-start gap-3.5">
                 <span className="w-11 h-11 rounded-xl bg-[#FFF7E6] flex items-center justify-center shrink-0 group-hover:bg-[#FFCB05]/20 transition-colors">
@@ -70,7 +70,7 @@ export default function PaymentMethodSelect({
                     <h3 className="text-[15px] font-bold text-[#111827]">
                       {t('booking.payWithMerchantCode', { defaultValue: 'Pay with MoMo Merchant Code' })}
                     </h3>
-                    <ArrowRight size={16} className="text-[#A1A1AA] shrink-0 group-hover:text-[#1E40AF] transition-colors" />
+                    <ArrowRight size={16} className="text-[#A1A1AA] shrink-0 group-hover:text-[#064187] transition-colors" />
                   </div>
                   <p className="text-[12px] text-[#52525B] mt-0.5 leading-relaxed">
                     {t('booking.merchantCodeDesc', { defaultValue: 'Lower cost \u2022 Payment confirmation may take longer' })}
@@ -100,18 +100,18 @@ export default function PaymentMethodSelect({
               onClick={() => onSelect('pawapay_online')}
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.98 }}
-              className="w-full text-left p-4 sm:p-5 rounded-[16px] border border-gray-400 hover:border-[#1E40AF] bg-white hover:shadow-[0_4px_20px_-6px_rgba(29,78,216,0.25)] transition-all duration-200 cursor-pointer group"
+              className="w-full text-left p-4 sm:p-5 rounded-[16px] border border-gray-400 hover:border-[#064187] bg-white hover:shadow-[0_4px_20px_-6px_rgba(8, 84, 174,0.25)] transition-all duration-200 cursor-pointer group"
             >
               <div className="flex items-start gap-3.5">
                 <span className="w-11 h-11 rounded-xl bg-[#EFF6FF] flex items-center justify-center shrink-0 group-hover:bg-blue-100 transition-colors">
-                  <CreditCard size={20} className="text-[#1E40AF]" />
+                  <CreditCard size={20} className="text-[#064187]" />
                 </span>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2">
                     <h3 className="text-[15px] font-bold text-[#111827]">
                       {t('booking.payOnline', { defaultValue: 'Pay Online' })}
                     </h3>
-                    <ArrowRight size={16} className="text-[#A1A1AA] shrink-0 group-hover:text-[#1E40AF] transition-colors" />
+                    <ArrowRight size={16} className="text-[#A1A1AA] shrink-0 group-hover:text-[#064187] transition-colors" />
                   </div>
                   <p className="text-[12px] text-[#52525B] mt-0.5 leading-relaxed">
                     {t('booking.payOnlineDesc', { defaultValue: 'Fast confirmation \u2022 Additional payment fee applies' })}

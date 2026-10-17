@@ -114,7 +114,7 @@ export default function MerchantCodeModal({
         onClose={onClose}
         labelledBy="merchant-receipt-title"
         maxWidth={680}
-        height={isMobile ? '92dvh' : 'min(75dvh, 580px)'}
+        height={isMobile ? '97dvh' : 'min(75dvh, 580px)'}
       >
         <div className="relative flex flex-col flex-1 min-h-0">
           <button
@@ -172,7 +172,7 @@ export default function MerchantCodeModal({
             </div>
 
             <div className="mt-4 rounded-md bg-[#EFF6FF] border border-[#BFDBFE] p-3.5">
-              <p className="text-[12px] text-[#1E40AF] leading-relaxed text-center">
+              <p className="text-[12px] text-[#064187] leading-relaxed text-center">
                 {t('booking.merchantCodeReceiptNote', {
                   defaultValue: 'Your payment is being processed. You will receive your ticket once the payment is confirmed by our team.',
                 })}
@@ -191,7 +191,7 @@ export default function MerchantCodeModal({
       onClose={onClose}
       labelledBy="merchant-modal-title"
       maxWidth={680}
-      height={isMobile ? '92dvh' : 'min(82dvh, 680px)'}
+      height={isMobile ? '97dvh' : 'min(82dvh, 680px)'}
     >
       <div className="relative flex flex-col flex-1 min-h-0">
         <button
@@ -227,7 +227,7 @@ export default function MerchantCodeModal({
                   value={guestName}
                   onChange={e => onGuestNameChange(e.target.value)}
                   placeholder={t('booking.guestNamePlaceholder')}
-                  className="w-full h-11 rounded-md border border-[#E5E7EB] bg-white pl-11 pr-4 text-sm outline-none placeholder:text-[#A1A1AA] focus:border-[#1E40AF] focus:ring-2 focus:ring-[#1E40AF]/20 transition-all duration-200"
+                  className="w-full h-11 rounded-md border border-[#E5E7EB] bg-white pl-11 pr-4 text-sm outline-none placeholder:text-[#A1A1AA] focus:border-[#064187] focus:ring-2 focus:ring-[#064187]/20 transition-all duration-200"
                 />
               </div>
             </div>
@@ -253,7 +253,7 @@ export default function MerchantCodeModal({
                 className={`w-full h-11 sm:h-12 rounded-md border bg-white pl-11 pr-4 text-base outline-none placeholder:text-[#A1A1AA] transition-all duration-200 ${
                   phoneError
                     ? 'border-[#FCA5A5] focus:border-[#EF4444] focus:ring-2 focus:ring-[#EF4444]/20'
-                    : 'border-[#E5E7EB] focus:border-[#1E40AF] focus:ring-2 focus:ring-[#1E40AF]/20'
+                    : 'border-[#E5E7EB] focus:border-[#064187] focus:ring-2 focus:ring-[#064187]/20'
                 }`}
               />
             </div>

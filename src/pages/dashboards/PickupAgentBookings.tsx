@@ -89,10 +89,10 @@ export default function PickupAgentBookings() {
 <head><meta charset="UTF-8"><title>Pickup Bookings Report</title>
 <style>
   body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 20px; background: #fff; color: #333; }
-  h1 { color: #1D4ED8; border-bottom: 3px solid #1D4ED8; padding-bottom: 10px; font-size: 24px; }
+  h1 { color: #0854AE; border-bottom: 3px solid #0854AE; padding-bottom: 10px; font-size: 24px; }
   .meta { margin-bottom: 20px; color: #64748b; font-size: 13px; }
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  th { background: #1D4ED8; color: #fff; padding: 12px; text-align: left; }
+  th { background: #0854AE; color: #fff; padding: 12px; text-align: left; }
   td { padding: 10px 12px; border: 1px solid #e2e8f0; }
   tr:nth-child(even) { background: #f8fafc; }
   .footer { margin-top: 30px; padding-top: 15px; border-top: 1px solid #e2e8f0; font-size: 12px; color: #94a3b8; text-align: center; }

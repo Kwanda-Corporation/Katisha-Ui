@@ -5,6 +5,7 @@ import { useAuth } from './contexts/AuthContext';
 import { ProtectedRoute, GuestRoute } from './components/ProtectedRoute';
 import SEO from './components/seo/SEO';
 import Spinner from './components/ui/Spinner';
+import ScrollToTop from './components/ScrollToTop';
 
 // Routes are code-split so heavy page-level libraries (mapbox, recharts, etc.)
 // load only when their page is actually visited instead of on first paint.
@@ -38,6 +39,7 @@ const OrganisationsPage = lazy(() => import('./potals/SystemAdmin/Organizations'
 const UsersPage = lazy(() => import('./potals/SystemAdmin/Users'));
 const SystemAdminOverview = lazy(() => import('./layouts/dashboard/SystemDashboard'));
 const RoutePricesPage = lazy(() => import('./potals/SystemAdmin/RoutePricing'));
+const PromotionsPage = lazy(() => import('./potals/SystemAdmin/Promotions'));
 const PromotersPage = lazy(() => import('./potals/SystemAdmin/Promoters'));
 const AgencyAgentsPage = lazy(() => import('./potals/Agency/Agents'));
 const TrackingPage = lazy(() => import('./potals/Common/TrackingPage'));
@@ -73,7 +75,7 @@ function ForbiddenPage() {
       <p style={{ fontSize: 14, color: '#64748b', margin: 0 }}>You don't have permission to view this page.</p>
       {user && (
         <a href={ROLE_HOME[user.role]}
-          style={{ padding: '8px 20px', background: '#1D4ED8', color: 'white', borderRadius: 8, fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>
+          style={{ padding: '8px 20px', background: '#0854AE', color: 'white', borderRadius: 8, fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>
           Go to my dashboard
         </a>
       )}
@@ -114,6 +116,7 @@ function RouteFallback() {
 export default function AppRoutes() {
   return (
     <Suspense fallback={<RouteFallback />}>
+    <ScrollToTop />
     <Routes>
       {/* Public routes */}
       <Route path="/" element={<HomeEntry />} />
@@ -149,7 +152,7 @@ export default function AppRoutes() {
 
         {/* Reports */}
         <Route path="reports" element={
-          <ProtectedRoute roles={[UserRole.AGENCY_ADMIN, UserRole.SYSTEM_ADMIN]}>
+          <ProtectedRoute roles={[UserRole.AGENCY_ADMIN]}>
             <ReportsPage />
           </ProtectedRoute>
         } />
@@ -179,6 +182,13 @@ export default function AppRoutes() {
         <Route path="routes" element={
           <ProtectedRoute roles={[UserRole.SYSTEM_ADMIN]}>
             <RoutePricesPage />
+          </ProtectedRoute>
+        } />
+
+        {/* Promotions (System Admin) */}
+        <Route path="promotions" element={
+          <ProtectedRoute roles={[UserRole.SYSTEM_ADMIN]}>
+            <PromotionsPage />
           </ProtectedRoute>
         } />
 

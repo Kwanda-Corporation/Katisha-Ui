@@ -117,7 +117,7 @@ function JourneyItem({ journey, selected, onClick }: { journey: Journey; selecte
       style={{
         border: `1.5px solid ${selected ? 'var(--blue)' : 'var(--border)'}`,
         background: selected ? 'var(--studio-accent-soft)' : 'var(--studio-surface)',
-        boxShadow: selected ? '0 0 0 3px rgba(29, 78, 216,0.08)' : '0 1px 3px rgba(0,0,0,0.04)',
+        boxShadow: selected ? '0 0 0 3px rgba(8, 84, 174,0.08)' : '0 1px 3px rgba(0,0,0,0.04)',
       }}
       whileHover={{ scale: 1.005 }}
       whileTap={{ scale: 0.998 }}
@@ -174,7 +174,7 @@ function RouteItem({ route, selected, onClick }: { route: Route; selected: boole
       style={{
         border: `1.5px solid ${selected ? 'var(--info)' : 'var(--border)'}`,
         background: selected ? 'var(--studio-accent-soft)' : 'var(--studio-surface)',
-        boxShadow: selected ? '0 0 0 3px rgba(29,78,216,0.08)' : '0 1px 3px rgba(0,0,0,0.04)',
+        boxShadow: selected ? '0 0 0 3px rgba(8, 84, 174,0.08)' : '0 1px 3px rgba(0,0,0,0.04)',
       }}
       whileHover={{ scale: 1.005 }}
     >

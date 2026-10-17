@@ -10,5 +10,6 @@ booking platform. They are served locally as optimized WebP files.
 | `volcano.webp` | Volcano Express | https://www.facebook.com/VolcanoLtd/ (profile picture) |
 | `jaguar.webp` | Jaguar Executive Coaches | https://www.facebook.com/jaguarbuses/ (profile picture) |
 | `ritco.webp` | RITCO | https://ritco.rw/assets/images/logo.png |
-| `simba.webp` | Simba Coach | https://simbacoachbus.online/assets/simba-logo-rSb3bdkX.webp |
+| `simba.webp` | Simba Coaches | https://simbacoachbus.online/assets/simba-logo-rSb3bdkX.webp |
+| `taqwa.webp` | Taqwa Classic Coaches | Provided by project owner (local file) |
 | `mashpoa.webp` | Mash Poa | https://www.mashpoabus.com/mashpoalogo.png |

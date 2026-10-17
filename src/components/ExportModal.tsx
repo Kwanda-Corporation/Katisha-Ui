@@ -8,8 +8,8 @@ import {
 import { useAuth } from "../contexts/AuthContext";
 
 // ── Constants ──────────────────────────────────────────────────────────────────
-const GREEN = "#1D4ED8";
-const BLUE  = "#1D4ED8";
+const GREEN = "#0854AE";
+const BLUE  = "#0854AE";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -359,9 +359,9 @@ function SuccessBanner({ filename }: { filename: string }) {
         background: "#F4F4F5", border: "1px solid #D4D4D8",
       }}
     >
-      <CheckCircle2 size={14} color="#1E40AF" />
+      <CheckCircle2 size={14} color="#064187" />
       <div>
-        <p style={{ margin: "0 0 1px", fontSize: 12, fontWeight: 700, color: "#1E40AF" }}>Export ready</p>
+        <p style={{ margin: "0 0 1px", fontSize: 12, fontWeight: 700, color: "#064187" }}>Export ready</p>
         <p style={{ margin: 0, fontSize: 11, color: "#166534" }}>{filename} downloaded.</p>
       </div>
     </motion.div>

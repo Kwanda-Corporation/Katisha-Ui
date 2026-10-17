@@ -21,7 +21,9 @@
     "phone": "Téléphone",
     "networkError": "Erreur réseau. Veuillez réessayer.",
     "optional": "Facultatif",
-    "email": "E-mail"
+    "email": "E-mail",
+    "dismiss": "Fermer",
+    "refresh": "Actualiser"
   },
   "auth": {
     "signIn": "Se connecter",
@@ -133,7 +135,7 @@
     "logIn": "Se connecter"
   },
   "onboarding": {
-    "chooseLanguage": "Choisissez votre langue",
+    "chooseLanguage": "Voyagez comme un roi",
     "selectLanguage": "Sélectionnez votre langue préférée pour continuer",
     "signInDesc": "Accédez à votre compte existant",
     "registerDesc": "Inscrivez-vous en tant que nouvel utilisateur",
@@ -162,7 +164,7 @@
     "desc4": "Choisissez parmi les agences de bus disponibles",
     "desc5": "Entrez les informations du passager",
     "desc6": "Vérifiez et complétez votre réservation",
-    "tripTitle": "Planifiez votre voyage",
+    "tripTitle": "Voyagez comme un roi",
     "tripDesc": "Choisissez votre itinéraire et l'heure de départ",
     "journeyType": "Type de voyage",
     "eastAfrica": "Voyage en Afrique de l'Est",
@@ -473,7 +475,8 @@
     "comingSoon": "Bientôt",
     "paymentFailedEyebrow": "Paiement refusé",
     "paymentConfirmedEyebrow": "Paiement confirmé",
-    "openingTicket": "Ouverture de votre billet"
+    "openingTicket": "Ouverture de votre billet",
+    "onPromotion": "En promotion"
   },
   "status": {
     "pending": "En attente",
@@ -651,7 +654,9 @@
       "csvAgency": "Agence",
       "csvBookings": "Réservations",
       "csvRevenue": "Revenus",
-      "csvSystemFees": "Frais système"
+      "csvSystemFees": "Frais système",
+      "promotion": "Promotion",
+      "agencyOnPromotion": "Cette agence a une promotion active"
     }
   },
   "route": {
@@ -726,7 +731,8 @@
     "dashboard": "Tableau de bord",
     "referrals": "Parrainages",
     "earnings": "Gains",
-    "payouts": "Paiements"
+    "payouts": "Paiements",
+    "promotions": "Promotions"
   },
   "footer": {
     "description": "La plateforme leader de réservation de billets de bus au Rwanda. Réservez des itinéraires interurbains et en Afrique de l'Est en ligne avec MTN Mobile Money, Airtel Money et M-Pesa. Suivi en temps réel, e-billets instantanés.",
@@ -1038,5 +1044,56 @@
     "empty": "Aucun promoteur",
     "emptyDesc": "Les demandes de promoteur apparaîtront ici pour examen.",
     "referrals": "Parrainages"
+  },
+  "promotions": {
+    "title": "Promotions",
+    "subtitle": "Mettez les tarifs des lignes en promotion et gérez les remises visibles par les clients.",
+    "statRoutes": "Lignes",
+    "statActive": "En promotion",
+    "statAvgDiscount": "Remise moy.",
+    "statExpiring": "Bientôt terminées",
+    "searchPlaceholder": "Rechercher par agence, départ ou destination",
+    "filterAll": "Toutes les lignes",
+    "filterOn": "En promotion",
+    "filterOff": "Sans promotion",
+    "empty": "Aucune ligne ne correspond à ce filtre",
+    "unknownAgency": "Agence inconnue",
+    "set": "Activer une promotion",
+    "end": "Terminer la promotion",
+    "modalTitle": "Activer une promotion",
+    "currentPrice": "Prix actuel",
+    "promoPrice": "Prix promotionnel (RWF)",
+    "discountPreview": "Les clients économisent {{pct}}%",
+    "endsAt": "Date de fin (facultatif)",
+    "endsAtHint": "Laissez vide pour une promotion sans date de fin.",
+    "label": "Libellé (facultatif)",
+    "labelPlaceholder": "ex. Offre du week-end",
+    "save": "Enregistrer la promotion"
+  },
+  "announcements": {
+    "title": "Annonces",
+    "subtitle": "Publiez un message dans la bannière du site et notifiez vos équipes.",
+    "statTotal": "Annonces",
+    "statActive": "Actives",
+    "statBanner": "Bannière du site",
+    "live": "En ligne",
+    "compose": "Nouvelle annonce",
+    "fieldTitle": "Titre",
+    "titlePlaceholder": "Titre de l'annonce",
+    "fieldMessage": "Message",
+    "messagePlaceholder": "Rédigez votre annonce...",
+    "notifyLabel": "Envoyer aussi une notification dans l'application",
+    "targetAll": "Tout le monde",
+    "targetAgency": "Admins d'agence",
+    "targetAgents": "Agents",
+    "published": "Annonce publiée",
+    "error": "Impossible de publier l'annonce",
+    "confirmDelete": "Supprimer cette annonce ? Cette action est irréversible.",
+    "publish": "Publier l'annonce",
+    "publishedTitle": "Annonces publiées",
+    "empty": "Rien de publié pour le moment",
+    "hide": "Masquer de la bannière",
+    "show": "Afficher sur la bannière",
+    "delete": "Supprimer"
   }
 }

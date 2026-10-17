@@ -221,6 +221,22 @@ export const api = {
   markNotificationsRead: () => request('/notifications/read', { method: 'PATCH' }),
   createAnnouncement: (data: any) => request('/notifications/announcement', { method: 'POST', body: JSON.stringify(data) }),
 
+  // Announcements (website banner)
+  getActiveAnnouncement: () => request('/announcements/active'),
+  getAnnouncements: () => request('/announcements'),
+  publishAnnouncement: (data: { title: string; message: string; active?: boolean }) =>
+    request('/announcements', { method: 'POST', body: JSON.stringify(data) }),
+  updateAnnouncement: (id: string, data: { title?: string; message?: string; active?: boolean }) =>
+    request(`/announcements/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+  deleteAnnouncement: (id: string) => request(`/announcements/${id}`, { method: 'DELETE' }),
+
+  // Promotions (system admin)
+  getRoutePrices: (params?: Record<string, string>) => request('/route-prices', { params }),
+  getPromotions: () => request('/route-prices/promotions'),
+  setPromotion: (id: string, data: { promotionPrice: number; promotionEndsAt?: string; promotionLabel?: string }) =>
+    request(`/route-prices/${id}/promotion`, { method: 'PATCH', body: JSON.stringify(data) }),
+  clearPromotion: (id: string) => request(`/route-prices/${id}/promotion`, { method: 'DELETE' }),
+
   // Settings
   deleteUser: (id: string) => request(`/users/${id}`, { method: 'DELETE' }),
   getSettings: () => request('/settings'),

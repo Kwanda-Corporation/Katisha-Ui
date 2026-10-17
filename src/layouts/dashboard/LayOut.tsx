@@ -24,16 +24,16 @@ const STYLES = `
     transition: background 160ms ease, color 160ms ease;
     white-space: nowrap; position: relative;
   }
-  .nav-link:hover:not(.nav-active) { background: #F4F4F5; color: #1D4ED8; }
-  .nav-active { background: #1D4ED8; color: white; font-weight: 600; }
+  .nav-link:hover:not(.nav-active) { background: #F4F4F5; color: #0854AE; }
+  .nav-active { background: #0854AE; color: white; font-weight: 600; }
 
   .icon-link {
     width: 36px; height: 36px; border-radius: 9px;
     display: flex; align-items: center; justify-content: center;
     color: #94a3b8; transition: background 160ms ease, color 160ms ease; position: relative;
   }
-  .icon-link:hover:not(.icon-active) { background: #F4F4F5; color: #1D4ED8; }
-  .icon-active { background: #E4E4E7; color: #1D4ED8; }
+  .icon-link:hover:not(.icon-active) { background: #F4F4F5; color: #0854AE; }
+  .icon-active { background: #E4E4E7; color: #0854AE; }
   .icon-link .tip {
     position: absolute; left: calc(100% + 10px); top: 50%; transform: translateY(-50%);
     background: #1e293b; color: #f1f5f9; font-size: 11.5px; font-weight: 500;
@@ -102,7 +102,7 @@ export default function DashboardLayout() {
           {isNavOpen && (
             <AnimatePresence>
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{
-                background: '#1D4ED810', borderRadius: 10,
+                background: '#0854AE10', borderRadius: 10,
                 padding: '10px 12px', marginBottom: 16,
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>

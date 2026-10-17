@@ -101,7 +101,7 @@ export default function SystemSettingsPage() {
 
       {saved && (
         <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
-          className="mb-6 p-3 rounded-md" style={{ background: '#1E40AF' }}
+          className="mb-6 p-3 rounded-md" style={{ background: '#064187' }}
         >
           <p className="text-xs font-medium" style={{ color: '#FFFFFF' }}>All settings saved successfully</p>
         </motion.div>

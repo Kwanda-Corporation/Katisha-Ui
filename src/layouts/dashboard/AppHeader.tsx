@@ -10,8 +10,8 @@ import { useAuth } from '../../contexts/AuthContext';
 import { ProfileSettingsModal } from '../../components/Settings';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
-const PRIMARY = '#1D4ED8';
-const BLUE    = '#1D4ED8';
+const PRIMARY = '#0854AE';
+const BLUE    = '#0854AE';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 type UserRole =
@@ -40,10 +40,10 @@ interface RoleConfig {
 
 const ROLE_CONFIG: Record<UserRole, RoleConfig> = {
   system_admin:        { label: 'System Admin',    subtitle: 'Full platform access',       color: '#7C3AED', bgColor: '#EDE9FE', Icon: Shield,        orgEndpoint: null,                      orgType: null     },
-  nesa_admin:          { label: 'NESA Admin',      subtitle: 'National oversight',          color: '#1D4ED8', bgColor: '#F4F4F5', Icon: Briefcase,     orgEndpoint: null,                      orgType: null     },
+  nesa_admin:          { label: 'NESA Admin',      subtitle: 'National oversight',          color: '#0854AE', bgColor: '#F4F4F5', Icon: Briefcase,     orgEndpoint: null,                      orgType: null     },
   atpr_officer:        { label: 'ATPR Officer',    subtitle: 'Transport regulation',        color: '#D97706', bgColor: '#FEF3C7', Icon: Briefcase,     orgEndpoint: null,                      orgType: null     },
   agency_admin:        { label: 'Agency Admin',    subtitle: 'Transport agency management', color: BLUE,      bgColor: '#F4F4F5', Icon: Bus,           orgEndpoint: (id) => `/agencies/${id}`, orgType: 'agency' },
-  driver:              { label: 'Driver',          subtitle: 'Route & trip management',     color: '#1D4ED8', bgColor: '#F4F4F5', Icon: Bus,           orgEndpoint: (id) => `/agencies/${id}`, orgType: 'agency' },
+  driver:              { label: 'Driver',          subtitle: 'Route & trip management',     color: '#0854AE', bgColor: '#F4F4F5', Icon: Bus,           orgEndpoint: (id) => `/agencies/${id}`, orgType: 'agency' },
   parent:              { label: 'Parent',          subtitle: 'Student transport tracking',  color: '#EC4899', bgColor: '#FCE7F3', Icon: Users,         orgEndpoint: null,                      orgType: null     },
   doctor:              { label: 'Medical Officer', subtitle: 'Medical records access',      color: '#BE185D', bgColor: '#FCE7F3', Icon: Shield,        orgEndpoint: null,                      orgType: null     },
   pickup_agent:        { label: 'Pickup Agent',    subtitle: 'Student pickup management',   color: '#B45309', bgColor: '#FEF3C7', Icon: MapPin,        orgEndpoint: null,                      orgType: null     },
@@ -154,7 +154,7 @@ function UserDropdown({ user, org, unreadCount, onClose, onLogout, onOpenSetting
                 <p className="font-[var(--font-body)] text-xs font-semibold text-[var(--text)] truncate">{orgName}</p>
               </div>
               {isActive !== null && (
-                <span className="flex items-center gap-1 text-[10px] font-semibold shrink-0 ml-2" style={{ color: isActive ? '#1E40AF' : '#DC2626' }}>
+                <span className="flex items-center gap-1 text-[10px] font-semibold shrink-0 ml-2" style={{ color: isActive ? '#064187' : '#DC2626' }}>
                   <div className="w-[5px] h-[5px] rounded-full" style={{ background: 'currentColor' }} />
                   {isActive ? 'Active' : 'Inactive'}
                 </span>

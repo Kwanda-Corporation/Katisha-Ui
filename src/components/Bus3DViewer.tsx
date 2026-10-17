@@ -46,7 +46,7 @@ export default function Bus3DViewer({ config, selectedSeats, takenSeats = [], on
           <span className="text-sm font-bold text-zinc-700">Bus Layout</span>
         </div>
         <div className="flex items-center gap-3 text-[11px] font-semibold">
-          <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-sm bg-[#1D4ED8]" /> {availableCount} free</span>
+          <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-sm bg-[#0854AE]" /> {availableCount} free</span>
           <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-sm bg-[#3B82F6]" /> {selectedCount} selected</span>
           <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-sm bg-[#6B7280]" /> {takenCount} taken</span>
         </div>

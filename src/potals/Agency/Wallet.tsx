@@ -66,13 +66,13 @@ interface SettlementEntry {
 // Type / Status Chips
 // ─────────────────────────────────────────────────────────────────────────────
 const TX_TYPE_CFG: Record<string, { label: string; color: string; bg: string; Icon: React.ElementType }> = {
-  ESCROW_RELEASE: { label: 'Payment In',  color: '#1D4ED8', bg: '#F4F4F5', Icon: ArrowDownLeft },
-  MANUAL_PAYOUT:  { label: 'Payout',      color: '#1D4ED8', bg: '#F4F4F5', Icon: ArrowUpRight  },
+  ESCROW_RELEASE: { label: 'Payment In',  color: '#0854AE', bg: '#F4F4F5', Icon: ArrowDownLeft },
+  MANUAL_PAYOUT:  { label: 'Payout',      color: '#0854AE', bg: '#F4F4F5', Icon: ArrowUpRight  },
   ADJUSTMENT:     { label: 'Adjustment',  color: '#d97706', bg: '#fffbeb', Icon: Info           },
 };
 
 const TX_STATUS_MAP: Record<string, { color: string; bg: string; label: string }> = {
-  COMPLETED: { color: '#1D4ED8', bg: '#F4F4F5', label: 'Completed' },
+  COMPLETED: { color: '#0854AE', bg: '#F4F4F5', label: 'Completed' },
   PENDING:   { color: '#d97706', bg: '#fffbeb', label: 'Pending'   },
   FAILED:    { color: '#dc2626', bg: '#fff1f2', label: 'Failed'    },
 };
@@ -127,7 +127,7 @@ function PayoutModal({
 
   return (
     <Modal open title="Record Payout" subtitle={agencyName} onClose={onClose} maxWidth={460}>
-      <div className="p-4 rounded-md mb-4" style={{ background: '#1D4ED8' }}>
+      <div className="p-4 rounded-md mb-4" style={{ background: '#0854AE' }}>
         <div className="flex items-center justify-between rounded-md px-3 py-2.5" style={{ background: 'rgba(255,255,255,0.1)' }}>
           <span className="text-xs text-white/75">Available balance</span>
           <span className="font-[var(--font-body)] text-lg font-extrabold text-white">{fmtRWF(balance)}</span>
@@ -164,7 +164,7 @@ function BalanceCard({ wallet, agencyName, loading, onPayout, canPayout, isAdmin
   const paid   = (wallet?.transactions ?? []).filter(t => t.type === 'MANUAL_PAYOUT'  && t.status === 'COMPLETED').reduce((s, t) => s + t.amount, 0);
 
   return (
-    <Card padding="lg" className="mb-6 relative overflow-hidden" style={{ background: '#1D4ED8', color: 'white', border: 'none' }}>
+    <Card padding="lg" className="mb-6 relative overflow-hidden" style={{ background: '#0854AE', color: 'white', border: 'none' }}>
       <div className="relative z-10">
         <div className="flex items-start justify-between flex-wrap gap-3 mb-5">
           <div>
@@ -223,7 +223,7 @@ function TransactionTable({ transactions, loading }: { transactions: WalletTrans
     <Card padding="sm" className="overflow-hidden">
       <div className="flex items-center justify-between flex-wrap gap-2.5 px-4 py-4 border-b border-[var(--border)]">
         <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-md flex items-center justify-center" style={{ background: 'rgba(29, 78, 216,0.08)' }}>
+          <div className="w-7 h-7 rounded-md flex items-center justify-center" style={{ background: 'rgba(8, 84, 174,0.08)' }}>
             <Banknote size={15} style={{ color: 'var(--blue)' }} />
           </div>
           <div>
@@ -242,7 +242,7 @@ function TransactionTable({ transactions, loading }: { transactions: WalletTrans
           <div className="relative">
             <button onClick={() => setShowFilter(v => !v)}
               className="flex items-center gap-1 px-2.5 py-1.5 rounded-sm border text-xs font-semibold cursor-pointer font-[var(--font-body)]"
-              style={{ borderColor: 'var(--border)', background: typeFilter ? 'rgba(29,78,216,0.06)' : 'white', color: typeFilter ? '#1D4ED8' : 'var(--text-sub)' }}>
+              style={{ borderColor: 'var(--border)', background: typeFilter ? 'rgba(8, 84, 174,0.06)' : 'white', color: typeFilter ? '#0854AE' : 'var(--text-sub)' }}>
               <Filter size={11} /> {typeFilter ? TX_TYPE_CFG[typeFilter]?.label ?? typeFilter : 'All types'} <ChevronDown size={11} />
             </button>
             {showFilter && (
@@ -252,7 +252,7 @@ function TransactionTable({ transactions, loading }: { transactions: WalletTrans
                   {['', 'ESCROW_RELEASE', 'MANUAL_PAYOUT', 'ADJUSTMENT'].map(t => (
                     <button key={t} onClick={() => { setType(t); setShowFilter(false); }}
                       className="block w-full px-3 py-2 border-none cursor-pointer font-[var(--font-body)] text-xs text-left"
-                      style={{ background: typeFilter === t ? 'rgba(29,78,216,0.05)' : 'none', color: typeFilter === t ? '#1D4ED8' : 'var(--text)', fontWeight: typeFilter === t ? 700 : 400 }}>
+                      style={{ background: typeFilter === t ? 'rgba(8, 84, 174,0.05)' : 'none', color: typeFilter === t ? '#0854AE' : 'var(--text)', fontWeight: typeFilter === t ? 700 : 400 }}>
                       {t ? (TX_TYPE_CFG[t]?.label ?? t) : 'All types'}
                     </button>
                   ))}
@@ -354,8 +354,8 @@ function SettlementsTable({ data, totalOwed, loading, onPayout }: {
     <Card padding="sm" className="overflow-hidden mt-6">
       <div className="flex items-center justify-between flex-wrap gap-2.5 px-4 py-4 border-b border-[var(--border)]">
         <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-md flex items-center justify-center" style={{ background: 'rgba(29,78,216,0.08)' }}>
-            <Shield size={15} style={{ color: '#1D4ED8' }} />
+          <div className="w-7 h-7 rounded-md flex items-center justify-center" style={{ background: 'rgba(8, 84, 174,0.08)' }}>
+            <Shield size={15} style={{ color: '#0854AE' }} />
           </div>
           <div>
             <p className="font-[var(--font-body)] text-sm font-bold text-[var(--text)] m-0">Pending Settlements</p>
@@ -523,7 +523,7 @@ export default function AgencyWalletPage() {
           <div className="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-3.5 mb-6">
             {[
               { label: 'Total Owed',      value: fmtRWF(totalOwed),                                Icon: Banknote,   color: 'var(--warning)' },
-              { label: 'Agencies Owed',   value: settlements.length,                               Icon: Building2,  color: '#1D4ED8' },
+              { label: 'Agencies Owed',   value: settlements.length,                               Icon: Building2,  color: '#0854AE' },
               { label: 'Largest Balance', value: settlements[0] ? fmtRWF(settlements[0].balance) : '—', Icon: TrendingUp, color: '#dc2626'   },
             ].map(s => (
               <Card key={s.label} padding="sm" className="flex items-center gap-3">

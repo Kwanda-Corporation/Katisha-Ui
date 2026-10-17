@@ -54,10 +54,10 @@ function EarnFromKatishaPill({
   onClick: () => void;
 }) {
   return (
-    <div className="group fixed right-14 top-12 z-20">
+    <div className="group fixed top-3 right-3 sm:top-12 sm:right-14 z-20">
       <span
         role="tooltip"
-        className="pointer-events-none absolute left-0 top-[calc(100%+8px)] w-max max-w-[240px] rounded-lg bg-[var(--text)] px-3 py-2 text-xs text-white opacity-0 shadow-lg transition-opacity duration-150 group-hover:opacity-100 group-focus-within:opacity-100"
+        className="pointer-events-none absolute right-0 sm:right-auto sm:left-0 top-[calc(100%+8px)] w-max max-w-[240px] rounded-lg bg-[var(--text)] px-3 py-2 text-xs text-white opacity-0 shadow-lg transition-opacity duration-150 group-hover:opacity-100 group-focus-within:opacity-100"
       >
         {tooltip}
       </span>
@@ -164,7 +164,7 @@ export default function Onboarding() {
   return (
     <div className="min-h-screen bg-white flex flex-col">
       <SEO
-        title="Choose your language"
+        title="Travel like a King | Katisha"
         description="Choose your preferred language to book bus tickets across Rwanda and East Africa with Katisha."
         keywords="Katisha language, bus booking language, Kinyarwanda, Kiswahili, English, French"
         canonical="/"

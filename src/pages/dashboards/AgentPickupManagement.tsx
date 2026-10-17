@@ -161,15 +161,15 @@ export default function AgentPickupManagement() {
 <head><meta charset="UTF-8"><title>${t('pickupManagement.reportTitle', { date: filterDate })}</title>
 <style>
   body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 20px; background: #fff; color: #333; }
-  h1 { color: #1D4ED8; border-bottom: 3px solid #1D4ED8; padding-bottom: 10px; font-size: 24px; }
-  h2 { color: #1D4ED8; margin-top: 30px; font-size: 18px; }
+  h1 { color: #0854AE; border-bottom: 3px solid #0854AE; padding-bottom: 10px; font-size: 24px; }
+  h2 { color: #0854AE; margin-top: 30px; font-size: 18px; }
   .meta { margin-bottom: 20px; color: #64748b; font-size: 13px; }
   table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 10px; }
-  th { background: #1D4ED8; color: #fff; padding: 12px; text-align: left; }
+  th { background: #0854AE; color: #fff; padding: 12px; text-align: left; }
   td { padding: 10px 12px; border: 1px solid #e2e8f0; }
   tr:nth-child(even) { background: #f8fafc; }
   .footer { margin-top: 30px; padding-top: 15px; border-top: 1px solid #e2e8f0; font-size: 12px; color: #94a3b8; text-align: center; }
-  .note { background: #F4F4F5; border-left: 4px solid #1D4ED8; padding: 12px 16px; margin: 20px 0; font-size: 13px; color: #1E40AF; border-radius: 4px; }
+  .note { background: #F4F4F5; border-left: 4px solid #0854AE; padding: 12px 16px; margin: 20px 0; font-size: 13px; color: #064187; border-radius: 4px; }
 </style></head>
 <body>
   <h1>${t('pickupManagement.reportTitle', { date: filterDate })}</h1>

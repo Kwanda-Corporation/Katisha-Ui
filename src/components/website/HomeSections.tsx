@@ -106,7 +106,7 @@ function DestinationPanel({
 
           <div className="relative mt-10">
             <Link
-              to={`/bus/${dest.slug}`}
+              to={`/book?to=${encodeURIComponent(dest.to)}`}
               aria-label={`${t('guide.bookNow')} — ${dest.to} bus tickets`}
               className="group inline-flex items-center gap-2 rounded-md  full bg-blue-700 px-7 py-3.5 text-sm font-bold text-white no-underline transition-transform duration-200 hover:-translate-y-0.5"
             >
