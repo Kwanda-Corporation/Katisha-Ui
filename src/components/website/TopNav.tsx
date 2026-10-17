@@ -44,8 +44,8 @@ export default function TopNav() {
   // Auth state is read from localStorage *after* mount rather than during
   // render. The pre-rendered HTML always contains the signed-out nav (there is
   // no `window` while pre-rendering), so reading storage during render made
-  // every signed-in visitor hydrate the avatar/name against "Sign in" markup,
-  // which React reports as a hydration mismatch. Starting signed-out and
+  // every signed-in visitor hydrate the avatar/name against the signed-out
+  // (promoter CTA) markup, which React reports as a hydration mismatch. Starting signed-out and
   // flipping in an effect also keeps the nav reactive when auth changes.
   const [auth, setAuth] = useState<{
     isLoggedIn: boolean;
@@ -155,17 +155,11 @@ export default function TopNav() {
     >
       {!isLoggedIn && (
         <div className="px-2 pb-1.5 space-y-1">
-          <Link to="/login" onClick={() => setProfileOpen(false)}
+          <Link to="/dashboard/promoter/setup" onClick={() => setProfileOpen(false)}
             className="block w-full text-center px-4 py-2 rounded-lg text-[14px] font-semibold no-underline"
             style={{ background: 'var(--blue)', color: 'white' }}
           >
-            {t('auth.signIn')}
-          </Link>
-          <Link to="/register" onClick={() => setProfileOpen(false)}
-            className="block w-full text-center px-4 py-2 rounded-lg text-[14px] font-semibold no-underline"
-            style={{ background: 'var(--border)', color: 'var(--text-sub)' }}
-          >
-            {t('auth.signUp')}
+            Become a promoter
           </Link>
         </div>
       )}
@@ -388,7 +382,7 @@ export default function TopNav() {
           ) : (
             <>
               {/* Signed-out navbar: promote the promoter offer on every page
-                  (Sign in / Sign up live in the mobile menu). */}
+                  (desktop link + the mobile menu entry below). */}
               <Link
                 to="/dashboard/promoter/setup"
                 className="hidden sm:inline-flex items-center px-1 py-1.5 text-[13px] font-semibold no-underline transition-opacity hover:opacity-75"
