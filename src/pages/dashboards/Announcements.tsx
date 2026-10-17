@@ -4,16 +4,32 @@ import {
   Megaphone, Send, Loader2, RefreshCw, Trash2, Eye, EyeOff, Bell,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { api } from '../../api';
+import { api, type LocalizedAnnouncementText } from '../../api';
 import { PageHeader, Button, StatCard, EmptyState } from '../../components/ui';
+
+// Website-supported locales. An announcement must be composed in every one of
+// them so a visitor's language switch is reflected in the banner and the
+// in-app notification.
+const ANNOUNCEMENT_LANGS = [
+  { code: 'en', label: 'English' },
+  { code: 'kin', label: 'Kinyarwanda' },
+  { code: 'sw', label: 'Kiswahili' },
+  { code: 'fr', label: 'Français' },
+] as const;
+
+type LangCode = (typeof ANNOUNCEMENT_LANGS)[number]['code'];
 
 interface Announcement {
   _id: string;
   title: string;
   message: string;
+  titles?: Partial<LocalizedAnnouncementText>;
+  messages?: Partial<LocalizedAnnouncementText>;
   active: boolean;
   createdAt: string;
 }
+
+const emptyText = (): LocalizedAnnouncementText => ({ en: '', kin: '', sw: '', fr: '' });
 
 function timeAgo(iso: string) {
   const diff = Date.now() - new Date(iso).getTime();
@@ -28,9 +44,10 @@ function timeAgo(iso: string) {
 }
 
 export default function Announcements() {
-  const { t } = useTranslation();
-  const [title, setTitle] = useState('');
-  const [message, setMessage] = useState('');
+  const { t, i18n } = useTranslation();
+  const [activeLang, setActiveLang] = useState<LangCode>('en');
+  const [titles, setTitles] = useState<LocalizedAnnouncementText>(emptyText);
+  const [messages, setMessages] = useState<LocalizedAnnouncementText>(emptyText);
   const [notify, setNotify] = useState(true);
   const [targetRole, setTargetRole] = useState('all');
   const [publishing, setPublishing] = useState(false);
@@ -38,6 +55,14 @@ export default function Announcements() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [list, setList] = useState<Announcement[]>([]);
+
+  const currentLang: LangCode = ANNOUNCEMENT_LANGS.some((l) => l.code === i18n.language)
+    ? (i18n.language as LangCode)
+    : 'en';
+
+  const isLangComplete = (code: LangCode) => !!(titles[code].trim() && messages[code].trim());
+  const completedCount = ANNOUNCEMENT_LANGS.filter((l) => isLangComplete(l.code)).length;
+  const allComplete = completedCount === ANNOUNCEMENT_LANGS.length;
 
   const fetchList = useCallback(async () => {
     setLoading(true);
@@ -54,15 +79,30 @@ export default function Announcements() {
   useEffect(() => { fetchList(); }, [fetchList]);
 
   const handlePublish = async () => {
-    if (!title.trim() || !message.trim()) return;
+    if (!allComplete) { setError(t('announcements.incomplete')); return; }
     setPublishing(true); setError(''); setSuccess('');
     try {
-      await api.publishAnnouncement({ title: title.trim(), message: message.trim(), active: true });
+      const trimmedTitles = Object.fromEntries(
+        ANNOUNCEMENT_LANGS.map((l) => [l.code, titles[l.code].trim()])
+      ) as LocalizedAnnouncementText;
+      const trimmedMessages = Object.fromEntries(
+        ANNOUNCEMENT_LANGS.map((l) => [l.code, messages[l.code].trim()])
+      ) as LocalizedAnnouncementText;
+
+      await api.publishAnnouncement({ titles: trimmedTitles, messages: trimmedMessages, active: true });
       if (notify) {
-        await api.createAnnouncement({ title: title.trim(), message: message.trim(), targetRole: targetRole === 'all' ? undefined : targetRole });
+        await api.createAnnouncement({
+          title: trimmedTitles[currentLang],
+          message: trimmedMessages[currentLang],
+          titles: trimmedTitles,
+          messages: trimmedMessages,
+          targetRole: targetRole === 'all' ? undefined : targetRole,
+        });
       }
       setSuccess(t('announcements.published'));
-      setTitle(''); setMessage('');
+      setTitles(emptyText());
+      setMessages(emptyText());
+      setActiveLang('en');
       await fetchList();
     } catch (err: any) {
       setError(err.message || t('announcements.error'));
@@ -81,6 +121,9 @@ export default function Announcements() {
     await api.deleteAnnouncement(a._id);
     fetchList();
   };
+
+  const displayTitle = (a: Announcement) => a.titles?.[currentLang]?.trim() || a.title;
+  const displayMessage = (a: Announcement) => a.messages?.[currentLang]?.trim() || a.message;
 
   const activeCount = list.filter((a) => a.active).length;
 
@@ -113,13 +156,45 @@ export default function Announcements() {
           animate={{ opacity: 1, y: 0 }}
           className="rounded-md border border-[var(--studio-border)] bg-[var(--studio-surface)] p-6 space-y-5"
         >
-          <h2 className="text-base font-semibold text-[var(--studio-text)]">{t('announcements.compose')}</h2>
+          <div>
+            <h2 className="text-base font-semibold text-[var(--studio-text)]">{t('announcements.compose')}</h2>
+            <p className="text-xs text-[var(--studio-text-sub)] mt-1">{t('announcements.languagesHint')}</p>
+          </div>
+
+          {/* Language tabs — every locale must be completed before publishing. */}
+          <div className="flex items-center gap-1.5 flex-wrap">
+            {ANNOUNCEMENT_LANGS.map((l) => {
+              const isActive = activeLang === l.code;
+              const done = isLangComplete(l.code);
+              return (
+                <button
+                  key={l.code}
+                  type="button"
+                  onClick={() => setActiveLang(l.code)}
+                  aria-pressed={isActive}
+                  className="flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1.5 rounded-md border transition-all"
+                  style={isActive
+                    ? { background: 'var(--studio-accent)', color: 'white', borderColor: 'var(--studio-accent)' }
+                    : { background: 'var(--studio-surface)', color: 'var(--studio-text-sub)', borderColor: 'var(--studio-border)' }}
+                >
+                  {l.label}
+                  <span
+                    className="w-1.5 h-1.5 rounded-full shrink-0"
+                    style={{ background: done ? 'var(--tone-success-dot)' : isActive ? 'rgba(255,255,255,0.5)' : 'var(--fill-strong)' }}
+                  />
+                </button>
+              );
+            })}
+            <span className="text-[11px] text-[var(--studio-text-muted)] ml-auto">
+              {t('announcements.languageProgress', { done: completedCount, total: ANNOUNCEMENT_LANGS.length })}
+            </span>
+          </div>
 
           <div>
             <label className="text-sm font-medium text-[var(--studio-text-sub)] block mb-1.5">{t('announcements.fieldTitle')}</label>
             <input
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              value={titles[activeLang]}
+              onChange={(e) => setTitles((prev) => ({ ...prev, [activeLang]: e.target.value }))}
               className="w-full h-11 px-4 rounded-md border border-[var(--studio-border)] text-sm outline-none focus:border-[var(--studio-accent)]"
               placeholder={t('announcements.titlePlaceholder')}
             />
@@ -127,8 +202,8 @@ export default function Announcements() {
           <div>
             <label className="text-sm font-medium text-[var(--studio-text-sub)] block mb-1.5">{t('announcements.fieldMessage')}</label>
             <textarea
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
+              value={messages[activeLang]}
+              onChange={(e) => setMessages((prev) => ({ ...prev, [activeLang]: e.target.value }))}
               rows={4}
               className="w-full p-4 rounded-md border border-[var(--studio-border)] text-sm resize-none outline-none focus:border-[var(--studio-accent)]"
               placeholder={t('announcements.messagePlaceholder')}
@@ -171,8 +246,11 @@ export default function Announcements() {
 
           {error && <div className="p-3 rounded-md text-xs font-medium" style={{ background: 'var(--tone-danger-fill)', color: 'var(--tone-danger-ink)' }}>{error}</div>}
           {success && <div className="p-3 rounded-md text-xs font-medium" style={{ background: 'var(--tone-success-fill)', color: 'var(--tone-success-ink)' }}>{success}</div>}
+          {!allComplete && !error && (
+            <p className="text-[11px] font-medium" style={{ color: 'var(--tone-warning-ink)' }}>{t('announcements.incomplete')}</p>
+          )}
 
-          <Button variant="primary" fullWidth loading={publishing} disabled={publishing || !title.trim() || !message.trim()} onClick={handlePublish}>
+          <Button variant="primary" fullWidth loading={publishing} disabled={publishing || !allComplete} onClick={handlePublish}>
             <Send size={15} /> {t('announcements.publish')}
           </Button>
         </motion.div>
@@ -196,9 +274,23 @@ export default function Announcements() {
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <p className="text-sm font-semibold text-[var(--studio-text)] truncate">{a.title}</p>
-                      <p className="text-xs text-[var(--studio-text-sub)] mt-0.5 line-clamp-2">{a.message}</p>
-                      <p className="text-[10px] text-[var(--studio-text-muted)] mt-1.5">{timeAgo(a.createdAt)}</p>
+                      <p className="text-sm font-semibold text-[var(--studio-text)] truncate">{displayTitle(a)}</p>
+                      <p className="text-xs text-[var(--studio-text-sub)] mt-0.5 line-clamp-2">{displayMessage(a)}</p>
+                      <div className="flex items-center gap-1 mt-1.5">
+                        {ANNOUNCEMENT_LANGS.map((l) => (
+                          <span
+                            key={l.code}
+                            title={l.label}
+                            className="text-[9px] font-bold uppercase px-1 py-0.5 rounded border"
+                            style={a.titles?.[l.code]?.trim() && a.messages?.[l.code]?.trim()
+                              ? { color: 'var(--studio-accent)', borderColor: 'var(--studio-accent)', background: 'var(--studio-accent-soft)' }
+                              : { color: 'var(--studio-text-muted)', borderColor: 'var(--studio-border)' }}
+                          >
+                            {l.code}
+                          </span>
+                        ))}
+                        <span className="text-[10px] text-[var(--studio-text-muted)] ml-1">{timeAgo(a.createdAt)}</span>
+                      </div>
                     </div>
                     <div className="flex items-center gap-1 shrink-0">
                       <button

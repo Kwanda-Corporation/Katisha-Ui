@@ -91,14 +91,23 @@ export default function TopNav() {
 
   // Website announcement banner. Published by a system admin on the
   // Announcements page and fetched without auth so signed-out visitors see it
-  // too. In development a sample is shown when nothing is published, so the
+  // too. The system admin writes it in all 4 languages, so the banner shows the
+  // copy for the visitor's current language and re-renders when they switch.
+  // In development a sample is shown when nothing is published, so the
   // design can be previewed locally.
-  const [announcement, setAnnouncement] = useState<{ _id?: string; title: string; message: string } | null>(null);
+  interface BannerAnnouncement {
+    _id?: string;
+    title: string;
+    message: string;
+    titles?: Partial<Record<'en' | 'kin' | 'sw' | 'fr', string>>;
+    messages?: Partial<Record<'en' | 'kin' | 'sw' | 'fr', string>>;
+  }
+  const [announcement, setAnnouncement] = useState<BannerAnnouncement | null>(null);
   const [bannerDismissed, setBannerDismissed] = useState(false);
 
   useEffect(() => {
     let alive = true;
-    const apply = (active: { _id?: string; title: string; message: string } | null) => {
+    const apply = (active: BannerAnnouncement | null) => {
       if (!alive) return;
       const a = active ?? (import.meta.env.DEV
         ? { _id: 'dev-sample', title: 'Test announcement', message: 'This is a preview of the website announcement banner. Publish one from the Announcements page.' }
@@ -113,6 +122,14 @@ export default function TopNav() {
       .catch(() => apply(null));
     return () => { alive = false; };
   }, []);
+
+  const announcementLang = LANGUAGES.some((l) => l.code === i18n.language) ? i18n.language : 'en';
+  const bannerTitle = announcement
+    ? announcement.titles?.[announcementLang as 'en' | 'kin' | 'sw' | 'fr']?.trim() || announcement.title
+    : '';
+  const bannerMessage = announcement
+    ? announcement.messages?.[announcementLang as 'en' | 'kin' | 'sw' | 'fr']?.trim() || announcement.message
+    : '';
 
   const dismissBanner = () => {
     // The dev-only sample is not remembered, so it reappears on reload.
@@ -248,8 +265,8 @@ export default function TopNav() {
           <div className="flex items-center gap-2 px-3 sm:px-5 md:px-8 py-1">
             <Megaphone size={12} className="shrink-0" aria-hidden="true" />
             <p className="flex-1 min-w-0 text-[11px] sm:text-[12px] font-medium truncate">
-              <span className="font-bold">{announcement.title}</span>
-              {announcement.message ? ` — ${announcement.message}` : ''}
+              <span className="font-bold">{bannerTitle}</span>
+              {bannerMessage ? ` — ${bannerMessage}` : ''}
             </p>
             <button
               type="button"

@@ -4,7 +4,7 @@ import {
   Bus, Plus, Search, X, Check,
   AlertCircle, MoreHorizontal, Eye, Power, Phone, Mail,
   MapPin, ChevronDown, Users, Clock, Loader2,
-  Hash, Star, BadgeAlert,
+  Hash, Star, BadgeAlert, Pencil,
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { Button, Input, PageHeader, Modal, StatCard } from '../../components/ui';
@@ -16,6 +16,11 @@ interface Agency {
   contactPerson?: string;
   contactPhone: string;
   contactEmail?: string;
+  address?: string;
+  provinces?: string[];
+  accountNumber?: string;
+  accountType?: 'mom' | 'airtel' | 'mpesa';
+  accountName?: string;
   licenseNumber?: string;
   licenseExpiry?: string;
   isActive: boolean;
@@ -43,6 +48,36 @@ interface AgencyFormState {
   contactEmail: string;
   licenseNumber: string;
   licenseExpiry: string;
+}
+
+/** Raw agency record as returned by the API (snake/camel variants accepted). */
+type RawAgency = Partial<Agency> & { _id?: string; phone?: string; email?: string; status?: string };
+
+/** Normalises an API agency record into the shape used by this page. */
+function mapAgency(a: RawAgency): Agency {
+  return {
+    id: a._id ?? a.id ?? '',
+    name: a.name ?? '',
+    contactPerson: a.contactPerson,
+    contactPhone: a.phone ?? a.contactPhone ?? '',
+    contactEmail: a.email ?? a.contactEmail,
+    address: a.address,
+    provinces: a.provinces ?? a.districtCoverage,
+    accountNumber: a.accountNumber,
+    accountType: a.accountType,
+    accountName: a.accountName,
+    licenseNumber: a.licenseNumber,
+    licenseExpiry: a.licenseExpiry,
+    isActive: a.isActive ?? a.status === 'active',
+    featured: a.featured ?? false,
+    rating: a.rating ?? 0,
+    complianceScore: a.complianceScore ?? 100,
+    vehiclesCount: a.vehiclesCount ?? 0,
+    driversCount: a.driversCount ?? 0,
+    completedTrips: a.completedTrips ?? 0,
+    districtCoverage: a.districtCoverage ?? a.provinces,
+    createdAt: a.createdAt,
+  };
 }
 
 // ── Shared Components ──────────────────────────────────────────────────────────
@@ -186,8 +221,95 @@ function AddAgencyModal({ open, onClose, onSave }: { open: boolean; onClose: () 
 
 
 
+// ── Edit Agency Modal ──────────────────────────────────────────────────────────
+function EditAgencyModal({ agency, onClose, onSaved }: {
+  agency: Agency;
+  onClose: () => void;
+  onSaved: (updated: Agency) => void;
+}) {
+  const { authFetch } = useAuth();
+  const [form, setForm] = useState({
+    name: agency.name,
+    contactPhone: agency.contactPhone ?? '',
+    contactEmail: agency.contactEmail ?? '',
+    address: agency.address ?? '',
+    provincesText: (agency.provinces ?? []).join(', '),
+    accountType: (agency.accountType ?? 'mom') as 'mom' | 'airtel' | 'mpesa',
+    accountNumber: agency.accountNumber ?? '',
+    accountName: agency.accountName ?? '',
+  });
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = async () => {
+    if (!form.name.trim() || !form.contactPhone.trim() || !form.contactEmail.trim()) {
+      setError('Name, email and phone are required.');
+      return;
+    }
+    setSaving(true); setError('');
+    const res = await authFetch(`/agencies/${agency.id}`, {
+      method: 'PATCH',
+      body: JSON.stringify({
+        name: form.name.trim(),
+        phone: form.contactPhone.trim(),
+        email: form.contactEmail.trim(),
+        address: form.address.trim(),
+        provinces: form.provincesText.split(',').map(p => p.trim()).filter(Boolean),
+        accountType: form.accountType,
+        accountNumber: form.accountNumber.trim(),
+        accountName: form.accountName.trim(),
+      }),
+    });
+    setSaving(false);
+    if (!res) { setError('Failed to save changes.'); return; }
+    const updated = (res as { data?: { agency?: unknown } })?.data?.agency;
+    if (updated) onSaved(mapAgency(updated as RawAgency));
+    onClose();
+  };
+
+  return (
+    <Modal open onClose={onClose} title="Edit Agency Details" maxWidth={560}>
+      <div className="space-y-4">
+        {error && (
+          <div className="flex items-center gap-2 text-sm text-[var(--studio-text-sub)] bg-[var(--fill-subtle)] px-3 py-2.5 rounded-md border border-[var(--studio-border)]">
+            <AlertCircle size={14} className="flex-shrink-0" /> {error}
+          </div>
+        )}
+        <Input label="Agency Name" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="e.g. Kigali Transport Ltd" />
+        <div className="grid grid-cols-2 gap-3">
+          <Input label="Phone" type="tel" value={form.contactPhone} onChange={e => setForm(f => ({ ...f, contactPhone: e.target.value }))} placeholder="+250 7XX XXX XXX" />
+          <Input label="Email" type="email" value={form.contactEmail} onChange={e => setForm(f => ({ ...f, contactEmail: e.target.value }))} placeholder="agency@example.rw" />
+        </div>
+        <Input label="Address" value={form.address} onChange={e => setForm(f => ({ ...f, address: e.target.value }))} placeholder="e.g. Nyabugogo Bus Terminal, Kigali" />
+        <Input label="Provinces / Districts" value={form.provincesText} onChange={e => setForm(f => ({ ...f, provincesText: e.target.value }))} placeholder="Comma separated, e.g. Kigali, Northern" helper="Separate multiple areas with commas." />
+        <div className="grid grid-cols-2 gap-3">
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="agency-account-type" className="font-[var(--font-body)] text-sm font-medium text-[var(--text)]">Payment Account Type</label>
+            <select
+              id="agency-account-type"
+              value={form.accountType}
+              onChange={e => setForm(f => ({ ...f, accountType: e.target.value as 'mom' | 'airtel' | 'mpesa' }))}
+              className="h-12 px-4 rounded-md border border-[var(--border)] bg-white font-[var(--font-body)] text-base text-[var(--text)] outline-none focus:border-[var(--blue)] cursor-pointer"
+            >
+              <option value="mom">MTN MoMo</option>
+              <option value="airtel">Airtel Money</option>
+              <option value="mpesa">M-Pesa</option>
+            </select>
+          </div>
+          <Input label="Account Number" value={form.accountNumber} onChange={e => setForm(f => ({ ...f, accountNumber: e.target.value }))} placeholder="e.g. 250788000020" />
+        </div>
+        <Input label="Account Name" value={form.accountName} onChange={e => setForm(f => ({ ...f, accountName: e.target.value }))} placeholder="Registered account name" />
+      </div>
+      <div className="flex items-center justify-end gap-3 mt-6 pt-4 border-t border-[var(--studio-border)]">
+        <Button variant="secondary" size="sm" onClick={onClose}>Cancel</Button>
+        <Button size="sm" onClick={handleSubmit} loading={saving} disabled={saving || !form.name.trim() || !form.contactPhone.trim() || !form.contactEmail.trim()}>Save changes</Button>
+      </div>
+    </Modal>
+  );
+}
+
 // ── Agency Detail Drawer ───────────────────────────────────────────────────────
-function AgencyDrawer({ agency, onClose, onToggle }: { agency: Agency; onClose: () => void; onToggle: (agency: Agency) => Promise<void> }) {
+function AgencyDrawer({ agency, onClose, onToggle, onEdit }: { agency: Agency; onClose: () => void; onToggle: (agency: Agency) => Promise<void>; onEdit: () => void }) {
   const [toggling, setToggling] = useState(false);
 
   return (
@@ -247,6 +369,7 @@ function AgencyDrawer({ agency, onClose, onToggle }: { agency: Agency; onClose: 
             {[
               { icon: <Phone size={14} />, label: 'Phone', value: agency.contactPhone },
               { icon: <Mail size={14} />, label: 'Email', value: agency.contactEmail },
+              { icon: <MapPin size={14} />, label: 'Address', value: agency.address },
               { icon: <BadgeAlert size={14} />, label: 'License', value: agency.licenseNumber },
               { icon: <Clock size={14} />, label: 'License Expiry', value: agency.licenseExpiry ? new Date(agency.licenseExpiry).toLocaleDateString() : null },
             ].filter(s => s.value).map(s => (
@@ -280,13 +403,20 @@ function AgencyDrawer({ agency, onClose, onToggle }: { agency: Agency; onClose: 
             </div>
           </div>
 
-          <button onClick={async () => { setToggling(true); await onToggle(agency); setToggling(false); onClose(); }}
-            disabled={toggling}
-            className="w-full flex items-center gap-2 px-4 py-2.5 rounded-md text-sm font-medium border"
-            style={agency.isActive ? { background: 'var(--tone-danger-fill)', color: 'var(--tone-danger-ink)', borderColor: 'var(--tone-danger-line)' } : { background: 'var(--tone-neutral-fill)', color: 'var(--studio-accent)', borderColor: 'var(--studio-border)' }}>
-            {toggling ? <Loader2 size={14} className="animate-spin" /> : <Power size={14} />}
-            {agency.isActive ? 'Deactivate Agency' : 'Activate Agency'}
-          </button>
+          <div className="grid grid-cols-2 gap-2">
+            <button onClick={onEdit}
+              className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-md text-sm font-medium border transition-colors bg-[var(--tone-neutral-fill)] text-[var(--studio-accent)] border-[var(--studio-border)] hover:bg-[var(--fill-hover)]">
+              <Pencil size={14} />
+              Edit details
+            </button>
+            <button onClick={async () => { setToggling(true); await onToggle(agency); setToggling(false); onClose(); }}
+              disabled={toggling}
+              className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-md text-sm font-medium border"
+              style={agency.isActive ? { background: 'var(--tone-danger-fill)', color: 'var(--tone-danger-ink)', borderColor: 'var(--tone-danger-line)' } : { background: 'var(--tone-neutral-fill)', color: 'var(--studio-accent)', borderColor: 'var(--studio-border)' }}>
+              {toggling ? <Loader2 size={14} className="animate-spin" /> : <Power size={14} />}
+              {agency.isActive ? 'Deactivate' : 'Activate'}
+            </button>
+          </div>
       </div>
     </Modal>
   );
@@ -302,6 +432,7 @@ function AgenciesTab() {
   const [statusFilter, setStatusFilter] = useState('');
   const [showAdd, setShowAdd] = useState(false);
   const [selected, setSelected] = useState<Agency | null>(null);
+  const [editing, setEditing] = useState<Agency | null>(null);
   const [page, setPage] = useState(1);
 
   const fetchAgencies = async () => {
@@ -311,24 +442,7 @@ function AgenciesTab() {
     if (data) {
       const raw = data as { agencies?: any[]; data?: { agencies?: any[]; pagination?: Pagination }; pagination?: Pagination };
       const list: any[] = raw.data?.agencies ?? raw.agencies ?? (Array.isArray(data) ? (data as any[]) : []);
-      const mapped: Agency[] = list.map(a => ({
-        id: a._id ?? a.id,
-        name: a.name,
-        contactPerson: a.contactPerson,
-        contactPhone: a.phone ?? a.contactPhone ?? '',
-        contactEmail: a.email ?? a.contactEmail,
-        licenseNumber: a.licenseNumber,
-        licenseExpiry: a.licenseExpiry,
-        isActive: a.isActive ?? a.status === 'active',
-        featured: a.featured ?? false,
-        rating: a.rating ?? 0,
-        complianceScore: a.complianceScore ?? 100,
-        vehiclesCount: a.vehiclesCount ?? 0,
-        driversCount: a.driversCount ?? 0,
-        completedTrips: a.completedTrips ?? 0,
-        districtCoverage: a.districtCoverage ?? a.provinces,
-        createdAt: a.createdAt,
-      }));
+      const mapped: Agency[] = list.map(mapAgency);
       const pag = raw.pagination ?? raw.data?.pagination;
       setAgencies(search ? mapped.filter(a => a.name.toLowerCase().includes(search.toLowerCase())) : mapped);
       if (pag) setPagination(pag);
@@ -441,12 +555,19 @@ function AgenciesTab() {
                   <td className="px-4 py-3"><ActiveBadge active={agency.isActive} /></td>
                   <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
                     <RowMenu isActive={agency.isActive} onView={() => setSelected(agency)} onToggle={() => toggleAgency(agency)}
-                      extras={[{
-                        icon: <Star size={13} />,
-                        label: agency.featured ? 'Remove from top' : 'Feature at top',
-                        color: 'var(--tone-warning-dot)',
-                        action: () => toggleFeatured(agency),
-                      }]}
+                      extras={[
+                        {
+                          icon: <Pencil size={13} />,
+                          label: 'Edit details',
+                          action: () => setEditing(agency),
+                        },
+                        {
+                          icon: <Star size={13} />,
+                          label: agency.featured ? 'Remove from top' : 'Feature at top',
+                          color: 'var(--tone-warning-dot)',
+                          action: () => toggleFeatured(agency),
+                        },
+                      ]}
                     />
                   </td>
                 </motion.tr>
@@ -473,7 +594,12 @@ function AgenciesTab() {
         <AddAgencyModal key="add" open={showAdd} onClose={() => setShowAdd(false)} onSave={fetchAgencies} />
         {selected && (
           <AgencyDrawer key={selected.id} agency={selected} onClose={() => setSelected(null)}
-            onToggle={async (a) => { await toggleAgency(a); }} />
+            onToggle={async (a) => { await toggleAgency(a); }}
+            onEdit={() => setEditing(selected)} />
+        )}
+        {editing && (
+          <EditAgencyModal key={`edit-${editing.id}`} agency={editing} onClose={() => setEditing(null)}
+            onSaved={(updated) => { setSelected(prev => (prev ? updated : prev)); fetchAgencies(); }} />
         )}
       </AnimatePresence>
     </>

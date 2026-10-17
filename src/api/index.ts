@@ -22,6 +22,9 @@ interface ApiOptions extends RequestInit {
   params?: Record<string, string>;
 }
 
+/** Announcements must carry text for each supported website locale. */
+export type LocalizedAnnouncementText = Record<'en' | 'kin' | 'sw' | 'fr', string>;
+
 const SESSION_KEYS = ['vdk_access_token', 'vdk_refresh_token', 'vdk_user'];
 
 function clearStaleSession() {
@@ -219,14 +222,15 @@ export const api = {
   // Notifications
   getNotifications: (params?: Record<string, string>) => request('/notifications', { params }),
   markNotificationsRead: () => request('/notifications/read', { method: 'PATCH' }),
-  createAnnouncement: (data: any) => request('/notifications/announcement', { method: 'POST', body: JSON.stringify(data) }),
+  createAnnouncement: (data: { title: string; message: string; titles?: LocalizedAnnouncementText; messages?: LocalizedAnnouncementText; targetRole?: string }) =>
+    request('/notifications/announcement', { method: 'POST', body: JSON.stringify(data) }),
 
   // Announcements (website banner)
   getActiveAnnouncement: () => request('/announcements/active'),
   getAnnouncements: () => request('/announcements'),
-  publishAnnouncement: (data: { title: string; message: string; active?: boolean }) =>
+  publishAnnouncement: (data: { titles: LocalizedAnnouncementText; messages: LocalizedAnnouncementText; active?: boolean }) =>
     request('/announcements', { method: 'POST', body: JSON.stringify(data) }),
-  updateAnnouncement: (id: string, data: { title?: string; message?: string; active?: boolean }) =>
+  updateAnnouncement: (id: string, data: { titles?: LocalizedAnnouncementText; messages?: LocalizedAnnouncementText; title?: string; message?: string; active?: boolean }) =>
     request(`/announcements/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
   deleteAnnouncement: (id: string) => request(`/announcements/${id}`, { method: 'DELETE' }),
 
