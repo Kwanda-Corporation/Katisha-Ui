@@ -108,7 +108,7 @@ function DestinationPanel({
             <Link
               to={`/book?to=${encodeURIComponent(dest.to)}`}
               aria-label={`${t('guide.bookNow')} — ${dest.to} bus tickets`}
-              className="group inline-flex items-center gap-2 rounded-md  full bg-blue-700 px-7 py-3.5 text-sm font-bold text-white no-underline transition-transform duration-200 hover:-translate-y-0.5"
+              className="group inline-flex items-center gap-2 rounded-xl  full bg-blue-700 px-7 py-3.5 text-sm font-bold text-white no-underline transition-transform duration-200 hover:-translate-y-0.5"
             >
               {t('guide.bookNow')}
               <ArrowRight size={16} className="transition-transform group-hover:translate-x-0.5" />

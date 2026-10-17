@@ -7,7 +7,10 @@
  *  - API images (uploaded tickets / logos) cached once seen so they open offline.
  *  - Keep push-notification handling.
  */
-const CACHE = 'katisha-shell-v1';
+// Bump this version on every deploy that changes a precached public asset
+// (e.g. the logo). The activate handler deletes any cache whose name differs,
+// so an unchanged name would keep serving stale images forever.
+const CACHE = 'katisha-shell-v2';
 
 const STATIC_EXT = /\.(?:png|jpe?g|webp|avif|gif|svg|ico|woff2?|ttf|otf)$/i;
 
@@ -38,7 +41,11 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     (async () => {
       const cache = await caches.open(CACHE);
-      await Promise.allSettled(CORE_ASSETS.map((url) => cache.add(url)));
+      // `cache: 'reload'` bypasses the browser HTTP cache so a version bump
+      // actually re-fetches changed public assets instead of re-storing stale ones.
+      await Promise.allSettled(
+        CORE_ASSETS.map((url) => cache.add(new Request(url, { cache: 'reload' }))),
+      );
       // Precache the hashed JS/CSS referenced by the built index.html so a
       // freshly installed SW can serve the whole app with no further requests.
       try {

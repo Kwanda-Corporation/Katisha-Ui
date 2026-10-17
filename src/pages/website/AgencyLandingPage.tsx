@@ -9,6 +9,7 @@ import TopNav from '../../components/website/TopNav';
 import SiteFooter from '../../components/website/SiteFooter';
 import { agencyLogo } from '../../services/agencyAssets';
 import { viaLabel } from '../../utils/via';
+import { ticketQuote } from '../../utils/serviceFee';
 import { SCRIPT_FONT, Sparkles, CommaSquiggle, SquigglyUnderline, StickyCallout, CTAMicrocopy } from '../../components/website/HandDrawn';
 
 const BASE_URL = 'https://katisha.today';
@@ -76,6 +77,18 @@ export default function AgencyLandingPage({ id: idProp, slug: slugProp }: { id?:
     : undefined;
 
   const totalStops = routes.reduce((sum, r) => sum + (r.via ? 1 : 0), 0);
+
+  // Mirror the agency-selection modal's "all-in" per-seat price (ticket +
+  // Katisha service fee + pawaPay processing fee) for a single seat paid with
+  // MTN, so both surfaces show exactly the same amount to the customer.
+  const perSeatTotal = (price: number) => {
+    if (!price || price <= 0) return 0;
+    try {
+      return ticketQuote({ ticketPrice: price, depositMno: 'MTN', payoutMno: 'MTN' }).total_price;
+    } catch {
+      return 0;
+    }
+  };
 
   const title = `${name} Bus Tickets | Book Online, Routes & Prices`;
   const description = agency
@@ -155,7 +168,7 @@ export default function AgencyLandingPage({ id: idProp, slug: slugProp }: { id?:
                 </p>
                 <Link
                   to="/book"
-                  className="inline-flex items-center gap-2 mt-6 px-6 py-3 rounded-sm font-semibold text-sm no-underline"
+                  className="inline-flex items-center gap-2 mt-6 px-6 py-3 rounded-xl font-semibold text-sm no-underline"
                   style={{ background: 'var(--blue)', color: 'white' }}
                 >
                   Book a Bus Ticket <ArrowRight size={16} />
@@ -243,7 +256,7 @@ export default function AgencyLandingPage({ id: idProp, slug: slugProp }: { id?:
                   <div className="flex flex-col items-center">
                     <Link
                       to="/book"
-                      className="inline-flex items-center gap-2 px-6 py-3 rounded-sm font-bold text-sm no-underline transition-transform hover:scale-[1.03]"
+                      className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm no-underline transition-transform hover:scale-[1.03]"
                       style={{ background: 'var(--blue)', color: 'white' }}
                     >
                       Book Now <ArrowRight size={16} />
@@ -276,17 +289,29 @@ export default function AgencyLandingPage({ id: idProp, slug: slugProp }: { id?:
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {routes.map(r => {
-                  const price = Number(r.price) || 0;
+                  const routePrice = Number(r.effectivePrice || r.price) || 0;
+                  const originalPrice = Number(r.originalPrice) || 0;
+                  const hasPromo = !!r.promotionActive && originalPrice > routePrice;
                   return (
-                    <div key={r._id} className="rounded-md border border-[var(--border)] bg-white p-5 flex flex-col gap-3">
+                    <div key={r._id} className="rounded-xl border border-[var(--border)] bg-white p-5 flex flex-col gap-3">
                       <div className="flex items-center gap-2">
-                        <span className="w-9 h-9 rounded-md bg-[var(--blue-bg)] text-[var(--blue-dark)] flex items-center justify-center shrink-0">
+                        <span className="w-9 h-9 rounded-xl bg-[var(--blue-bg)] text-[var(--blue-dark)] flex items-center justify-center shrink-0">
                           <Bus size={16} />
                         </span>
                         <p className="font-semibold text-[var(--text)]">{r.origin} → {r.destination}<span className="font-medium text-[var(--text-muted)]">{viaLabel(r.via)}</span></p>
-                        <p className="ml-auto text-right font-bold text-[var(--blue-dark)] shrink-0">
-                          {price ? `${price.toLocaleString()} RWF` : '—'}
-                        </p>
+                        <div className="ml-auto text-right shrink-0">
+                          {hasPromo && (
+                            <p className="text-[11px] font-medium text-[var(--text-muted)] line-through">
+                              {perSeatTotal(originalPrice).toLocaleString()} {t('booking.currency')}
+                            </p>
+                          )}
+                          <p className={`font-bold ${hasPromo ? 'text-red-600' : 'text-[var(--blue-dark)]'}`}>
+                            {routePrice ? `${perSeatTotal(routePrice).toLocaleString()} ${t('booking.currency')}` : '—'}
+                          </p>
+                          {hasPromo && (
+                            <p className="text-[10px] font-semibold text-[var(--blue)]">{t('booking.onPromotion')}</p>
+                          )}
+                        </div>
                       </div>
                       <div className="flex items-center gap-4 text-xs text-[var(--text-muted)]">
                         {r.estimatedDuration && (
@@ -300,7 +325,7 @@ export default function AgencyLandingPage({ id: idProp, slug: slugProp }: { id?:
                       </div>
                       <Link
                         to={`/book?to=${encodeURIComponent(r.destination)}&agency=${encodeURIComponent(id)}`}
-                        className="inline-flex items-center justify-center gap-2 mt-auto px-4 py-2.5 rounded-sm text-sm font-semibold no-underline transition-colors"
+                        className="inline-flex items-center justify-center gap-2 mt-auto px-4 py-2.5 rounded-xl text-sm font-semibold no-underline transition-colors"
                         style={{ background: 'var(--blue)', color: 'white' }}
                       >
                         Book {r.origin} → {r.destination}{viaLabel(r.via)} <ArrowRight size={15} />

@@ -191,7 +191,7 @@ export default function RouteHubPage({ scope = 'rwanda' }: { scope?: HubScope } 
             </p>
             <Link
               to="/book"
-              className="inline-flex items-center gap-2 mt-6 px-6 py-3 rounded-sm font-semibold text-sm no-underline transition-transform hover:translate-y-[-1px]"
+              className="inline-flex items-center gap-2 mt-6 px-6 py-3 rounded-xl font-semibold text-sm no-underline transition-transform hover:translate-y-[-1px]"
               style={{ background: 'var(--blue)', color: 'white' }}
             >
               Book a Bus Ticket <ArrowRight size={16} />
@@ -212,12 +212,12 @@ export default function RouteHubPage({ scope = 'rwanda' }: { scope?: HubScope } 
                 Loading routes...
               </div>
             ) : visible.length === 0 ? (
-              <div className="rounded-md border border-[var(--border)] bg-[#FAFBFC] p-8 text-center">
+              <div className="rounded-xl border border-[var(--border)] bg-[#FAFBFC] p-8 text-center">
                 <h2 className="text-lg font-bold text-[var(--text)] mb-1">{cfg.emptyTitle}</h2>
                 <p className="text-sm text-[var(--text-sub)] max-w-xl mx-auto">{cfg.emptyBody}</p>
                 <Link
                   to="/book"
-                  className="inline-flex items-center gap-2 mt-5 px-5 py-2.5 rounded-sm text-sm font-semibold no-underline"
+                  className="inline-flex items-center gap-2 mt-5 px-5 py-2.5 rounded-xl text-sm font-semibold no-underline"
                   style={{ background: 'var(--blue)', color: 'white' }}
                 >
                   Browse all routes <ArrowRight size={15} />
@@ -228,9 +228,9 @@ export default function RouteHubPage({ scope = 'rwanda' }: { scope?: HubScope } 
                 {visible.map((g) => {
                   const count = g.agencies.length;
                   return (
-                    <div key={`${slugify(g.origin)}-to-${slugify(g.destination)}`} className="rounded-md border border-[var(--border)] bg-white p-5 flex flex-col gap-3">
+                    <div key={`${slugify(g.origin)}-to-${slugify(g.destination)}`} className="rounded-xl border border-[var(--border)] bg-white p-5 flex flex-col gap-3">
                       <div className="flex items-center gap-3">
-                        <span className="w-11 h-11 rounded-md bg-[var(--blue-bg)] text-[var(--blue-dark)] flex items-center justify-center text-lg font-bold shrink-0">
+                        <span className="w-11 h-11 rounded-xl bg-[var(--blue-bg)] text-[var(--blue-dark)] flex items-center justify-center text-lg font-bold shrink-0">
                           <Bus size={18} />
                         </span>
                         <div className="min-w-0">
@@ -254,7 +254,7 @@ export default function RouteHubPage({ scope = 'rwanda' }: { scope?: HubScope } 
                         )}
                         <Link
                           to={`/bus/${slugify(g.origin)}-to-${slugify(g.destination)}`}
-                          className="inline-flex items-center justify-center gap-2 ml-auto px-4 py-2.5 rounded-sm text-sm font-semibold no-underline transition-colors"
+                          className="inline-flex items-center justify-center gap-2 ml-auto px-4 py-2.5 rounded-xl text-sm font-semibold no-underline transition-colors"
                           style={{ background: 'var(--blue)', color: 'white' }}
                         >
                           Route details <ArrowRight size={15} />

@@ -252,7 +252,7 @@ export default function PaymentStatus() {
           <button
             onClick={handleCancelPayment}
             disabled={cancelling}
-            className="mt-7 h-10 rounded-md bg-[var(--green-cta)] hover:bg-[var(--green-cta-hover)] active:bg-[var(--green-cta-active)] text-[var(--green-ink)] text-sm font-semibold px-6 flex items-center justify-center gap-2 transition-colors duration-200 cursor-pointer border-none disabled:opacity-60 mx-auto"
+            className="mt-7 h-10 rounded-xl bg-[var(--green-cta)] hover:bg-[var(--green-cta-hover)] active:bg-[var(--green-cta-active)] text-[var(--green-ink)] text-sm font-semibold px-6 flex items-center justify-center gap-2 transition-colors duration-200 cursor-pointer border-none disabled:opacity-60 mx-auto"
           >
             {cancelling ? <Loader size={14} className="animate-spin" /> : <X size={16} />}
             {cancelling ? t('booking.paymentCancelling') : t('booking.paymentCancel')}

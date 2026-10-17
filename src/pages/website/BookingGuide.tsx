@@ -23,7 +23,7 @@ import {
 // is styled as boarding-pass/ticket stubs — perforated divider + punched
 // notches — because that's literal, on-brand, and specific to a bus-ticketing
 // product rather than a generic card grid. Everything else stays in the site's
-// quiet baseline (rounded-sm, thin borders, flat fills); the only other
+// quiet baseline (rounded-xl, thin borders, flat fills); the only other
 // sequence cue is the subtle dashed route line through the "How to Book" steps.
 //
 // Payment cards use typographic wordmarks in each provider's brand color as a
@@ -62,7 +62,7 @@ function SectionHeading({ title, icon: Icon }: { title: string; icon: React.Comp
   return (
     <div className="relative flex items-center gap-3 mb-6">
       <CommaSquiggle className="pointer-events-none absolute -left-8 top-0 hidden h-7 w-7 text-[var(--blue)]/40 sm:block" />
-      <span className="w-9 h-9 rounded-sm bg-[var(--blue-light)] text-[var(--blue)] flex items-center justify-center shrink-0">
+      <span className="w-9 h-9 rounded-xl bg-[var(--blue-light)] text-[var(--blue)] flex items-center justify-center shrink-0">
         <Icon size={16} />
       </span>
       <h2 className="text-xl sm:text-2xl font-bold text-[var(--text)] tracking-tight">{title}</h2>
@@ -227,7 +227,7 @@ export default function BookingGuide() {
           <Reveal direction="up">
             <div className="mb-6">
               <div className="flex items-center gap-3">
-                <span className="w-9 h-9 rounded-sm bg-[var(--blue-light)] text-[var(--blue)] flex items-center justify-center shrink-0">
+                <span className="w-9 h-9 rounded-xl bg-[var(--blue-light)] text-[var(--blue)] flex items-center justify-center shrink-0">
                   <Compass size={16} />
                 </span>
                 <div>
@@ -254,7 +254,7 @@ export default function BookingGuide() {
                 <Link
                   to={`/book?to=${encodeURIComponent(dest.to)}`}
                   aria-label={`${t('guide.bookNow')} — ${dest.to}`}
-                  className="group relative block h-full overflow-hidden rounded-sm border border-[var(--border)] bg-white transition-colors duration-200 hover:border-[var(--blue)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blue)] no-underline"
+                  className="group relative block h-full overflow-hidden rounded-xl border border-[var(--border)] bg-white transition-colors duration-200 hover:border-[var(--blue)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blue)] no-underline"
                 >
                   <div className="relative aspect-[4/3] overflow-hidden bg-[var(--blue-bg)]">
                     <img
@@ -308,14 +308,14 @@ export default function BookingGuide() {
                   delay={i * 0.1}
                   className="h-full"
                 >
-                  <div className="relative h-full rounded-sm border border-[var(--border)] bg-white px-5 pt-3 pb-5">
+                  <div className="relative h-full rounded-xl border border-[var(--border)] bg-white px-5 pt-3 pb-5">
                   <div className="mb-4 flex justify-center">
                     <span className="relative z-10 flex h-9 w-9 items-center justify-center rounded-full bg-[var(--blue)] text-white text-[13px] font-bold">
                       {i + 1}
                     </span>
                   </div>
                   <div className="mb-2 flex items-center gap-2.5">
-                    <span className="w-8 h-8 rounded-sm bg-[var(--blue-light)] text-[var(--blue)] flex items-center justify-center shrink-0">
+                    <span className="w-8 h-8 rounded-xl bg-[var(--blue-light)] text-[var(--blue)] flex items-center justify-center shrink-0">
                       <Icon size={15} />
                     </span>
                     <h3 className="text-[15px] font-bold text-[var(--text)]">
@@ -385,7 +385,7 @@ export default function BookingGuide() {
                 delay={(i % 3) * 0.12}
                 className="h-full"
               >
-                <div className="rounded-sm border border-[var(--border)] bg-white p-5">
+                <div className="rounded-xl border border-[var(--border)] bg-white p-5">
                 <div className="mb-4 flex items-center justify-between gap-2">
                   <span className={`inline-flex items-center rounded-full px-3 py-1 text-[12px] font-bold tracking-tight ${chipClass}`}>
                     {wordmark}
@@ -407,9 +407,9 @@ export default function BookingGuide() {
           </Reveal>
           <div className="grid gap-4 sm:grid-cols-2">
             <Reveal direction="left" className="h-full">
-              <div className="h-full rounded-sm border border-[var(--border)] bg-white p-6">
+              <div className="h-full rounded-xl border border-[var(--border)] bg-white p-6">
               <div className="flex items-center gap-2.5 mb-3">
-                <span className="w-8 h-8 rounded-sm bg-[#FFF4E5] text-[var(--warning)] flex items-center justify-center shrink-0">
+                <span className="w-8 h-8 rounded-xl bg-[#FFF4E5] text-[var(--warning)] flex items-center justify-center shrink-0">
                   <AlertTriangle size={15} />
                 </span>
                 <h3 className="text-[15px] font-bold text-[var(--text)]">{t('guide.lateArrivalTitle')}</h3>
@@ -421,9 +421,9 @@ export default function BookingGuide() {
             </div>
             </Reveal>
             <Reveal direction="right" className="h-full">
-              <div className="h-full rounded-sm border border-[var(--border)] bg-white p-6">
+              <div className="h-full rounded-xl border border-[var(--border)] bg-white p-6">
               <div className="flex items-center gap-2.5 mb-3">
-                <span className="w-8 h-8 rounded-sm bg-[var(--blue-light)] text-[var(--blue)] flex items-center justify-center shrink-0">
+                <span className="w-8 h-8 rounded-xl bg-[var(--blue-light)] text-[var(--blue)] flex items-center justify-center shrink-0">
                   <CheckCircle2 size={15} />
                 </span>
                 <h3 className="text-[15px] font-bold text-[var(--text)]">{t('guide.allBookingsTitle')}</h3>
@@ -451,10 +451,10 @@ export default function BookingGuide() {
             <SectionHeading title={t('guide.freeTicketsTitle')} icon={Gift} />
           </Reveal>
           <Reveal direction="up" delay={0.1}>
-            <div className="overflow-hidden rounded-sm border border-[var(--border)] bg-white">
+            <div className="overflow-hidden rounded-xl border border-[var(--border)] bg-white">
             <div className="grid md:grid-cols-2">
               <div className="p-6 sm:p-7 bg-[var(--blue-bg)]">
-                <span className="w-12 h-12 rounded-sm bg-white text-[var(--blue)] flex items-center justify-center mb-4">
+                <span className="w-12 h-12 rounded-xl bg-white text-[var(--blue)] flex items-center justify-center mb-4">
                   <Gift size={22} />
                 </span>
                 <h3 className="text-lg font-bold text-[var(--text)] mb-1.5">{t('guide.freeTicketsTitle')}</h3>
@@ -482,8 +482,8 @@ export default function BookingGuide() {
         {/* Agents at Stations + Pickup Status */}
         <section className="grid gap-4 sm:grid-cols-2">
           <Reveal direction="left" className="h-full">
-            <div className="h-full rounded-sm border border-[var(--border)] bg-white p-6">
-            <span className="w-10 h-10 rounded-sm bg-[var(--blue-light)] text-[var(--blue)] flex items-center justify-center mb-4">
+            <div className="h-full rounded-xl border border-[var(--border)] bg-white p-6">
+            <span className="w-10 h-10 rounded-xl bg-[var(--blue-light)] text-[var(--blue)] flex items-center justify-center mb-4">
               <MapPin size={18} />
             </span>
             <h3 className="text-[15px] font-bold text-[var(--text)] mb-1.5">{t('guide.agentsAtStation')}</h3>
@@ -491,8 +491,8 @@ export default function BookingGuide() {
           </div>
           </Reveal>
           <Reveal direction="right" className="h-full">
-            <div className="h-full rounded-sm border border-[var(--border)] bg-white p-6">
-              <span className="w-10 h-10 rounded-sm bg-[var(--blue-bg)] text-[var(--blue-dark)] flex items-center justify-center mb-4">
+            <div className="h-full rounded-xl border border-[var(--border)] bg-white p-6">
+              <span className="w-10 h-10 rounded-xl bg-[var(--blue-bg)] text-[var(--blue-dark)] flex items-center justify-center mb-4">
                 <Clock3 size={18} />
               </span>
               <h3 className="text-[15px] font-bold text-[var(--text)] mb-1.5">{t('guide.pickupStatus')}</h3>
@@ -507,7 +507,7 @@ export default function BookingGuide() {
             <SectionHeading title={t('guide.supportTitle')} icon={MessageCircle} />
           </Reveal>
           <Reveal direction="up" delay={0.1}>
-            <div className="rounded-sm border border-[var(--border)] bg-white">
+            <div className="rounded-xl border border-[var(--border)] bg-white">
             {contactRows.map((row, i) => {
               const Icon = row.icon;
               return (
@@ -520,7 +520,7 @@ export default function BookingGuide() {
                     className="flex items-center justify-between gap-3 p-4 sm:p-5 hover:bg-[#F9FAFB] transition-colors no-underline group"
                   >
                     <div className="flex items-center gap-3.5 min-w-0">
-                      <span className={`w-10 h-10 rounded-sm flex items-center justify-center shrink-0 ${row.tileClass}`}>
+                      <span className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${row.tileClass}`}>
                         <Icon size={18} />
                       </span>
                       <div className="min-w-0">

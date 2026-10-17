@@ -293,7 +293,7 @@ export default function RouteLandingPage({ slug: slugProp }: { slug?: string } =
                 </p>
                 <Link
                   to={`/book?to=${encodeURIComponent(resolved.destination)}`}
-                  className="inline-flex items-center gap-2 mt-6 px-6 py-3 rounded-sm font-semibold text-sm no-underline transition-transform hover:translate-y-[-1px]"
+                  className="inline-flex items-center gap-2 mt-6 px-6 py-3 rounded-xl font-semibold text-sm no-underline transition-transform hover:translate-y-[-1px]"
                   style={{ background: 'var(--blue)', color: 'white' }}
                 >
                   Book Now <ArrowRight size={16} />
@@ -310,7 +310,7 @@ export default function RouteLandingPage({ slug: slugProp }: { slug?: string } =
                 </p>
                 <Link
                   to="/book"
-                  className="inline-flex items-center gap-2 mt-6 px-6 py-3 rounded-sm font-semibold text-sm no-underline"
+                  className="inline-flex items-center gap-2 mt-6 px-6 py-3 rounded-xl font-semibold text-sm no-underline"
                   style={{ background: 'var(--blue)', color: 'white' }}
                 >
                   Book a Bus Ticket <ArrowRight size={16} />
@@ -337,10 +337,10 @@ export default function RouteLandingPage({ slug: slugProp }: { slug?: string } =
                   return (
                     <div
                       key={r._id}
-                      className="rounded-md border border-[var(--border)] bg-white p-5 flex flex-col gap-3"
+                      className="rounded-xl border border-[var(--border)] bg-white p-5 flex flex-col gap-3"
                     >
                       <div className="flex items-center gap-3">
-                        <div className="w-11 h-11 rounded-md bg-[var(--blue-bg)] text-[var(--blue-dark)] flex items-center justify-center text-lg font-bold shrink-0">
+                        <div className="w-11 h-11 rounded-xl bg-[var(--blue-bg)] text-[var(--blue-dark)] flex items-center justify-center text-lg font-bold shrink-0">
                           {(agency.name || '?')[0]}
                         </div>
                         <div className="min-w-0">
@@ -365,7 +365,7 @@ export default function RouteLandingPage({ slug: slugProp }: { slug?: string } =
                       </div>
                       <Link
                         to={`/book?to=${encodeURIComponent(resolved.destination)}&agency=${encodeURIComponent(agency._id || agency.id || '')}`}
-                        className="inline-flex items-center justify-center gap-2 mt-auto px-4 py-2.5 rounded-sm text-sm font-semibold no-underline transition-colors"
+                        className="inline-flex items-center justify-center gap-2 mt-auto px-4 py-2.5 rounded-xl text-sm font-semibold no-underline transition-colors"
                         style={{ background: 'var(--blue)', color: 'white' }}
                       >
                         Book {agency.name || 'this agency'} <ArrowRight size={15} />
@@ -375,7 +375,7 @@ export default function RouteLandingPage({ slug: slugProp }: { slug?: string } =
                 })}
               </div>
 
-              <div className="mt-10 rounded-md border border-[var(--border)] bg-[#FAFBFC] p-6">
+              <div className="mt-10 rounded-xl border border-[var(--border)] bg-[#FAFBFC] p-6">
                 <h3 className="font-semibold text-sm mb-3 text-[var(--text)]">Need help with your {originName} to {destName} trip?</h3>
                 <div className="flex flex-col sm:flex-row gap-3 text-sm text-[var(--text-sub)]">
                   <a href="tel:+250793216191" className="no-underline flex items-center gap-2" style={{ color: 'var(--text-sub)' }}>

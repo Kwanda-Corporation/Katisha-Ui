@@ -56,7 +56,7 @@ export default function TicketView() {
         <p className="text-sm text-[var(--text-sub)] mb-4">Please log in to view your ticket.</p>
         <button
           onClick={() => navigate('/login')}
-          className="h-10 px-6 rounded-md bg-[var(--blue)] text-white text-sm font-semibold cursor-pointer border-none hover:bg-[var(--blue-dark)] transition-colors"
+          className="h-10 px-6 rounded-xl bg-[var(--blue)] text-white text-sm font-semibold cursor-pointer border-none hover:bg-[var(--blue-dark)] transition-colors"
         >
           Go to Login
         </button>
@@ -71,7 +71,7 @@ export default function TicketView() {
       <div className="sticky top-0 z-10 bg-white border-b border-[var(--border)] px-4 py-3 flex items-center gap-3">
         <button
           onClick={() => navigate('/my-bookings')}
-          className="w-9 h-9 rounded-sm flex items-center justify-center bg-[#F9FAFB] hover:bg-[#F3F4F6] transition-colors cursor-pointer border-none"
+          className="w-9 h-9 rounded-xl flex items-center justify-center bg-[#F9FAFB] hover:bg-[#F3F4F6] transition-colors cursor-pointer border-none"
         >
           <ArrowLeft size={18} className="text-[var(--text-sub)]" />
         </button>
@@ -94,7 +94,7 @@ export default function TicketView() {
             <p className="text-sm text-[var(--text-sub)] mb-4">{error}</p>
             <button
               onClick={loadTicket}
-              className="h-10 px-6 rounded-md bg-[var(--blue)] text-white text-sm font-semibold cursor-pointer border-none hover:bg-[var(--blue-dark)] transition-colors"
+              className="h-10 px-6 rounded-xl bg-[var(--blue)] text-white text-sm font-semibold cursor-pointer border-none hover:bg-[var(--blue-dark)] transition-colors"
             >
               Try Again
             </button>
@@ -106,7 +106,7 @@ export default function TicketView() {
             transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
           >
             {/* Ticket Image */}
-            <div className="rounded-md overflow-hidden border border-[var(--border)] bg-white mb-4">
+            <div className="rounded-xl overflow-hidden border border-[var(--border)] bg-white mb-4">
               <img
                 src={ticketData.ticket.imageUrl}
                 alt={`Ticket ${ticketData.booking.referenceCode}`}
@@ -135,9 +135,9 @@ export default function TicketView() {
             </div>
 
             {/* Trip summary */}
-            <div className="bg-white rounded-md border border-[var(--border)] p-4">
+            <div className="bg-white rounded-xl border border-[var(--border)] p-4">
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-md bg-[var(--blue)] flex items-center justify-center">
+                <div className="w-10 h-10 rounded-xl bg-[var(--blue)] flex items-center justify-center">
                   <Bus size={18} className="text-white" />
                 </div>
                 <div>

@@ -62,14 +62,14 @@ export default function AuthChoice() {
       <div className="fixed bottom-5 right-5 z-20 group">
         <span
           role="tooltip"
-          className="pointer-events-none absolute bottom-[calc(100%+8px)] right-0 w-max max-w-[240px] rounded-lg bg-[var(--text)] px-3 py-2 text-xs text-white opacity-0 shadow-lg transition-opacity duration-150 group-hover:opacity-100 group-focus-within:opacity-100"
+          className="pointer-events-none absolute bottom-[calc(100%+8px)] right-0 w-max max-w-[240px] rounded-xl bg-[var(--text)] px-3 py-2 text-xs text-white opacity-0 shadow-lg transition-opacity duration-150 group-hover:opacity-100 group-focus-within:opacity-100"
         >
           {t('promoter.earnTooltip')}
         </span>
         <button
           type="button"
           onClick={() => navigate('/dashboard/promoter/setup')}
-          className="inline-flex items-center gap-2 h-11 px-5 rounded-md bg-[var(--blue)] hover:bg-[var(--blue-dark)] text-white text-sm font-semibold transition-colors cursor-pointer"
+          className="inline-flex items-center gap-2 h-11 px-5 rounded-xl bg-[var(--blue)] hover:bg-[var(--blue-dark)] text-white text-sm font-semibold transition-colors cursor-pointer"
         >
           <Banknote size={16} />
           {t('promoter.earnFromKatisha')}
