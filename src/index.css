@@ -8,6 +8,18 @@
   --radius-3xl: 1.25rem;
 }
 
+/* Bottom-sheet modals sit a little taller on phones (95% of the viewport) so
+   their content gets more room; on wider screens they keep their 89% height. */
+:root {
+  --modal-h: 95dvh;
+}
+
+@media (min-width: 640px) {
+  :root {
+    --modal-h: 89dvh;
+  }
+}
+
 :root {
   --font-display: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-body: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;

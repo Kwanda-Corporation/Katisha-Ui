@@ -2,7 +2,7 @@ import React from 'react'
 import {
   AppWindow, Users, Building2, Route, Clock, DollarSign,
   Bell, Megaphone, Signal, Ticket, UserPlus, ListChecks,
-  LayoutDashboard, Share2, Wallet, HandCoins, Settings, ShieldCheck,
+  LayoutDashboard, Share2, Wallet, HandCoins, Settings, ShieldCheck, Armchair,
 } from 'lucide-react'
 
 export interface StudioNavItem {
@@ -34,6 +34,7 @@ export const STUDIO_NAV: Record<string, StudioNavConfig> = {
       { id: 'organizations', labelKey: 'nav.organizations', path: '/dashboard/organizations', icon: <Building2 size={size} /> },
       { id: 'routes', labelKey: 'nav.routes', path: '/dashboard/routes', icon: <Route size={size} /> },
       { id: 'schedules', labelKey: 'nav.schedules', path: '/dashboard/schedules', icon: <Clock size={size} /> },
+      { id: 'seats', labelKey: 'nav.seats', path: '/dashboard/seats', icon: <Armchair size={size} /> },
       { id: 'accounting', labelKey: 'nav.accounting', path: '/dashboard/accounting', icon: <DollarSign size={size} /> },
       { id: 'promoters', labelKey: 'nav.promoters', path: '/dashboard/promoters', icon: <HandCoins size={size} /> },
     ],
@@ -48,6 +49,7 @@ export const STUDIO_NAV: Record<string, StudioNavConfig> = {
       { id: 'overview', labelKey: 'nav.overview', path: '/dashboard/overview', icon: <AppWindow size={size} /> },
       { id: 'bookings', labelKey: 'nav.bookings', path: '/dashboard/bookings-management', icon: <Ticket size={size} /> },
       { id: 'departures', labelKey: 'nav.departures', path: '/dashboard/departures', icon: <Clock size={size} /> },
+      { id: 'seats', labelKey: 'nav.seats', path: '/dashboard/seats', icon: <Armchair size={size} /> },
       { id: 'reports', labelKey: 'nav.reports', path: '/dashboard/reports', icon: <ListChecks size={size} /> },
       { id: 'agents', labelKey: 'nav.agents', path: '/dashboard/agents', icon: <UserPlus size={size} /> },
       { id: 'settings', labelKey: 'nav.settings', path: '/dashboard/agency-settings', icon: <Settings size={size} /> },

@@ -2,8 +2,8 @@ import React, { useState, useEffect, useRef, useMemo, useCallback, Fragment } fr
 import { useNavigate, Link } from 'react-router';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Bus, MapPin, Calendar, ArrowRight, ArrowLeft, Check, Smartphone,
-  Loader, Minus, Plus, Clock, Info, AlertCircle, X, ChevronDown, Search, Lock, Star, Route
+  Bus, MapPin, Calendar, ArrowRight, ArrowLeft, Check, Smartphone, Armchair,
+  Loader, Clock, Info, AlertCircle, X, ChevronDown, Search, Lock, Star, Route
 } from 'lucide-react';
 import { api, resolveImageUrl } from '../../api';
 import { captureReferralCode, clearReferralCode, getReferralCode } from '../../utils/referral';
@@ -17,6 +17,8 @@ import { searchRoutesOffline } from '../../services/offlineData';
 import { cacheTicketWithImage, cacheTicket } from '../../services/ticketCache';
 import { useOnline } from '../../contexts/OnlineContext';
 import { ticketQuote, mnoFromPaymentMethod } from '../../utils/serviceFee';
+import SeatSelectionStep, { SeatSelectionStepHandle } from '../seat/SeatSelectionStep';
+import Legend from '../seat/Legend';
 
 function FieldError({ message }: { message?: string }) {
   if (!message) return null;
@@ -248,6 +250,19 @@ export default function BookingWizard() {
   const toast = useToast();
   const [useFreeTicket, setUseFreeTicket] = useState(false);
   const [guestName, setGuestName] = useState('');
+  // Seat-map selection, lifted so the booking request can carry seat numbers.
+  const seatStepRef = useRef<SeatSelectionStepHandle>(null);
+  const [selectedSeatNumbers, setSelectedSeatNumbers] = useState<string[]>([]);
+  const [selectedSeatClientId, setSelectedSeatClientId] = useState<string | undefined>(undefined);
+  const [preSeatNumbers, setPreSeatNumbers] = useState<string[]>([]);
+  const [showSeatModal, setShowSeatModal] = useState(false);
+  const [seatsConfirmed, setSeatsConfirmed] = useState(false);
+  // Whether the modal's data-driven seat map (rather than the count stepper) is
+  // in use, so the footer can show the real selected seat labels and fare.
+  const [seatMapActive, setSeatMapActive] = useState(false);
+  // Seat labels that were last confirmed, so changing the selection forces a
+  // re-confirm before the wizard will advance.
+  const confirmedSeatKeyRef = useRef<string | null>(null);
 
 
   const [step, setStep] = useState(0);
@@ -292,6 +307,16 @@ export default function BookingWizard() {
   const confirmationRef = useRef<HTMLDivElement>(null);
   const pendingAgencyRef = useRef<string | null>(null);
 
+  // Reset seat selection when the departure changes so old holds/choices
+  // don't accidentally carry over to a different trip.
+  useEffect(() => {
+    if (!form.agencyId && !form.routeId && !form.travelDate && !form.travelTime) return;
+    setSeatsConfirmed(false);
+    setSelectedSeatNumbers([]);
+    setSelectedSeatClientId(undefined);
+    confirmedSeatKeyRef.current = null;
+  }, [form.agencyId, form.routeId, form.travelDate, form.travelTime]);
+
   // Payment channel is always online via PawaPay
   const [showPaymentModal, setShowPaymentModal] = useState(false);
 
@@ -309,6 +334,16 @@ export default function BookingWizard() {
     const to = (params.get('to') || params.get('destination') || '').trim();
     const agency = params.get('agency') || params.get('agencyId');
     const date = params.get('date') || params.get('travelDate');
+    const time = params.get('time') || params.get('travelTime') || '';
+    // Seats carried in from the standalone seat-selection page (?seats=3,7).
+    const seatsParam = params.get('seats');
+    if (seatsParam) {
+      const picked = seatsParam.split(',').map((s) => s.trim()).filter(Boolean);
+      if (picked.length) {
+        setPreSeatNumbers(picked);
+        setForm((f) => ({ ...f, seats: picked.length }));
+      }
+    }
     if (!to) {
       if (!autoOpenedDestRef.current) {
         autoOpenedDestRef.current = true;
@@ -326,7 +361,7 @@ export default function BookingWizard() {
       routeId: '',
       agencyId: '',
       pickupPoint: '',
-      travelTime: '',
+      travelTime: time,
       travelDate,
     }));
     if (agency) pendingAgencyRef.current = agency;
@@ -520,6 +555,20 @@ export default function BookingWizard() {
     // Online payment is the only option — open the payment modal directly.
     setShowPaymentModal(true);
   }, [step, form.paymentMethod]);
+
+  // Auto-open the seat picker as soon as the wizard moves into the seats step —
+  // e.g. right after a departure time is chosen, which advances automatically —
+  // so the user lands straight on the map instead of an empty field. Only fires
+  // on a forward 0 → 1 move, so returning from payment doesn't re-open it.
+  const prevStepRef = useRef(step);
+  useEffect(() => {
+    const prev = prevStepRef.current;
+    prevStepRef.current = step;
+    if (step === 1 && prev === 0) {
+      const timer = setTimeout(() => setShowSeatModal(true), 300);
+      return () => clearTimeout(timer);
+    }
+  }, [step]);
 
   /**/
 
@@ -802,6 +851,13 @@ export default function BookingWizard() {
       setShowSchedule(true);
     }
 
+    if (step === 1) {
+      if (!seatsConfirmed) {
+        setErrors({ seats: 'Please choose and confirm your seats.' });
+        return;
+      }
+    }
+
     const lastStepIndex = totalSteps - 1;
     const currentIndex = stepToIndex(step);
     if (currentIndex >= lastStepIndex) {
@@ -845,6 +901,13 @@ export default function BookingWizard() {
         contactPhone: useExtraContactPhone ? (form.contactPhone.trim() || undefined) : form.phone,
       };
 
+      // Seat selection: only sent when the map produced real seat numbers, so
+      // legacy seat-count bookings are untouched.
+      if (selectedSeatNumbers.length) {
+        bookingData.seatNumbers = selectedSeatNumbers;
+        // Lets the server convert this session's holds into the confirmed seats.
+        if (selectedSeatClientId) bookingData.seatClientId = selectedSeatClientId;
+      }
       // Promoter attribution. The server ignores this when there is no code, and
       // rejects self-referral, so it is always safe to send.
       const referralCode = getReferralCode();
@@ -913,6 +976,36 @@ export default function BookingWizard() {
       toast.error(t('booking.bookingFailed'), msg);
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  // Confirms the seats chosen in the seat modal: places a hold on the live map
+  // selection (so they can't be taken before checkout) and closes the modal.
+  // When no live map is available, the fallback stepper count is simply accepted.
+  const handleSeatConfirm = async () => {
+    const handle = seatStepRef.current;
+    try {
+      if (handle?.isActive()) {
+        await handle.reserve();
+      }
+      const key = handle?.getSelection().seatNumbers.join(',') ?? '';
+      confirmedSeatKeyRef.current = key;
+      setSeatsConfirmed(true);
+      setErrors((e) => ({ ...e, seats: '' }));
+      setShowSeatModal(false);
+      // Go straight to checkout once the seats are locked in; the step-2 effect
+      // opens the payment modal.
+      setStep(2);
+    } catch (err: any) {
+      if (err?.status === 409 || err?.alreadyTaken) {
+        setErrors((e) => ({
+          ...e,
+          seats: 'Some of those seats were just taken. Please choose different seats.',
+        }));
+        // Leave the modal open so the user can reselect immediately.
+      } else {
+        toast.error('Seat selection', err?.message || 'Could not hold these seats. Please try again.');
+      }
     }
   };
 
@@ -1276,26 +1369,22 @@ export default function BookingWizard() {
 
       case 1:
         return (
-          <div className="flex flex-col gap-5">
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <label className="text-sm sm:text-base font-medium uppercase tracking-[0.12em] text-[var(--text-sub)]">{t('booking.numSeats')}</label>
-              </div>
-              <div className="flex items-center gap-3">
-                <motion.button whileTap={{ scale: 0.9 }} onClick={() => setForm(f => ({ ...f, seats: Math.max(1, f.seats - 1) }))}
-                  className="w-11 h-11 rounded-sm border-2 border-[var(--border)] flex items-center justify-center hover:border-[var(--blue)] hover:bg-[var(--blue-bg)] transition-all duration-200 cursor-pointer text-[var(--text-sub)] hover:text-[var(--blue-dark)] shrink-0"
-                >
-                  <Minus size={18} />
-                </motion.button>
-                <motion.span key={form.seats} initial={{ scale: 1.2 }} animate={{ scale: 1 }} className="text-4xl font-semibold text-[var(--text)] w-16 text-center tabular-nums">{form.seats}</motion.span>
-                <motion.button whileTap={{ scale: 0.9 }} onClick={() => setForm(f => ({ ...f, seats: Math.min(10, f.seats + 1) }))}
-                  className="w-11 h-11 rounded-sm border-2 border-[var(--border)] flex items-center justify-center hover:border-[var(--blue)] hover:bg-[var(--blue-bg)] transition-all duration-200 cursor-pointer text-[var(--text-sub)] hover:text-[var(--blue-dark)] shrink-0"
-                >
-                  <Plus size={18} />
-                </motion.button>
-              </div>
-              {errors.seats && <FieldError message={errors.seats} />}
-            </div>
+          <div className="flex flex-col gap-3">
+            {renderSelectField({
+              label: t('booking.selectSeats'),
+              placeholder: t('booking.selectSeats'),
+              value: selectedSeatNumbers.length
+                ? `${selectedSeatNumbers.length} seat${selectedSeatNumbers.length > 1 ? 's' : ''} · ${selectedSeatNumbers.join(', ')}`
+                : '',
+              icon: Armchair,
+              onOpen: () => setShowSeatModal(true),
+              error: errors.seats,
+            })}
+            {seatsConfirmed && !errors.seats && (
+              <p className="flex items-center gap-1.5 text-sm font-medium text-[var(--blue-dark)]">
+                <Check size={15} /> {selectedSeatNumbers.length || form.seats} seat{(selectedSeatNumbers.length || form.seats) > 1 ? 's' : ''} confirmed
+              </p>
+            )}
           </div>
         );
 
@@ -1842,6 +1931,7 @@ export default function BookingWizard() {
         }}
         contactPhoneError={errors.contactPhone}
         total={onlineTotal}
+        seats={selectedSeatNumbers.length || form.seats}
         origin={form.origin}
         destination={form.destination}
         via={form.via}
@@ -1857,6 +1947,94 @@ export default function BookingWizard() {
       {renderAgencyModal()}
       {renderDateModal()}
       {renderTimeModal()}
+      {renderSeatModal()}
     </div>
   );
+
+  function renderSeatModal() {
+    return (
+      <div className="seat-modal">
+      <ModalFrame
+        open={showSeatModal}
+        onClose={() => setShowSeatModal(false)}
+        labelledBy="seat-modal-title"
+        sheet
+        fullBleed
+        height="var(--seat-modal-h, 95dvh)"
+      >
+        <div className="flex flex-col min-h-0 flex-1">
+          <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3 px-5 sm:px-8 pt-4 sm:pt-5 pb-3 shrink-0">
+            <div className="min-w-0">
+              <h2 id="seat-modal-title" className="text-lg font-bold text-[var(--text)]">
+                Select your seats
+              </h2>
+              <p className="text-sm sm:text-[13px] text-[var(--text-sub)] mt-0.5">
+                Pick your seat(s) on the bus map.
+              </p>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="hidden sm:flex items-center">
+                <Legend />
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowSeatModal(false)}
+                aria-label="Close"
+                className="w-9 h-9 rounded-sm bg-[#F3F4F6] hover:bg-[#E9ECEF] text-[#52525B] flex items-center justify-center transition-colors duration-200 cursor-pointer border-none shrink-0"
+              >
+                <X size={18} />
+              </button>
+            </div>
+          </div>
+          <div className="min-h-0 overflow-y-auto px-0 sm:px-8 pb-4">
+            <SeatSelectionStep
+              ref={seatStepRef}
+              agencyId={form.agencyId}
+              routeId={form.routeId}
+              travelDate={form.travelDate}
+              travelTime={form.travelTime}
+              price={effectivePrice}
+              initialSeatNumbers={selectedSeatNumbers.length ? selectedSeatNumbers : preSeatNumbers}
+              mapMaxHeight="var(--seat-map-h, min(62vh, 560px))"
+              onChange={(v) => {
+                const key = v.seatNumbers.join(',');
+                setForm((f) => (f.seats === v.seats ? f : { ...f, seats: v.seats }));
+                setSelectedSeatNumbers((prev) => (prev.join(',') === key ? prev : v.seatNumbers));
+                setSelectedSeatClientId(v.clientId);
+                // A changed selection invalidates a previous confirm.
+                if (confirmedSeatKeyRef.current !== null && key !== confirmedSeatKeyRef.current) {
+                  setSeatsConfirmed(false);
+                }
+              }}
+              onMode={setSeatMapActive}
+              onNotice={(message) => toast.error('Seat update', message)}
+            />
+          </div>
+          <div className="shrink-0 border-t border-[var(--border)] px-5 sm:px-8 py-3 flex items-center justify-between gap-3 sm:gap-4">
+            <div className="min-w-0 flex-1 text-[13px] text-[var(--text-sub)] leading-tight">
+              {seatMapActive
+                ? selectedSeatNumbers.length > 0
+                  ? `${selectedSeatNumbers.length} seat${selectedSeatNumbers.length > 1 ? 's' : ''} selected`
+                  : 'No seats selected yet'
+                : `${form.seats} seat${form.seats > 1 ? 's' : ''} selected`}
+              {selectedSeatNumbers.length > 0 && (
+                <span className="ml-2 font-bold text-[var(--text)] tabular-nums whitespace-nowrap">
+                  {(effectivePrice * selectedSeatNumbers.length).toLocaleString('en-US')} {t('booking.currency')}
+                </span>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={handleSeatConfirm}
+              disabled={seatMapActive && selectedSeatNumbers.length === 0}
+              className="shrink-0 whitespace-nowrap inline-flex items-center gap-1.5 px-4 py-2 rounded-md text-sm font-semibold bg-[var(--blue)] text-white hover:bg-[var(--blue-dark)] transition-colors duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Confirm seats
+            </button>
+          </div>
+        </div>
+      </ModalFrame>
+      </div>
+    );
+  }
 }

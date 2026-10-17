@@ -3,7 +3,7 @@ import {
   Ticket, Users, Building2,
   ListChecks, Route, UserPlus,
   DollarSign,
-  Settings, Clock,
+  Settings, Clock, Armchair,
 } from 'lucide-react';
 import { UserRole } from '../contexts/AuthContext';
 import React from 'react';
@@ -38,6 +38,7 @@ export const ROLE_CONFIG: Record<UserRole, RoleConfig> = {
       { id: 3, name: 'Organizations', path: '/dashboard/organizations', icon: <Building2 size={iconSize} /> },
       { id: 4, name: 'Routes', path: '/dashboard/routes', icon: <Route size={iconSize} /> },
       { id: 5, name: 'Schedules', path: '/dashboard/schedules', icon: <Clock size={iconSize} /> },
+      { id: 5.1, name: 'Seats', path: '/dashboard/seats', icon: <Armchair size={iconSize} /> },
       { id: 6, name: 'Accounting', path: '/dashboard/accounting', icon: <DollarSign size={iconSize} /> },
     ],
     systemNav: [
@@ -56,6 +57,7 @@ export const ROLE_CONFIG: Record<UserRole, RoleConfig> = {
       { id: 1, name: 'Overview', path: '/dashboard/overview', icon: <AppWindow size={iconSize} /> },
       { id: 2, name: 'Bookings', path: '/dashboard/bookings-management', icon: <Ticket size={iconSize} /> },
       { id: 3, name: 'Departures', path: '/dashboard/departures', icon: <Clock size={iconSize} /> },
+      { id: 3.1, name: 'Seats', path: '/dashboard/seats', icon: <Armchair size={iconSize} /> },
       { id: 4, name: 'Reports', path: '/dashboard/reports', icon: <ListChecks size={iconSize} /> },
       { id: 5, name: 'Agents', path: '/dashboard/agents', icon: <UserPlus size={iconSize} /> },
       { id: 6, name: 'Settings', path: '/dashboard/agency-settings', icon: <Settings size={iconSize} /> },

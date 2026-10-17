@@ -10,6 +10,7 @@ import {
   Plus,
   ChevronRight,
   Copy,
+  Armchair,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
@@ -33,6 +34,12 @@ interface ModalFrameProps {
    * booking selectors get a predictable 89%-of-the-screen layout.
    */
   height?: string;
+  /**
+   * Sheet mode only: keep the panel flush to the bottom and spanning the full
+   * width at every breakpoint (a true bottom sheet on desktop too), instead of
+   * becoming a centred card from `sm` up.
+   */
+  fullBleed?: boolean;
 }
 
 /**
@@ -42,9 +49,9 @@ interface ModalFrameProps {
  * the `sm` breakpoint up it is a centred card. `dvh` keeps the ratio honest when
  * mobile browser chrome collapses.
  */
-export const MODAL_VIEWPORT_HEIGHT = '89dvh';
+export const MODAL_VIEWPORT_HEIGHT = 'var(--modal-h, 89dvh)';
 
-export function ModalFrame({ open, onClose, labelledBy, children, maxWidth = 1000, sheet = false, height }: ModalFrameProps) {
+export function ModalFrame({ open, onClose, labelledBy, children, maxWidth = 1000, sheet = false, height, fullBleed = false }: ModalFrameProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   const restoreFocusRef = useRef<HTMLElement | null>(null);
   const onCloseRef = useRef(onClose);
@@ -140,7 +147,7 @@ export function ModalFrame({ open, onClose, labelledBy, children, maxWidth = 100
           />
           {sheet ? (
             <div
-              className={`relative flex h-full justify-center items-end ${keyboardVisible ? 'sm:items-end' : 'sm:items-center'} sm:p-6`}
+              className={`relative flex h-full justify-center items-end ${fullBleed || keyboardVisible ? 'sm:items-end' : 'sm:items-center'} ${fullBleed ? '' : 'sm:p-6'}`}
               onClick={e => {
                 if (e.target === e.currentTarget) onClose();
               }}
@@ -151,9 +158,9 @@ export function ModalFrame({ open, onClose, labelledBy, children, maxWidth = 100
                 aria-modal="true"
                 aria-labelledby={labelledBy}
                 tabIndex={-1}
-                className="relative w-full flex flex-col overflow-hidden bg-white outline-none rounded-t-[20px] sm:rounded-[20px]"
+                className={`relative w-full flex flex-col overflow-hidden bg-white outline-none rounded-t-[20px] ${fullBleed ? '' : 'sm:rounded-[20px]'}`}
                 style={{
-                  maxWidth,
+                  maxWidth: fullBleed ? '100%' : maxWidth,
                   height: keyboardVisible ? `calc(100% - ${keyboardOffset}px)` : sheetHeight,
                   maxHeight: keyboardVisible ? `calc(100% - ${keyboardOffset}px)` : sheetHeight,
                   marginBottom: keyboardVisible ? keyboardOffset : 0,
@@ -364,6 +371,8 @@ export interface PaymentModalProps {
   onContactPhoneChange?: (value: string) => void;
   contactPhoneError?: string;
   total: number;
+  /** Number of seats being paid for; shown on the payment screen. */
+  seats?: number;
   /** Trip origin, accepted for API compatibility. */
   origin?: string;
   /** Trip destination, accepted for API compatibility. */
@@ -397,6 +406,7 @@ export default function PaymentModal({
   onContactPhoneChange,
   contactPhoneError,
   total,
+  seats,
   submitting = false,
   onSubmit,
   submitError,
@@ -473,9 +483,17 @@ export default function PaymentModal({
           {!useFreeTicket && (
             <div className="px-5 pt-4 sm:px-7 sm:pt-5 pb-3 border-b border-[#E5E7EB]">
               <div className="flex items-center justify-between gap-3 mb-3">
-                <h4 className="text-[15px] font-bold text-[#111827]">
-                  {t('booking.payOption1', { method: providerName })}
-                </h4>
+                <div className="min-w-0">
+                  <h4 className="text-[15px] font-bold text-[#111827]">
+                    {t('booking.payOption1', { method: providerName })}
+                  </h4>
+                  {!!seats && seats > 0 && (
+                    <p className="mt-0.5 flex items-center gap-1.5 text-[13px] font-semibold text-[#1D4ED8]">
+                      <Armchair size={13} className="shrink-0" />
+                      {seats} seat{seats > 1 ? 's' : ''} to pay for
+                    </p>
+                  )}
+                </div>
                 <span className="md:hidden text-[16px] font-extrabold text-[#1D4ED8] tabular-nums whitespace-nowrap shrink-0">
                   {total.toLocaleString()} {currency}
                 </span>

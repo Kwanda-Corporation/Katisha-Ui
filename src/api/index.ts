@@ -88,7 +88,14 @@ async function request<T = any>(path: string, options: ApiOptions = {}): Promise
       }
       clearStaleSession();
     }
-    throw new Error(json.message || 'Request failed');
+    // Attach the status and parsed body so callers can branch on specific
+    // HTTP failures (e.g. 409 seat conflicts) without a second request. Existing
+    // callers only read `message`, so this is purely additive.
+    const err: any = new Error(json.message || 'Request failed');
+    err.status = res.status;
+    err.body = json;
+    err.alreadyTaken = json?.alreadyTaken ?? json?.errors?.seats;
+    throw err;
   }
   return json;
 }
@@ -257,6 +264,36 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ bookingIds, phoneNumber, pin }),
     }),
+
+  // ── Seats & trips (versioned API, /api/v1) ──
+  resolveTrip: (data: any) => request('/v1/trips/resolve', { method: 'POST', body: JSON.stringify(data) }),
+  getTripSeats: (tripId: string, params?: Record<string, string>) =>
+    request(`/v1/trips/${tripId}/seats`, { params }),
+  reserveTripSeats: (tripId: string, data: { seatNumbers: string[]; clientId: string; ttlMinutes?: number }) =>
+    request(`/v1/trips/${tripId}/seats/reserve`, { method: 'POST', body: JSON.stringify(data) }),
+  releaseTripHolds: (tripId: string, data: { seatNumbers: string[]; clientId: string }) =>
+    request(`/v1/trips/${tripId}/seats/release`, { method: 'POST', body: JSON.stringify(data) }),
+
+  // Admin trips + seat management
+  getAdminTrips: (params?: Record<string, string>) => request('/v1/admin/trips', { params }),
+  getAdminTrip: (tripId: string) => request(`/v1/admin/trips/${tripId}`),
+  createAdminTrip: (data: any) => request('/v1/admin/trips', { method: 'POST', body: JSON.stringify(data) }),
+  adminMarkTaken: (tripId: string, data: any) =>
+    request(`/v1/admin/trips/${tripId}/seats/mark-taken`, { method: 'POST', body: JSON.stringify(data) }),
+  adminReleaseSeats: (tripId: string, data: any) =>
+    request(`/v1/admin/trips/${tripId}/seats/release`, { method: 'POST', body: JSON.stringify(data) }),
+  adminBlockSeats: (tripId: string, data: any) =>
+    request(`/v1/admin/trips/${tripId}/seats/block`, { method: 'POST', body: JSON.stringify(data) }),
+  updateTripLayout: (tripId: string, data: any) =>
+    request(`/v1/admin/trips/${tripId}/layout`, { method: 'PUT', body: JSON.stringify(data) }),
+
+  // Bus layout templates
+  getBusLayouts: () => request('/v1/admin/bus-layouts'),
+  getBusLayoutPresets: () => request('/v1/admin/bus-layouts/presets'),
+  createBusLayout: (data: any) => request('/v1/admin/bus-layouts', { method: 'POST', body: JSON.stringify(data) }),
+  updateBusLayout: (id: string, data: any) =>
+    request(`/v1/admin/bus-layouts/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  deleteBusLayout: (id: string) => request(`/v1/admin/bus-layouts/${id}`, { method: 'DELETE' }),
 };
 
 export default api;

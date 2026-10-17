@@ -26,6 +26,7 @@ const RouteLandingPage = lazy(() => import('./pages/website/RouteLandingPage'));
 const RouteHubPage = lazy(() => import('./pages/website/RouteHubPage'));
 const AgencyLandingPage = lazy(() => import('./pages/website/AgencyLandingPage'));
 const PaymentStatus = lazy(() => import('./pages/website/PaymentStatus'));
+const SelectSeats = lazy(() => import('./pages/website/SelectSeats'));
 
 const DashboardLayout = lazy(() => import('./pages/dashboard/DashboardLayout'));
 
@@ -44,6 +45,7 @@ const TrackingPage = lazy(() => import('./potals/Common/TrackingPage'));
 const AccountingPage = lazy(() => import('./layouts/dashboard/AccountingPage'));
 const AgencySettings = lazy(() => import('./pages/dashboards/AgencySettings'));
 const DepartureManagement = lazy(() => import('./pages/dashboards/DepartureManagement'));
+const SeatManager = lazy(() => import('./pages/dashboards/SeatManager'));
 const ScheduleManagement = lazy(() => import('./pages/dashboards/ScheduleManagement'));
 const AgentBookingsPage = lazy(() => import('./pages/website/AgentBookings'));
 const StudioPreview = lazy(() => import('./pages/promoter/StudioPreview'));
@@ -127,6 +129,7 @@ export default function AppRoutes() {
       <Route path="/my-bookings" element={<MyBookings />} />
       <Route path="/track" element={<MyBookings />} />
       <Route path="/ticket/:bookingId" element={<TicketView />} />
+      <Route path="/seats/:tripId" element={<SelectSeats />} />
       <Route path="/payment/:referenceCode" element={<PaymentStatus />} />
       <Route path="/guide" element={<BookingGuide />} />
       <Route path="/privacy" element={<PrivacyPolicy />} />
@@ -235,6 +238,13 @@ export default function AppRoutes() {
         <Route path="departures" element={
           <ProtectedRoute roles={[UserRole.AGENCY_ADMIN]}>
             <DepartureManagement />
+          </ProtectedRoute>
+        } />
+
+        {/* Seat Manager (agency + system admin) */}
+        <Route path="seats" element={
+          <ProtectedRoute roles={[UserRole.AGENCY_ADMIN, UserRole.SYSTEM_ADMIN]}>
+            <SeatManager />
           </ProtectedRoute>
         } />
 

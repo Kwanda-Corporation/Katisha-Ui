@@ -114,7 +114,7 @@ export default function MerchantCodeModal({
         onClose={onClose}
         labelledBy="merchant-receipt-title"
         maxWidth={680}
-        height={isMobile ? '92dvh' : 'min(75dvh, 580px)'}
+        height={isMobile ? '95dvh' : 'min(75dvh, 580px)'}
       >
         <div className="relative flex flex-col flex-1 min-h-0">
           <button
@@ -191,7 +191,7 @@ export default function MerchantCodeModal({
       onClose={onClose}
       labelledBy="merchant-modal-title"
       maxWidth={680}
-      height={isMobile ? '92dvh' : 'min(82dvh, 680px)'}
+      height={isMobile ? '95dvh' : 'min(82dvh, 680px)'}
     >
       <div className="relative flex flex-col flex-1 min-h-0">
         <button

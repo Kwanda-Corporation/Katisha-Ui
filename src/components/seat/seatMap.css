@@ -1,0 +1,665 @@
+/*
+ * Self-contained styles for the bus seat map. Geometry lives in CSS variables
+ * so the same component renders comfortably on a 360px phone and a wide
+ * desktop without any JS resize logic. Only functional seat-state colors are
+ * defined here — the surrounding UI keeps Katisha's existing white/blue tokens.
+ */
+
+.bus-seatmap {
+  /* Phone (upright) geometry: deliberately compact so a full 45-seat layout —
+     up to 12 rows plus the driver cabin — fits the seat modal on a phone
+     without scrolling. Wider screens step up below. */
+  --seat-w: 52px;
+  --seat-h: 48px;
+  --aisle-w: calc(var(--seat-w) * 1.05);
+  --seat-gap: 5px;
+  --row-gap: 5px;
+  --tilt: 5deg;
+  --perspective: 1200px;
+  --shell-pad: 6px;
+}
+
+/* Responsive sizing for the seat modal sheet and the map area inside it. On a
+   phone the sheet is almost full-height and the map claims nearly everything
+   left under the header; from `sm` up both keep their original values. */
+.seat-modal {
+  --seat-modal-h: 98dvh;
+  --seat-map-h: calc(98dvh - 190px);
+}
+
+@media (min-width: 640px) {
+  .seat-modal {
+    --seat-modal-h: 95dvh;
+    --seat-map-h: min(62vh, 560px);
+  }
+}
+
+.bus-seatmap__viewport {
+  width: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 6px 0;
+  perspective: var(--perspective);
+  perspective-origin: center bottom;
+}
+
+/* Upright bus: rows recede upward, the driver pinned at the bottom. `row-reverse`
+   keeps the DOM front-first while visualising the front row nearest the driver. */
+.bus-seatmap__inner {
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  /* Shrink to the widest row so a right-aligned driver cabin (Kenya drives on
+     the right) lines up with the seats instead of the shell edge. */
+  width: fit-content;
+  margin-inline: auto;
+  gap: var(--row-gap);
+  transform: rotateX(var(--tilt));
+  transform-origin: center bottom;
+  transform-style: preserve-3d;
+}
+
+.bus-seatmap__row {
+  display: flex;
+  align-items: center;
+  gap: var(--seat-gap);
+}
+
+/* Landscape (web): the bus lies flat so a full layout fits without vertical
+   scrolling — rows become columns and the driver sits on the left. Sizes step up
+   with the viewport so even a 12-row / 45-seat bus fits edge to edge. */
+@media (min-width: 640px) {
+  .bus-seatmap {
+    --seat-w: 38px;
+    --seat-h: 50px;
+    --aisle-w: calc(var(--seat-w) * 1.05);
+    --seat-gap: 3px;
+    --row-gap: 6px;
+    --tilt: 10deg;
+    --perspective: 1200px;
+    --shell-pad: 16px;
+    max-width: 1040px;
+    margin-inline: auto;
+  }
+
+  .bus-seatmap__viewport {
+    overflow: visible;
+    perspective-origin: center center;
+  }
+
+  /* Pin the cabin (driver seat + wheel) to the front-left of the bus instead of
+     centring the whole group, so the driver always reads as the front of the
+     vehicle. */
+  .bus-seatmap__inner {
+    flex-direction: row;
+    justify-content: flex-start;
+    width: auto;
+    margin-inline: 0;
+    transform: rotateY(calc(var(--tilt) * -1));
+    transform-origin: center center;
+  }
+
+  .bus-seatmap__row {
+    flex-direction: column;
+  }
+}
+
+@media (min-width: 768px) {
+  .bus-seatmap {
+    --seat-w: 44px;
+    --seat-h: 52px;
+    --aisle-w: calc(var(--seat-w) * 1.1);
+    --seat-gap: 4px;
+    --row-gap: 6px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .bus-seatmap {
+    --seat-w: 58px;
+    --seat-h: 62px;
+    --aisle-w: calc(var(--seat-w) * 1.2);
+    --seat-gap: 5px;
+    --row-gap: 7px;
+    --perspective: 1400px;
+    --shell-pad: 18px;
+  }
+}
+
+/* Respect users who ask for less motion: keep the seat map fully usable and
+   drop the camera tilt rather than removing the whole view. */
+@media (prefers-reduced-motion: reduce) {
+  .bus-seatmap__inner {
+    transform: none;
+  }
+  .bus-seatmap .bus-seat {
+    transition: none !important;
+  }
+}
+
+/* ── Bus shell ── */
+
+.bus-shell {
+  position: relative;
+  border-radius: 34px;
+  background: #ffffff;
+  border: 0;
+  overflow: hidden;
+}
+
+.bus-shell__window-rail {
+  display: none;
+}
+
+.bus-shell__window-rail--right {
+  border-right: 0;
+  border-left: 1px solid #d7dee9;
+}
+
+.bus-shell__luggage-rail {
+  position: absolute;
+  top: 8%;
+  bottom: 16%;
+  width: 6px;
+  border-radius: 3px;
+  background: linear-gradient(180deg, rgba(148, 163, 184, 0.55), rgba(148, 163, 184, 0.2));
+}
+
+/* The seat area is plain white now, so the depth tints are dropped. */
+.bus-shell__vignette,
+.bus-shell__roof-light {
+  display: none;
+}
+
+.bus-shell__door {
+  position: absolute;
+  right: 0;
+  bottom: 13%;
+  width: 20px;
+  height: 74px;
+  border-radius: 10px 0 0 10px;
+  background: repeating-linear-gradient(
+    180deg,
+    #d7dee9 0px,
+    #d7dee9 5px,
+    #eef2f8 5px,
+    #eef2f8 10px
+  );
+  border-left: 2px solid #c3ccd9;
+  box-shadow: inset 2px 0 4px rgba(15, 23, 42, 0.12) !important;
+}
+
+.bus-shell__door-step {
+  position: absolute;
+  right: 4px;
+  bottom: calc(13% - 12px);
+  width: 30px;
+  height: 10px;
+  border-radius: 3px;
+  background: #cbd5e1;
+  border: 1px solid #b9c3d2;
+}
+
+.bus-shell__handrail {
+  position: absolute;
+  right: 22px;
+  bottom: 14%;
+  width: 4px;
+  height: 62px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #94a3b8, #cbd5e1);
+}
+
+/* Landscape bus: window trim runs along the top and bottom edges; the
+   front-oriented fixtures (door, step, handrail) don't map onto this axis and
+   are hidden so the white shell stays clean. */
+@media (min-width: 640px) {
+  .bus-shell {
+    border: 1px solid var(--blue, #1d4ed8);
+  }
+
+  .bus-shell__window-rail {
+    top: 0;
+    bottom: auto;
+    left: 0;
+    right: 0;
+    width: auto;
+    height: 12px;
+    border-right: 0;
+    border-bottom: 1px solid #d7dee9;
+    background: linear-gradient(180deg, #dbe2ec 0%, #eef2f8 55%, #ffffff 100%);
+  }
+
+  .bus-shell__window-rail--right {
+    top: auto;
+    bottom: 0;
+    border-bottom: 0;
+    border-top: 1px solid #d7dee9;
+    background: linear-gradient(0deg, #dbe2ec 0%, #eef2f8 55%, #ffffff 100%);
+  }
+
+  .bus-shell__luggage-rail,
+  .bus-shell__door,
+  .bus-shell__door-step,
+  .bus-shell__handrail {
+    display: none;
+  }
+}
+
+/* ── Aisle ── */
+
+.bus-aisle {
+  align-self: stretch;
+  width: var(--aisle-w);
+  margin: 0 var(--seat-gap);
+  border-radius: 4px;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      #dbeafe 0px,
+      #dbeafe 3px,
+      #eff6ff 3px,
+      #eff6ff 6px
+    );
+}
+
+/* An empty seat slot (gap / door placeholder). Sized like a seat so it keeps
+   the grid aligned in both orientations. */
+.bus-gap,
+.bus-door-row {
+  flex: 0 0 auto;
+  width: var(--seat-w);
+  height: var(--seat-h);
+}
+
+/* Landscape: the aisle becomes a horizontal band across each column. */
+@media (min-width: 640px) {
+  .bus-aisle {
+    width: auto;
+    height: var(--aisle-w);
+    margin: var(--seat-gap) 0;
+    background:
+      repeating-linear-gradient(
+        0deg,
+        #dbeafe 0px,
+        #dbeafe 3px,
+        #eff6ff 3px,
+        #eff6ff 6px
+      );
+  }
+}
+
+/* ── Driver cabin ── */
+
+/* A driver's seat with its steering wheel, pinned to the front-right of the bus
+   (Kenya drives on the right). The wheel sits in front of (below) the seat so
+   the two read as one unit. */
+.bus-driver {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  align-self: flex-end;
+  gap: 6px;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* One cohesive unit: the driver's seat with its steering wheel tucked in front
+   (below) so the two always read as a single object and never float apart. Flex
+   (not absolute) so the same markup also lays the pair out sideways in the
+   landscape layout. */
+.bus-driver__unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.bus-driver__seat {
+  position: relative;
+  width: calc(var(--seat-w) + 12px);
+  height: var(--seat-h);
+  border-radius: 12px;
+  background: linear-gradient(180deg, #eef2f8, #d3dbe7);
+  border: 1px solid #c3ccd9;
+  box-shadow: 0 6px 10px rgba(15, 23, 42, 0.18) !important;
+  z-index: 2;
+}
+
+/* Backrest */
+.bus-driver__seat::before {
+  content: '';
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  top: 5px;
+  height: 46%;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #dfe6f0, #c3ccd9);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7) !important;
+}
+
+/* Cushion */
+.bus-driver__seat::after {
+  content: '';
+  position: absolute;
+  left: 7px;
+  right: 7px;
+  bottom: 6px;
+  height: 38%;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #f0f4fa, #d7dee9);
+  box-shadow: inset 0 2px 4px rgba(15, 23, 42, 0.16) !important;
+}
+
+/* Steering wheel image, overlapping the seat's front edge so the unit reads as
+   "a seat and its wheel". Below the seat when upright, left of it when flat.
+   The source art reads upside-down in the top-down map, so it's rotated 180°. */
+.bus-driver__wheel {
+  position: relative;
+  display: block;
+  margin-top: calc(var(--seat-h) * -0.25);
+  width: calc(var(--seat-w) * 0.95);
+  height: calc(var(--seat-w) * 0.95);
+  object-fit: contain;
+  transform: rotate(180deg);
+  z-index: 1;
+  filter: drop-shadow(0 3px 4px rgba(15, 23, 42, 0.28));
+}
+
+.bus-driver__logo {
+  height: 22px;
+  max-width: 90px;
+  object-fit: contain;
+}
+
+.bus-driver__label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+/* Landscape: seat and wheel sit side by side (wheel toward the front, on the
+   left) with the label beside them. */
+@media (min-width: 640px) {
+  /* The bus lies flat, so the cabin's cross-axis is vertical: pin it to the
+     bottom of the first column so the driver reads as the front-right seat
+     rather than floating in line with the aisle. */
+  .bus-driver {
+    align-self: flex-end;
+  }
+
+  /* The wheel sits in front of (left of) the seat, tucked against its front edge
+     so the two read as one unit, and faces the front of the bus. */
+  .bus-driver__unit {
+    flex-direction: row;
+  }
+
+  .bus-driver__wheel {
+    margin-top: 0;
+    margin-left: calc(var(--seat-w) * -0.22);
+    order: -1;
+    transform: rotate(270deg);
+  }
+
+  /* The driver's seat faces the front (left) like the passengers' seats: the
+     backrest moves to the left edge (pointing forward) and the cushion to the
+     right. */
+  .bus-driver__seat::before {
+    right: auto;
+    left: 5px;
+    top: 6px;
+    bottom: 6px;
+    width: 46%;
+    height: auto;
+  }
+
+  .bus-driver__seat::after {
+    right: 6px;
+    left: auto;
+    top: 7px;
+    bottom: 7px;
+    width: 38%;
+    height: auto;
+  }
+
+  .bus-driver__logo {
+    max-width: 64px;
+    height: 18px;
+  }
+}
+
+/* ── Seat ── */
+
+.bus-seat {
+  position: relative;
+  width: var(--seat-w);
+  height: var(--seat-h);
+  flex: 0 0 auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  border-radius: 12px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 160ms cubic-bezier(0.34, 1.56, 0.64, 1), filter 160ms ease;
+}
+
+.bus-seat:focus-visible {
+  outline: 2px solid var(--blue, #1d4ed8);
+  outline-offset: 2px;
+}
+
+.bus-seat:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+.bus-seat--selected {
+  transform: translateY(-2px) scale(1.03);
+  /* Brand-blue halo. Declared here (not inline) because the global
+     `* { box-shadow: none !important }` rule outranks inline styles. */
+  box-shadow: 0 0 0 2px rgba(29, 78, 216, 0.35), 0 8px 16px rgba(29, 78, 216, 0.45) !important;
+}
+
+.bus-seat--selected:hover:not(:disabled) {
+  transform: translateY(-3px) scale(1.05);
+}
+
+.bus-seat--taken,
+.bus-seat--blocked {
+  cursor: not-allowed;
+}
+
+/* Admin inspection: an occupied seat stays inert for selection but is tappable
+   to surface the passenger details. */
+.bus-seat--inspect {
+  cursor: pointer;
+}
+
+.bus-seat--shake {
+  animation: bus-seat-shake 320ms ease;
+}
+
+@keyframes bus-seat-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-3px); }
+  40% { transform: translateX(3px); }
+  60% { transform: translateX(-2px); }
+  80% { transform: translateX(2px); }
+}
+
+.bus-seat__body {
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 6px 8px rgba(15, 23, 42, 0.25) !important;
+}
+
+.bus-seat__backrest {
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  top: 5px;
+  height: 46%;
+  border-radius: 8px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+}
+
+.bus-seat__seam {
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  height: 0;
+  border-top: 1px dashed currentColor;
+  opacity: 0.28;
+}
+
+.bus-seat__headrest {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 1px;
+  width: 46%;
+  height: 9px;
+  border-radius: 6px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7) !important;
+}
+
+.bus-seat__cushion {
+  position: absolute;
+  left: 7px;
+  right: 7px;
+  bottom: 6px;
+  height: 38%;
+  border-radius: 8px;
+  box-shadow: inset 0 2px 4px rgba(15, 23, 42, 0.18) !important;
+}
+
+.bus-seat__arm {
+  position: absolute;
+  top: 30%;
+  width: 5px;
+  height: 40%;
+  border-radius: 3px;
+  background: rgba(29, 78, 216, 0.55);
+}
+
+.bus-seat__arm--left { left: 1px; }
+.bus-seat__arm--right { right: 1px; }
+
+.bus-seat__buckle {
+  position: absolute;
+  bottom: 8px;
+  right: 9px;
+  width: 6px;
+  height: 4px;
+  border-radius: 1px;
+  background: rgba(220, 38, 38, 0.75);
+}
+
+.bus-seat__number {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 30%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(9px, calc(var(--seat-w) * 0.22), 13px);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.6);
+}
+
+.bus-seat__mark {
+  position: absolute;
+  left: 50%;
+  bottom: 3px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bus-seat__station {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  font-size: 7px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  padding: 1px 3px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.85);
+  color: #334155;
+  border: 1px solid rgba(148, 163, 184, 0.6);
+}
+
+/* Landscape: the bus faces left, so every seat faces the front — the backrest
+   and headrest sit on the left edge (pointing forward) and the cushion on the
+   right. Values mirror the upright anatomy, transposed. */
+@media (min-width: 640px) {
+  .bus-seat__backrest {
+    right: auto;
+    left: 5px;
+    top: 6px;
+    bottom: 6px;
+    width: 46%;
+    height: auto;
+  }
+
+  .bus-seat__headrest {
+    right: auto;
+    left: 1px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 9px;
+    height: 46%;
+  }
+
+  .bus-seat__cushion {
+    right: 6px;
+    left: auto;
+    top: 7px;
+    bottom: 7px;
+    width: 38%;
+    height: auto;
+  }
+
+  .bus-seat__arm {
+    top: auto;
+    width: 40%;
+    height: 5px;
+  }
+
+  .bus-seat__arm--left {
+    left: 30%;
+    top: 1px;
+  }
+
+  .bus-seat__arm--right {
+    right: 30%;
+    bottom: 1px;
+  }
+
+  .bus-seat__buckle {
+    left: auto;
+    bottom: auto;
+    right: 8px;
+    top: 8px;
+  }
+
+  .bus-seat__number {
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .bus-seat__mark {
+    right: 3px;
+    bottom: 50%;
+    transform: translateY(50%);
+  }
+}
