@@ -51,7 +51,7 @@ interface LoginResult {
 
 interface AuthContextValue extends AuthState {
   login: (identifier: string, password: string) => Promise<LoginResult>;
-  googleLogin: (credential: string) => Promise<LoginResult>;
+  googleLogin: (accessToken: string) => Promise<LoginResult>;
   completeProfile: (phone: string, role?: string) => Promise<LoginResult>;
   register: (username: string, password: string, name: string, phone: string) => Promise<LoginResult>;
   logout: () => Promise<void>;
@@ -340,7 +340,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   async function googleLogin(
-    credential: string,
+    accessToken: string,
   ): Promise<LoginResult> {
     setState(s => ({ ...s, isLoading: true }));
     if (!isOnline()) {
@@ -351,7 +351,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const res = await fetch(`${API_BASE}/auth/google`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ credential }),
+        body: JSON.stringify({ accessToken }),
       });
       const json = await res.json();
       if (!res.ok) {

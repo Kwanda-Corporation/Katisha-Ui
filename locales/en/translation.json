@@ -76,6 +76,7 @@
     "showPassword": "Show password",
     "hidePassword": "Hide password",
     "googleSignInFailed": "Google sign-in failed",
+    "continueWithGoogle": "Continue with Google",
     "registrationFailed": "Registration failed",
     "noCountriesFound": "No countries found",
     "searchCountry": "Search country…",

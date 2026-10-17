@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router'
 import { Lock, Eye, EyeOff, AlertCircle } from 'lucide-react'
-import { GoogleLogin } from '@react-oauth/google'
+import { useGoogleLogin } from '@react-oauth/google'
 import { PhoneInput, Spinner } from '../../components/ui'
 import { useAuth } from '../../contexts/AuthContext'
 import { useTranslation } from 'react-i18next'
@@ -9,6 +9,8 @@ import { useToast } from '../../components/ui/Toast'
 import AuthLayout from '../../components/AuthLayout'
 import SEO from '../../components/seo/SEO'
 import GoogleProfileCompletion from '../../components/GoogleProfileCompletion'
+
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || ''
 
 export default function Login() {
   const { t } = useTranslation()
@@ -45,11 +47,11 @@ export default function Login() {
     navigate(redirectTo || '/')
   }
 
-  const handleGoogleSuccess = async (response: any) => {
-    if (!response.credential) return
+  const handleGoogleToken = async (accessToken: string) => {
+    if (!accessToken) return
     setError('')
     setLoading(true)
-    const result = await googleLogin(response.credential)
+    const result = await googleLogin(accessToken)
     setLoading(false)
     if (!result.ok) {
       const msg = result.error || t('auth.googleSignInFailed')
@@ -80,20 +82,17 @@ export default function Login() {
       <SEO title={t('auth.signIn')} noindex />
       <div className="animate-in">
         <div className="space-y-4">
-          {/* Fluid width: the previous fixed width={380} overflowed the
-              card on narrow phones and forced horizontal scrolling. Google
-              renders the button in a cross-origin iframe, so its own corners
-              cannot be styled — clipping the wrapper is what applies
-              rounded-md to the button as a whole. */}
-          <div className="w-full min-w-0 rounded-md overflow-hidden border border-[var(--auth-border)]">
-            <GoogleLogin
-              onSuccess={handleGoogleSuccess}
+          {/* Our own button (OAuth popup) instead of Google's cross-origin
+              iframe button: full styling control, no GSI console warnings and no
+              pre-selection of a saved Google account. */}
+          {GOOGLE_CLIENT_ID && (
+            <GoogleSignInButton
+              label={t('auth.continueWithGoogle')}
+              disabled={loading}
+              onToken={handleGoogleToken}
               onError={() => setError(t('auth.googleSignInFailed'))}
-              text="continue_with"
-              shape="rectangular"
-              width="100%"
             />
-          </div>
+          )}
 
           <div className="auth-divider">
             <span>{t('auth.or') || 'or'}</span>
@@ -163,5 +162,54 @@ export default function Login() {
     </AuthLayout>
     {showProfileComplete && <GoogleProfileCompletion onComplete={handleProfileComplete} />}
     </>
+  )
+}
+
+/** The four-colour Google "G" mark. */
+function GoogleGlyph() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+      <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
+      <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
+      <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
+      <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
+    </svg>
+  )
+}
+
+/**
+ * Custom "Continue with Google" button backed by the OAuth popup flow. Using
+ * `useGoogleLogin` keeps Google's cross-origin iframe button out of the page, so
+ * there is no invalid-width render, no duplicate `initialize()` warning and no
+ * saved-account pre-selection. It hands the returned access token up to the
+ * caller, which exchanges it for a Katisha session.
+ */
+function GoogleSignInButton({
+  label,
+  disabled,
+  onToken,
+  onError,
+}: {
+  label: string
+  disabled?: boolean
+  onToken: (accessToken: string) => void
+  onError: () => void
+}) {
+  const login = useGoogleLogin({
+    scope: 'openid email profile',
+    onSuccess: (tokenResponse) => {
+      const token = tokenResponse?.access_token
+      if (token) onToken(token)
+      else onError()
+    },
+    onError,
+    onNonOAuthError: onError,
+  })
+
+  return (
+    <button type="button" className="auth-secondary" onClick={() => login()} disabled={disabled}>
+      <GoogleGlyph />
+      {label}
+    </button>
   )
 }
