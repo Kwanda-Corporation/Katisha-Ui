@@ -74,7 +74,7 @@ export default function LanguageMenu({ className = '', align = 'right', onSelect
       {open && (
         <div
           role="menu"
-          className={`absolute top-[calc(100%+6px)] w-44 bg-white border border-[var(--border)] rounded-xl overflow-hidden py-1 z-[1000] shadow-[0_10px_30px_rgba(15,23,42,0.12)] ${
+          className={`absolute top-[calc(100%+6px)] w-44 bg-white border border-[var(--border)] rounded-lg overflow-hidden py-1 z-[1000] shadow-[0_10px_30px_rgba(15,23,42,0.12)] ${
             align === 'right' ? 'right-0' : 'left-0'
           }`}
         >

@@ -141,7 +141,7 @@ export default function MerchantCodeModal({
               </p>
             </div>
 
-            <div className="rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] overflow-hidden">
+            <div className="rounded-lg border border-[#E5E7EB] bg-[#FAFAFA] overflow-hidden">
               <div className="px-4 py-3 border-b border-[#E5E7EB] bg-[#F4F4F5]">
                 <span className="text-[11px] font-bold uppercase tracking-wider text-[#52525B]">
                   {t('booking.bookingReceipt', { defaultValue: 'Booking Receipt' })}
@@ -171,7 +171,7 @@ export default function MerchantCodeModal({
               </div>
             </div>
 
-            <div className="mt-4 rounded-xl bg-[#EFF6FF] border border-[#BFDBFE] p-3.5">
+            <div className="mt-4 rounded-lg bg-[#EFF6FF] border border-[#BFDBFE] p-3.5">
               <p className="text-[12px] text-[#064187] leading-relaxed text-center">
                 {t('booking.merchantCodeReceiptNote', {
                   defaultValue: 'Your payment is being processed. You will receive your ticket once the payment is confirmed by our team.',
@@ -227,7 +227,7 @@ export default function MerchantCodeModal({
                   value={guestName}
                   onChange={e => onGuestNameChange(e.target.value)}
                   placeholder={t('booking.guestNamePlaceholder')}
-                  className="w-full h-11 rounded-xl border border-[#E5E7EB] bg-white pl-11 pr-4 text-sm outline-none placeholder:text-[#A1A1AA] focus:border-[#064187] focus:ring-2 focus:ring-[#064187]/20 transition-all duration-200"
+                  className="w-full h-11 rounded-lg border border-[#E5E7EB] bg-white pl-11 pr-4 text-sm outline-none placeholder:text-[#A1A1AA] focus:border-[#064187] focus:ring-2 focus:ring-[#064187]/20 transition-all duration-200"
                 />
               </div>
             </div>
@@ -250,7 +250,7 @@ export default function MerchantCodeModal({
                 placeholder={t('booking.payPhonePlaceholder')}
                 aria-invalid={!!phoneError}
                 maxLength={11}
-                className={`w-full h-11 sm:h-12 rounded-xl border bg-white pl-11 pr-4 text-base outline-none placeholder:text-[#A1A1AA] transition-all duration-200 ${
+                className={`w-full h-11 sm:h-12 rounded-lg border bg-white pl-11 pr-4 text-base outline-none placeholder:text-[#A1A1AA] transition-all duration-200 ${
                   phoneError
                     ? 'border-[#FCA5A5] focus:border-[#EF4444] focus:ring-2 focus:ring-[#EF4444]/20'
                     : 'border-[#E5E7EB] focus:border-[#064187] focus:ring-2 focus:ring-[#064187]/20'
@@ -261,7 +261,7 @@ export default function MerchantCodeModal({
           </div>
 
           {/* Payment card — amount + USSD code, compact */}
-          <div className="relative rounded-xl  p-4 mb-4 overflow-hidden  ">
+          <div className="relative rounded-lg  p-4 mb-4 overflow-hidden  ">
             <div className="pointer-events-none absolute inset-0 bg-zinc-100" />
             <div className="pointer-events-none absolute -top-12 -right-10 w-44 h-44 rounded-full bg-white/25 blur-3xl" />
 
@@ -313,7 +313,7 @@ export default function MerchantCodeModal({
                   type="button"
                   onClick={handleDialAndConfirm}
                   disabled={!canSubmit || submitting}
-                  className="w-full h-11 rounded-xl bg-green-500 hover:bg-green-600 active:bg-green-500 text-white text-sm font-bold flex items-center justify-center gap-2 transition-all duration-200 cursor-pointer  active:scale-[0.98] disabled:opacity-50 disabled:shadow-none disabled:cursor-not-allowed"
+                  className="w-full h-11 rounded-lg bg-green-500 hover:bg-green-600 active:bg-green-500 text-white text-sm font-bold flex items-center justify-center gap-2 transition-all duration-200 cursor-pointer  active:scale-[0.98] disabled:opacity-50 disabled:shadow-none disabled:cursor-not-allowed"
                 >
                   <Phone size={15} />
                   {submitting ? (
@@ -336,7 +336,7 @@ export default function MerchantCodeModal({
           </div>
 
           {submitError && (
-            <div className="flex items-start gap-2.5 p-3 rounded-xl bg-[#FEF2F2] border border-[#FCA5A5] mb-2">
+            <div className="flex items-start gap-2.5 p-3 rounded-lg bg-[#FEF2F2] border border-[#FCA5A5] mb-2">
               <span className="text-[13px] font-medium text-[#B91C1C]">{submitError}</span>
             </div>
           )}
@@ -349,7 +349,7 @@ export default function MerchantCodeModal({
               type="button"
               onClick={onSubmit}
               disabled={!canSubmit || submitting}
-              className="w-full h-12 sm:h-13 rounded-xl sm:rounded-[16px] bg-[var(--green-cta)] hover:bg-[var(--green-cta-hover)] active:bg-[var(--green-cta-active)] text-[var(--green-ink)] text-sm font-bold shadow-[0_10px_24px_-10px_rgba(116,226,76,0.9)] active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:shadow-none disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2 whitespace-nowrap"
+              className="w-full h-12 sm:h-13 rounded-lg sm:rounded-[16px] bg-[var(--green-cta)] hover:bg-[var(--green-cta-hover)] active:bg-[var(--green-cta-active)] text-[var(--green-ink)] text-sm font-bold shadow-[0_10px_24px_-10px_rgba(116,226,76,0.9)] active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:shadow-none disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2 whitespace-nowrap"
             >
               {submitting ? (
                 <>

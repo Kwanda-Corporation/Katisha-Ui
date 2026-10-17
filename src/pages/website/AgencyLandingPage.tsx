@@ -168,7 +168,7 @@ export default function AgencyLandingPage({ id: idProp, slug: slugProp }: { id?:
                 </p>
                 <Link
                   to="/book"
-                  className="inline-flex items-center gap-2 mt-6 px-6 py-3 rounded-xl font-semibold text-sm no-underline"
+                  className="inline-flex items-center gap-2 mt-6 px-6 py-3 rounded-lg font-semibold text-sm no-underline"
                   style={{ background: 'var(--blue)', color: 'white' }}
                 >
                   Book a Bus Ticket <ArrowRight size={16} />
@@ -256,7 +256,7 @@ export default function AgencyLandingPage({ id: idProp, slug: slugProp }: { id?:
                   <div className="flex flex-col items-center">
                     <Link
                       to="/book"
-                      className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm no-underline transition-transform hover:scale-[1.03]"
+                      className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-bold text-sm no-underline transition-transform hover:scale-[1.03]"
                       style={{ background: 'var(--blue)', color: 'white' }}
                     >
                       Book Now <ArrowRight size={16} />
@@ -293,9 +293,9 @@ export default function AgencyLandingPage({ id: idProp, slug: slugProp }: { id?:
                   const originalPrice = Number(r.originalPrice) || 0;
                   const hasPromo = !!r.promotionActive && originalPrice > routePrice;
                   return (
-                    <div key={r._id} className="rounded-xl border border-[var(--border)] bg-white p-5 flex flex-col gap-3">
+                    <div key={r._id} className="rounded-lg border border-[var(--border)] bg-white p-5 flex flex-col gap-3">
                       <div className="flex items-center gap-2">
-                        <span className="w-9 h-9 rounded-xl bg-[var(--blue-bg)] text-[var(--blue-dark)] flex items-center justify-center shrink-0">
+                        <span className="w-9 h-9 rounded-lg bg-[var(--blue-bg)] text-[var(--blue-dark)] flex items-center justify-center shrink-0">
                           <Bus size={16} />
                         </span>
                         <p className="font-semibold text-[var(--text)]">{r.origin} → {r.destination}<span className="font-medium text-[var(--text-muted)]">{viaLabel(r.via)}</span></p>
@@ -325,7 +325,7 @@ export default function AgencyLandingPage({ id: idProp, slug: slugProp }: { id?:
                       </div>
                       <Link
                         to={`/book?to=${encodeURIComponent(r.destination)}&agency=${encodeURIComponent(id)}`}
-                        className="inline-flex items-center justify-center gap-2 mt-auto px-4 py-2.5 rounded-xl text-sm font-semibold no-underline transition-colors"
+                        className="inline-flex items-center justify-center gap-2 mt-auto px-4 py-2.5 rounded-lg text-sm font-semibold no-underline transition-colors"
                         style={{ background: 'var(--blue)', color: 'white' }}
                       >
                         Book {r.origin} → {r.destination}{viaLabel(r.via)} <ArrowRight size={15} />

@@ -115,7 +115,7 @@ export default function VerifyCode() {
                   setOtp(paste.split(''))
                 }
               }}
-              className="w-12 h-14 text-center text-lg font-semibold font-[var(--font-body)] rounded-xl border border-[var(--auth-border)] bg-[var(--auth-field)] focus:border-[var(--blue)] focus:outline-none transition-all"
+              className="w-12 h-14 text-center text-lg font-semibold font-[var(--font-body)] rounded-lg border border-[var(--auth-border)] bg-[var(--auth-field)] focus:border-[var(--blue)] focus:outline-none transition-all"
             />
           ))}
         </div>

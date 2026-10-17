@@ -61,7 +61,7 @@ export default function GoogleProfileCompletion({ onComplete }: GoogleProfileCom
             />
 
             {error && (
-              <div className="flex items-start gap-2.5 p-3.5 rounded-xl" style={{ background: '#FEE2E2', border: '1px solid #FCA5A5' }}>
+              <div className="flex items-start gap-2.5 p-3.5 rounded-lg" style={{ background: '#FEE2E2', border: '1px solid #FCA5A5' }}>
                 <AlertCircle size={15} className="flex-shrink-0 mt-0.5" style={{ color: '#DC2626' }} />
                 <p className="font-[var(--font-body)] text-xs font-medium" style={{ color: '#DC2626' }}>{error}</p>
               </div>

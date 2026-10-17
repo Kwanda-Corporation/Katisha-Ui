@@ -239,7 +239,7 @@ export default function MyBookings() {
       onClick={() => isMerchantPending ? openMerchantReceipt(booking) : loadTicketModal(booking)}
     >
       {/* Ticket image — no card, just the ticket */}
-      <div className={`relative flex flex-col items-center${isToday ? ' ring-2 ring-[var(--blue)] rounded-xl' : ''}`}>
+      <div className={`relative flex flex-col items-center${isToday ? ' ring-2 ring-[var(--blue)] rounded-lg' : ''}`}>
         {displayImage ? (
           <img
             src={resolveImageUrl(displayImage)}
@@ -248,22 +248,22 @@ export default function MyBookings() {
             loading="lazy"
           />
         ) : (
-          <div className="w-full aspect-[2/3] bg-[#F9FAFB] rounded-xl"></div>
+          <div className="w-full aspect-[2/3] bg-[#F9FAFB] rounded-lg"></div>
         )}
         {isToday && (
-          <span className="absolute top-2 left-2 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-[var(--blue)] text-white text-[11px] font-bold shadow-md">
+          <span className="absolute top-2 left-2 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[var(--blue)] text-white text-[11px] font-bold shadow-md">
             <Clock size={11} className="shrink-0" />
             {t('booking.today') || 'Today'}
           </span>
         )}
         {isMerchantPending && (
-          <span className="absolute top-2 right-2 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-[#D97706] text-white text-[11px] font-bold shadow-md">
+          <span className="absolute top-2 right-2 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#D97706] text-white text-[11px] font-bold shadow-md">
             <Clock size={11} className="shrink-0" />
             {t('booking.paymentUnderReview', { defaultValue: 'Payment Under Review' })}
           </span>
         )}
-        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100 rounded-xl">
-          <div className="bg-white/90 rounded-xl px-3 py-1.5 flex items-center gap-2">
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100 rounded-lg">
+          <div className="bg-white/90 rounded-lg px-3 py-1.5 flex items-center gap-2">
             <Eye size={14} className="text-[var(--blue)]" />
             <span className="text-xs font-semibold text-zinc-700">{isMerchantPending ? (t('booking.viewReceipt') || 'View Receipt') : (t('booking.viewTicket') || 'View Ticket')}</span>
           </div>
@@ -300,7 +300,7 @@ export default function MyBookings() {
           </p>
           <button
             onClick={() => navigate('/login')}
-            className="h-11 px-8 rounded-xl bg-[var(--blue)] text-white text-sm font-semibold cursor-pointer border-none hover:bg-[var(--blue-dark)] transition-colors"
+            className="h-11 px-8 rounded-lg bg-[var(--blue)] text-white text-sm font-semibold cursor-pointer border-none hover:bg-[var(--blue-dark)] transition-colors"
           >
             {t('auth.login') || 'Log In'}
           </button>
@@ -322,7 +322,7 @@ export default function MyBookings() {
         </div>
 
         {!isOnline && (
-          <div className="flex items-center gap-2 px-3.5 py-2.5 mb-6 rounded-xl text-xs font-medium bg-[var(--blue-light)] text-[var(--blue-dark)] border border-zinc-200">
+          <div className="flex items-center gap-2 px-3.5 py-2.5 mb-6 rounded-lg text-xs font-medium bg-[var(--blue-light)] text-[var(--blue-dark)] border border-zinc-200">
             <AlertCircle size={14} className="shrink-0" />
             <span>
               {offlineCache
@@ -343,7 +343,7 @@ export default function MyBookings() {
             <p className="text-sm text-[var(--text-sub)] mb-4">{error}</p>
             <button
               onClick={loadBookings}
-              className="h-10 px-6 rounded-xl bg-[var(--blue)] text-white text-sm font-semibold cursor-pointer border-none hover:bg-[var(--blue-dark)] transition-colors"
+              className="h-10 px-6 rounded-lg bg-[var(--blue)] text-white text-sm font-semibold cursor-pointer border-none hover:bg-[var(--blue-dark)] transition-colors"
             >
               {t('common.retry') || 'Try Again'}
             </button>
@@ -358,7 +358,7 @@ export default function MyBookings() {
             </p>
             <button
               onClick={() => navigate('/book')}
-              className="h-10 px-6 rounded-xl bg-[var(--blue)] text-white text-sm font-semibold cursor-pointer border-none hover:bg-[var(--blue-dark)] transition-colors"
+              className="h-10 px-6 rounded-lg bg-[var(--blue)] text-white text-sm font-semibold cursor-pointer border-none hover:bg-[var(--blue-dark)] transition-colors"
             >
               {t('booking.bookNow') || 'Book a Trip'}
             </button>
@@ -371,7 +371,7 @@ export default function MyBookings() {
                   <h2 className="text-lg font-bold text-[var(--text)]">
                     {t('booking.today') || 'Today'}
                   </h2>
-                  <span className="px-2.5 py-1 rounded-xl text-xs font-semibold bg-[var(--blue)] text-white">
+                  <span className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-[var(--blue)] text-white">
                     {t('booking.boardingToday') || 'Boarding today'}
                   </span>
                 </div>
@@ -390,7 +390,7 @@ export default function MyBookings() {
                     {t('booking.upcoming') || 'Upcoming'}
                   </h2>
                   {upcomingBookings.length > 1 && (
-                    <span className="px-2.5 py-1 rounded-xl text-xs font-semibold bg-[var(--blue-light)] text-[var(--blue-dark)]">
+                    <span className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-[var(--blue-light)] text-[var(--blue-dark)]">
                       {upcomingBookings.length}
                     </span>
                   )}
@@ -427,7 +427,7 @@ export default function MyBookings() {
             {/* Close button */}
             <button
               onClick={() => { setTicketModalBooking(null); setTicketImageUrl(null); }}
-              className="absolute top-4 right-4 z-50 w-10 h-10 rounded-xl bg-white/90 hover:bg-white flex items-center justify-center cursor-pointer border-none transition-colors"
+              className="absolute top-4 right-4 z-50 w-10 h-10 rounded-lg bg-white/90 hover:bg-white flex items-center justify-center cursor-pointer border-none transition-colors"
             >
               <X size={20} className="text-[var(--text)]" />
             </button>
@@ -439,7 +439,7 @@ export default function MyBookings() {
             >
               {ticketLoading ? (
                 <div className="w-full flex flex-col items-center">
-                  <div className="w-full max-w-md rounded-xl bg-white/10 p-6 animate-pulse overflow-hidden">
+                  <div className="w-full max-w-md rounded-lg bg-white/10 p-6 animate-pulse overflow-hidden">
                     <div className="h-5 bg-white/20 rounded w-2/5 mb-5" />
                     <div className="space-y-3">
                       <div className="h-3.5 bg-white/15 rounded w-3/4" />
@@ -461,7 +461,7 @@ export default function MyBookings() {
                   <p className="text-sm text-white/70 mb-4">{ticketError}</p>
                   <button
                     onClick={() => loadTicketModal(ticketModalBooking)}
-                    className="h-10 px-6 rounded-xl bg-white text-[var(--text)] text-sm font-semibold cursor-pointer border-none hover:bg-[#F9FAFB] transition-colors"
+                    className="h-10 px-6 rounded-lg bg-white text-[var(--text)] text-sm font-semibold cursor-pointer border-none hover:bg-[#F9FAFB] transition-colors"
                   >
                     {t('common.retry') || 'Try Again'}
                   </button>
@@ -472,7 +472,7 @@ export default function MyBookings() {
                     <img
                       src={ticketImageUrl}
                       alt={`Ticket ${ticketModalBooking.referenceCode}`}
-                      className="w-auto h-auto max-w-full max-h-[80vh] rounded-xl"
+                      className="w-auto h-auto max-w-full max-h-[80vh] rounded-lg"
                     />
                     <p className="text-white/90 text-sm font-semibold text-center">
                       {t('booking.ticketHelp') || 'If you have any problem with your ticket, please contact us on +250 793 216 191.'}
@@ -481,7 +481,7 @@ export default function MyBookings() {
                   <div className="flex w-full lg:w-auto lg:shrink-0 lg:items-center">
                     <button
                       onClick={downloadTicket}
-                      className="w-full lg:w-auto h-14 lg:h-16 px-8 lg:px-10 rounded-xl bg-[var(--blue)] hover:bg-[var(--blue-dark)] text-white text-base lg:text-lg font-semibold cursor-pointer border-none flex items-center justify-center gap-2.5 transition-colors shadow-lg"
+                      className="w-full lg:w-auto h-14 lg:h-16 px-8 lg:px-10 rounded-lg bg-[var(--blue)] hover:bg-[var(--blue-dark)] text-white text-base lg:text-lg font-semibold cursor-pointer border-none flex items-center justify-center gap-2.5 transition-colors shadow-lg"
                     >
                       <Download size={24} />
                       {t('booking.downloadTicket') || 'Download Ticket'}
@@ -507,7 +507,7 @@ export default function MyBookings() {
           >
             <button
               onClick={() => setMerchantReceiptBooking(null)}
-              className="absolute top-4 right-4 z-50 w-10 h-10 rounded-xl bg-white/90 hover:bg-white flex items-center justify-center cursor-pointer border-none transition-colors"
+              className="absolute top-4 right-4 z-50 w-10 h-10 rounded-lg bg-white/90 hover:bg-white flex items-center justify-center cursor-pointer border-none transition-colors"
             >
               <X size={20} className="text-zinc-700" />
             </button>

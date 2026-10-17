@@ -252,7 +252,7 @@ export default function PaymentStatus() {
           <button
             onClick={handleCancelPayment}
             disabled={cancelling}
-            className="mt-7 h-10 rounded-xl bg-[var(--green-cta)] hover:bg-[var(--green-cta-hover)] active:bg-[var(--green-cta-active)] text-[var(--green-ink)] text-sm font-semibold px-6 flex items-center justify-center gap-2 transition-colors duration-200 cursor-pointer border-none disabled:opacity-60 mx-auto"
+            className="mt-7 h-10 rounded-lg bg-[var(--green-cta)] hover:bg-[var(--green-cta-hover)] active:bg-[var(--green-cta-active)] text-[var(--green-ink)] text-sm font-semibold px-6 flex items-center justify-center gap-2 transition-colors duration-200 cursor-pointer border-none disabled:opacity-60 mx-auto"
           >
             {cancelling ? <Loader size={14} className="animate-spin" /> : <X size={16} />}
             {cancelling ? t('booking.paymentCancelling') : t('booking.paymentCancel')}
@@ -304,7 +304,7 @@ export default function PaymentStatus() {
                 </div>
               </TicketCard>
 
-              <div className="w-full rounded-xl bg-[var(--blue-bg)] border border-[var(--border)] p-4 text-left mt-6 mb-6">
+              <div className="w-full rounded-lg bg-[var(--blue-bg)] border border-[var(--border)] p-4 text-left mt-6 mb-6">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--blue-dark)] mb-1.5">
                   {t('booking.paymentFailedNextTitle')}
                 </p>
@@ -316,7 +316,7 @@ export default function PaymentStatus() {
               <div className="grid grid-cols-2 gap-3 w-full">
                 <Link
                   to="/book"
-                  className="h-11 rounded-xl bg-[var(--blue)] hover:bg-[var(--blue-dark)] text-white text-sm font-semibold flex items-center justify-center gap-2 transition-colors duration-200 no-underline"
+                  className="h-11 rounded-lg bg-[var(--blue)] hover:bg-[var(--blue-dark)] text-white text-sm font-semibold flex items-center justify-center gap-2 transition-colors duration-200 no-underline"
                 >
                   <Check size={16} />
                   {t('booking.bookAgain')}
@@ -325,7 +325,7 @@ export default function PaymentStatus() {
                   href={WHATSAPP_GROUP}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="h-11 rounded-xl bg-[#F4F4F5] hover:bg-[#E9ECEF] text-[var(--text)] text-sm font-semibold flex items-center justify-center gap-2 transition-colors duration-200 no-underline border border-[var(--border)]"
+                  className="h-11 rounded-lg bg-[#F4F4F5] hover:bg-[#E9ECEF] text-[var(--text)] text-sm font-semibold flex items-center justify-center gap-2 transition-colors duration-200 no-underline border border-[var(--border)]"
                 >
                   <MessageCircle size={16} />
                   {t('booking.contactSupport')}

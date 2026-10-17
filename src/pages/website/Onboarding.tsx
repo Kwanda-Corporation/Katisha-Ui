@@ -58,7 +58,7 @@ function EarnFromKatishaPill({
     <div className="group fixed top-3 right-3 sm:top-12 sm:right-14 z-20">
       <span
         role="tooltip"
-        className="pointer-events-none absolute right-0 sm:right-auto sm:left-0 top-[calc(100%+8px)] w-max max-w-[240px] rounded-xl bg-[var(--text)] px-3 py-2 text-xs text-white opacity-0 shadow-lg transition-opacity duration-150 group-hover:opacity-100 group-focus-within:opacity-100"
+        className="pointer-events-none absolute right-0 sm:right-auto sm:left-0 top-[calc(100%+8px)] w-max max-w-[240px] rounded-lg bg-[var(--text)] px-3 py-2 text-xs text-white opacity-0 shadow-lg transition-opacity duration-150 group-hover:opacity-100 group-focus-within:opacity-100"
       >
         {tooltip}
       </span>
@@ -93,7 +93,7 @@ function EarnFromKatishaPill({
       <div className="relative">
         <button
           type="button"
-          className="relative inline-flex items-center gap-2 h-11  px-5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-normal transition-colors duration-500 cursor-pointer"
+          className="relative inline-flex items-center gap-2 h-11  px-5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-normal transition-colors duration-500 cursor-pointer"
           onClick={onClick}
         >
           
@@ -101,7 +101,7 @@ function EarnFromKatishaPill({
         </button>
 
         {/* Snow falls in front of the button, clipped to its rounded box. */}
-        <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-xl" aria-hidden="true">
+        <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-lg" aria-hidden="true">
           {SNOW.map((f, i) => (
             <motion.span
               key={i}
@@ -202,7 +202,7 @@ export default function Onboarding() {
                   <button
                     key={lang.code}
                     onClick={() => handleLanguageSelect(lang.code)}
-                    className="w-full flex items-center gap-4 p-4 rounded-xl border border-[var(--border)] bg-white hover:border-[var(--blue)] text-left transition-all cursor-pointer font-inherit"
+                    className="w-full flex items-center gap-4 p-4 rounded-lg border border-[var(--border)] bg-white hover:border-[var(--blue)] text-left transition-all cursor-pointer font-inherit"
                   >
                     <ReactCountryFlag
                       countryCode={lang.countryCode}

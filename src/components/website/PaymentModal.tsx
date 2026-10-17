@@ -594,7 +594,7 @@ export default function PaymentModal({
                   }`}
                 >
                   <span
-                    className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-colors duration-200 ${
+                    className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 transition-colors duration-200 ${
                       useFreeTicket ? 'bg-[#F4F4F5] text-[#064187]' : 'bg-[#F1F5F9] text-[#64748B]'
                     }`}
                   >
