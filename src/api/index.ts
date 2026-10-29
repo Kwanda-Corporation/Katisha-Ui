@@ -148,6 +148,7 @@ export const api = {
   rejectBooking: (id: string, reason: string) => request(`/bookings/${id}/reject`, { method: 'PATCH', body: JSON.stringify({ reason }) }),
   cancelBooking: (id: string) => request(`/bookings/${id}/cancel`, { method: 'POST' }),
   abandonBooking: (id: string) => request(`/bookings/${id}/abandon`, { method: 'POST' }),
+  markFailedPaymentPaid: (id: string) => request(`/bookings/${id}/payment/mark-paid`, { method: 'PATCH' }),
   viewTicket: (id: string) => request(`/bookings/${id}/ticket`),
   getTakenSeats: (params: Record<string, string>) => request('/bookings/taken-seats', { params }),
   getPaymentConfig: () => request('/bookings/payment-config'),

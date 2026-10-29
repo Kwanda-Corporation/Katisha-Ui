@@ -6,13 +6,15 @@ import {
 import {
   DollarSign, Ticket, Route, Users, Building2,
   Download, RefreshCw, Clock, Wallet,
-  Smartphone, Globe, Star,
+  Smartphone, Globe, Star, X, CheckCircle2, Loader2,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
-import { api } from '../../api'
+import { api, resolveImageUrl } from '../../api'
 import { useAuth } from '../../contexts/AuthContext'
 import { viaLabel } from '../../utils/via'
+import { downloadImage } from '../../utils/downloadImage'
+import { useToast } from '../../components/ui/Toast'
 import StudioCard from '../../components/studio/StudioCard'
 import StudioHeading from '../../components/studio/StudioHeading'
 import StatRow from '../../components/studio/StatRow'
@@ -82,12 +84,20 @@ function shortDate(iso: string): string {
 export default function SystemDashboard() {
   const { user } = useAuth()
   const { t } = useTranslation()
+  const toast = useToast()
   const [data, setData] = useState<any>(null)
   const [adminData, setAdminData] = useState<any>(null)
   const [promotions, setPromotions] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
   const [recentPage, setRecentPage] = useState(1)
+  const [paidTarget, setPaidTarget] = useState<any>(null)
+  const [paidLoading, setPaidLoading] = useState(false)
+  const [paidError, setPaidError] = useState('')
+  const [receiptTarget, setReceiptTarget] = useState<any>(null)
+  const [receiptImageUrl, setReceiptImageUrl] = useState('')
+  const [receiptLoading, setReceiptLoading] = useState(false)
+  const [receiptError, setReceiptError] = useState('')
 
   const loadAnalytics = useCallback(async () => {
     try {
@@ -114,6 +124,79 @@ export default function SystemDashboard() {
     const interval = setInterval(refreshAll, 30000)
     return () => clearInterval(interval)
   }, [refreshAll])
+
+  const closePaidModal = useCallback(() => {
+    if (paidLoading) return
+    setPaidTarget(null)
+    setPaidError('')
+  }, [paidLoading])
+
+  const closeReceiptModal = useCallback(() => {
+    setReceiptTarget(null)
+    setReceiptImageUrl('')
+    setReceiptError('')
+    setReceiptLoading(false)
+  }, [])
+
+  // Opens the receipt viewer once after a successful manual confirmation. The
+  // receipt is the very ticket image issued for the booking; if the API has not
+  // returned it yet, fetch it from the ticket endpoint.
+  const openReceiptModal = useCallback(async (booking: any, imageUrl?: string) => {
+    setReceiptTarget(booking)
+    setReceiptError('')
+    setReceiptLoading(false)
+
+    const directUrl = resolveImageUrl(imageUrl) || ''
+    if (directUrl) {
+      setReceiptImageUrl(directUrl)
+      return
+    }
+
+    setReceiptImageUrl('')
+    setReceiptLoading(true)
+    try {
+      const res = await api.viewTicket(booking._id)
+      const url = res.data?.ticket?.imageUrl
+      if (url) setReceiptImageUrl(resolveImageUrl(url) || '')
+      else setReceiptError(t('dashboard.ops.receiptNotReady'))
+    } catch (err: any) {
+      setReceiptError(err?.message || t('dashboard.ops.receiptLoadFailed'))
+    } finally {
+      setReceiptLoading(false)
+    }
+  }, [t])
+
+  const confirmPaid = useCallback(async () => {
+    if (!paidTarget || paidLoading) return
+    setPaidLoading(true)
+    setPaidError('')
+    try {
+      const res = await api.markFailedPaymentPaid(paidTarget._id)
+      const booking = res.data?.booking || paidTarget
+      const ticketUrl = res.data?.ticket?.imageUrl
+      setPaidTarget(null)
+      toast.success(
+        t('dashboard.ops.paymentConfirmed'),
+        t('dashboard.ops.paymentConfirmedDesc', { ref: booking.referenceCode || paidTarget.referenceCode }),
+      )
+      refreshAll()
+      // The "Download receipt" modal is opened once, right after the decision
+      // is confirmed — it never reopens on the 30s dashboard refresh.
+      await openReceiptModal(booking, ticketUrl)
+    } catch (err: any) {
+      const message = err?.message || t('dashboard.ops.confirmPaidFailedDesc')
+      setPaidError(message)
+      toast.error(t('dashboard.ops.confirmPaidFailed'), message)
+    } finally {
+      setPaidLoading(false)
+    }
+  }, [paidTarget, paidLoading, toast, t, refreshAll, openReceiptModal])
+
+  const downloadReceipt = useCallback(async () => {
+    if (!receiptImageUrl || !receiptTarget) return
+    await downloadImage(receiptImageUrl, `receipt-${receiptTarget.referenceCode || 'receipt'}.png`)
+    closeReceiptModal()
+  }, [receiptImageUrl, receiptTarget, closeReceiptModal])
 
   const overview = data?.overview || {}
   const revenue = data?.revenue || {}
@@ -344,6 +427,27 @@ export default function SystemDashboard() {
           {statusLabel(b.status)}
         </span>
       ),
+    },
+    {
+      key: 'actions',
+      header: t('dashboard.ops.actions'),
+      align: 'right',
+      render: (b) => {
+        if ((b.paymentStatus || '').toLowerCase() !== 'failed') {
+          return <span className="text-xs text-[var(--studio-text-muted)]">—</span>
+        }
+        return (
+          <button
+            type="button"
+            onClick={() => setPaidTarget(b)}
+            className="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-semibold rounded-full bg-[var(--tone-success-fill)] text-[var(--tone-success-ink)] hover:brightness-95 transition-colors cursor-pointer border-none"
+            title={t('dashboard.ops.confirmPaidTitle')}
+          >
+            <CheckCircle2 size={13} aria-hidden="true" />
+            {t('dashboard.ops.markPaid')}
+          </button>
+        )
+      },
     },
   ], [t])
 
@@ -857,6 +961,182 @@ export default function SystemDashboard() {
           </div>
         )}
       </StudioCard>
+
+      {/* ── Confirm failed payment as paid ───────────────────────── */}
+      {paidTarget && (
+        <div
+          className="fixed inset-0 z-[1000] flex items-center justify-center p-4"
+          style={{ background: 'rgba(0,0,0,0.45)' }}
+          onClick={closePaidModal}
+          role="presentation"
+        >
+          <div
+            className="w-full max-w-md rounded-2xl border border-[var(--studio-border)] bg-[var(--studio-surface)] shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="confirm-paid-title"
+          >
+            <div className="flex items-start justify-between gap-3 px-6 pt-6 pb-4 border-b border-[var(--studio-border)]">
+              <div className="min-w-0">
+                <h2 id="confirm-paid-title" className="text-lg font-semibold text-[var(--studio-text)]">
+                  {t('dashboard.ops.confirmPaidTitle')}
+                </h2>
+                <p className="text-sm text-[var(--studio-text-sub)] mt-1">
+                  {t('dashboard.ops.confirmPaidBody', { ref: paidTarget.referenceCode })}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={closePaidModal}
+                disabled={paidLoading}
+                className="flex-shrink-0 p-1.5 rounded-lg hover:bg-[var(--studio-muted-fill)] transition-colors cursor-pointer border-none bg-transparent disabled:opacity-50"
+                aria-label={t('common.close')}
+              >
+                <X size={18} className="text-[var(--studio-text-sub)]" />
+              </button>
+            </div>
+
+            <div className="px-6 py-4 space-y-2.5 text-sm">
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-[var(--studio-text-sub)]">{t('dashboard.ops.passenger')}</span>
+                <span className="font-medium text-[var(--studio-text)] text-right">{passengerOf(paidTarget)}</span>
+              </div>
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-[var(--studio-text-sub)]">{t('dashboard.ops.route')}</span>
+                <span className="font-medium text-[var(--studio-text)] text-right">{routeOf(paidTarget)}</span>
+              </div>
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-[var(--studio-text-sub)]">{t('dashboard.ops.colPaid')}</span>
+                <span className="font-semibold text-[var(--studio-text)] text-right">
+                  {rwf((paidTarget.totalAmount || 0) + (paidTarget.systemFee || 0) + (paidTarget.paymentFee || 0))}
+                </span>
+              </div>
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-[var(--studio-text-sub)]">{t('dashboard.ops.paymentStatus')}</span>
+                <span className={`inline-flex items-center text-xs font-semibold px-2.5 py-1 rounded-full ${PAYMENT_PILL[(paidTarget.paymentStatus || '').toLowerCase()] || 'bg-[var(--studio-muted-fill)] text-[var(--studio-text-sub)]'}`}>
+                  {paymentLabel(paidTarget.paymentStatus)}
+                </span>
+              </div>
+              <p className="pt-2 text-xs text-[var(--studio-text-muted)]">
+                {t('dashboard.ops.confirmPaidNote')}
+              </p>
+            </div>
+
+            {paidError && (
+              <p className="mx-6 mb-3 rounded-lg px-3 py-2 text-xs bg-[var(--tone-danger-fill)] text-[var(--tone-danger-ink)]">
+                {paidError}
+              </p>
+            )}
+
+            <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 px-6 py-4 border-t border-[var(--studio-border)]">
+              <button
+                type="button"
+                onClick={closePaidModal}
+                disabled={paidLoading}
+                className="inline-flex items-center justify-center h-10 px-5 rounded-full border border-[var(--studio-border)] bg-[var(--studio-surface)] text-sm font-semibold text-[var(--studio-text)] hover:bg-[var(--studio-muted-fill)] cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {t('common.cancel')}
+              </button>
+              <button
+                type="button"
+                onClick={confirmPaid}
+                disabled={paidLoading}
+                className="inline-flex items-center justify-center gap-2 h-10 px-5 rounded-full bg-[var(--studio-accent)] text-sm font-semibold text-white hover:brightness-95 cursor-pointer transition-colors border-none disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {paidLoading
+                  ? <Loader2 size={15} className="animate-spin" aria-hidden="true" />
+                  : <CheckCircle2 size={15} aria-hidden="true" />}
+                {paidLoading ? t('common.loading') : t('dashboard.ops.confirmDecision')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Download receipt (same image as the issued ticket) ───── */}
+      {receiptTarget && (
+        <div
+          className="fixed inset-0 z-[1000] flex items-center justify-center p-4"
+          style={{ background: 'rgba(0,0,0,0.55)' }}
+          onClick={closeReceiptModal}
+          role="presentation"
+        >
+          <div
+            className="w-full max-w-lg rounded-2xl border border-[var(--studio-border)] bg-[var(--studio-surface)] shadow-2xl max-h-[92vh] flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="download-receipt-title"
+          >
+            <div className="flex items-start justify-between gap-3 px-6 pt-6 pb-4 border-b border-[var(--studio-border)]">
+              <div className="min-w-0">
+                <h2 id="download-receipt-title" className="text-lg font-semibold text-[var(--studio-text)]">
+                  {t('dashboard.ops.downloadReceiptTitle')}
+                </h2>
+                <p className="text-sm text-[var(--studio-text-sub)] mt-1">
+                  {t('dashboard.ops.downloadReceiptBody', { ref: receiptTarget.referenceCode })}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={closeReceiptModal}
+                className="flex-shrink-0 p-1.5 rounded-lg hover:bg-[var(--studio-muted-fill)] transition-colors cursor-pointer border-none bg-transparent"
+                aria-label={t('common.close')}
+              >
+                <X size={18} className="text-[var(--studio-text-sub)]" />
+              </button>
+            </div>
+
+            <div className="px-6 py-4 overflow-y-auto">
+              {receiptLoading ? (
+                <div className="flex flex-col items-center justify-center gap-3 py-14">
+                  <Loader2 size={28} className="animate-spin text-[var(--studio-accent)]" aria-hidden="true" />
+                  <p className="text-sm text-[var(--studio-text-sub)]">{t('common.loading')}</p>
+                </div>
+              ) : receiptError ? (
+                <div className="flex flex-col items-center gap-3 py-10 text-center">
+                  <p className="text-sm text-[var(--tone-danger-ink)] bg-[var(--tone-danger-fill)] rounded-lg px-3 py-2">
+                    {receiptError}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => openReceiptModal(receiptTarget)}
+                    className="inline-flex items-center justify-center h-9 px-4 rounded-full border border-[var(--studio-border)] bg-[var(--studio-surface)] text-sm font-semibold text-[var(--studio-text)] hover:bg-[var(--studio-muted-fill)] cursor-pointer transition-colors"
+                  >
+                    {t('common.retry')}
+                  </button>
+                </div>
+              ) : receiptImageUrl ? (
+                <img
+                  src={receiptImageUrl}
+                  alt={t('dashboard.ops.downloadReceiptTitle')}
+                  className="mx-auto w-full max-w-sm rounded-xl border border-[var(--studio-border)]"
+                />
+              ) : null}
+            </div>
+
+            <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 px-6 py-4 border-t border-[var(--studio-border)]">
+              <button
+                type="button"
+                onClick={closeReceiptModal}
+                className="inline-flex items-center justify-center h-10 px-5 rounded-full border border-[var(--studio-border)] bg-[var(--studio-surface)] text-sm font-semibold text-[var(--studio-text)] hover:bg-[var(--studio-muted-fill)] cursor-pointer transition-colors"
+              >
+                {t('common.close')}
+              </button>
+              <button
+                type="button"
+                onClick={downloadReceipt}
+                disabled={!receiptImageUrl || receiptLoading}
+                className="inline-flex items-center justify-center gap-2 h-10 px-5 rounded-full bg-[var(--studio-accent)] text-sm font-semibold text-white hover:brightness-95 cursor-pointer transition-colors border-none disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                <Download size={15} aria-hidden="true" />
+                {t('dashboard.ops.downloadReceipt')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
