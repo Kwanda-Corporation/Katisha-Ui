@@ -67,8 +67,9 @@ async function request<T = any>(path: string, options: ApiOptions = {}): Promise
   }
 
   const token = localStorage.getItem('vdk_access_token');
+  const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
   const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
+    ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
     ...(options.headers as Record<string, string> || {}),
   };
   if (token) {
@@ -145,6 +146,12 @@ export const api = {
   getPickupAgentBookings: (params?: Record<string, string>) => request('/bookings/pickup-agent/today', { params }),
   confirmBooking: (id: string) => request(`/bookings/${id}/confirm`, { method: 'PATCH' }),
   issueBooking: (id: string) => request(`/bookings/${id}/issue`, { method: 'PATCH' }),
+  markBookingSeen: (id: string) => request(`/bookings/${id}/seen`, { method: 'PATCH' }),
+  markBookingReady: (id: string, file: File) => {
+    const body = new FormData();
+    body.append('ticketImage', file);
+    return request(`/bookings/${id}/ready`, { method: 'POST', body });
+  },
   rejectBooking: (id: string, reason: string) => request(`/bookings/${id}/reject`, { method: 'PATCH', body: JSON.stringify({ reason }) }),
   cancelBooking: (id: string) => request(`/bookings/${id}/cancel`, { method: 'POST' }),
   abandonBooking: (id: string) => request(`/bookings/${id}/abandon`, { method: 'POST' }),

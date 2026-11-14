@@ -2,10 +2,11 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Check, Search, TicketCheck, Calendar, Loader, Activity, RefreshCw, Ticket,
-  Smartphone, Globe,
+  Smartphone, Globe, Download, Eye,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { api } from '../../api';
+import { api, resolveImageUrl } from '../../api';
+import { downloadImage } from '../../utils/downloadImage';
 import { viaLabel } from '../../utils/via';
 
 function parseLocalDate(iso: string): Date | null {
@@ -271,7 +272,7 @@ export default function AgentBookings() {
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-[#F9FAFB]">
-                {['Ref', 'Passenger', 'Phone', 'Passengers', 'Route', 'Date', 'Time', 'Amount', 'Payment', 'Status', 'Action'].map(h => (
+                {['Ref', 'Passenger', 'Phone', 'Passengers', 'Route', 'Date', 'Time', 'Amount', 'Payment', 'Proof', 'Status', 'Action'].map(h => (
                   <th key={h} className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-[var(--text-sub)]">{h}</th>
                 ))}
               </tr>
@@ -280,7 +281,7 @@ export default function AgentBookings() {
               {loading ? (
                   Array.from({ length: 6 }).map((_, i) => (
                     <tr key={i}>
-                      {Array.from({ length: 11 }).map((_, j) => (
+                      {Array.from({ length: 12 }).map((_, j) => (
                         <td key={j} className="px-6 py-3">
                           <div className="h-4 bg-[#F9FAFB] rounded w-4/5 animate-pulse" />
                         </td>
@@ -289,7 +290,7 @@ export default function AgentBookings() {
                   ))
                 ) : filteredBookings.length === 0 ? (
                   <tr>
-                    <td colSpan={11} className="py-12 text-center text-sm text-[var(--text-muted)]">{t('booking.noBookings')}</td>
+                    <td colSpan={12} className="py-12 text-center text-sm text-[var(--text-muted)]">{t('booking.noBookings')}</td>
                   </tr>
               ) : (
                 filteredBookings.map(b => (
@@ -313,6 +314,18 @@ export default function AgentBookings() {
                           {b.paymentStatus || '—'}
                         </span>
                       </div>
+                    </td>
+                    <td className="px-6 py-3">
+                      {b.ticketProofImage ? (
+                        <button
+                          onClick={e => { e.stopPropagation(); setSelectedBooking(b); setShowDetailModal(true); }}
+                          className="h-7 px-2 rounded-md border border-[var(--border)] text-xs font-medium flex items-center gap-1 cursor-pointer bg-white hover:bg-[#F3F4F6] text-zinc-700"
+                        >
+                          <Eye size={12} /> View
+                        </button>
+                      ) : (
+                        <span className="text-xs text-[var(--text-muted)]">—</span>
+                      )}
                     </td>
                     <td className="px-6 py-3">
                       <span className={`inline-flex items-center text-xs font-medium px-2 py-0.5 rounded-md ${statusBadge(b.status)}`}>{b.status}</span>
@@ -435,6 +448,41 @@ export default function AgentBookings() {
                   {selectedBooking.contactPhone && (
                     <p className="text-xs text-emerald-600 mt-0.5">Contact: {selectedBooking.contactPhone}</p>
                   )}
+                </div>
+              )}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="px-3 py-2 bg-[#F9FAFB] rounded-md">
+                  <p className="text-[10px] font-bold uppercase text-[var(--text-sub)] tracking-wider">Agent seen</p>
+                  <p className="text-sm font-semibold text-[var(--text)] mt-0.5">
+                    {selectedBooking.agentSeen ? 'Yes' : 'Not yet'}
+                  </p>
+                </div>
+                <div className="px-3 py-2 bg-[#F9FAFB] rounded-md">
+                  <p className="text-[10px] font-bold uppercase text-[var(--text-sub)] tracking-wider">Ticket photo</p>
+                  <p className="text-sm font-semibold text-[var(--text)] mt-0.5">
+                    {selectedBooking.ticketProofImage ? 'Uploaded' : 'Pending'}
+                  </p>
+                </div>
+              </div>
+              {selectedBooking.ticketProofImage && (
+                <div className="px-3 py-2 bg-[#F9FAFB] rounded-md">
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <p className="text-[10px] font-bold uppercase text-[var(--text-sub)] tracking-wider">Proof of issued ticket</p>
+                    <button
+                      onClick={() => {
+                        const url = resolveImageUrl(selectedBooking.ticketProofImage);
+                        if (url) downloadImage(url, `ticket-proof-${selectedBooking.referenceCode}.jpg`);
+                      }}
+                      className="h-7 px-2 rounded-md bg-[var(--blue)] text-white text-xs font-semibold flex items-center gap-1 cursor-pointer border-none"
+                    >
+                      <Download size={12} /> Download
+                    </button>
+                  </div>
+                  <img
+                    src={resolveImageUrl(selectedBooking.ticketProofImage)}
+                    alt={`Ticket proof ${selectedBooking.referenceCode}`}
+                    className="w-full rounded-md border border-[var(--border)] bg-white"
+                  />
                 </div>
               )}
             </div>

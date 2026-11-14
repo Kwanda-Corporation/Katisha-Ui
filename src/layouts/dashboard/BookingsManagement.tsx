@@ -3,8 +3,10 @@ import { motion } from 'framer-motion';
 import {
   Search, Filter, Calendar, ChevronDown, Download, RefreshCw, Loader2,
   Ticket, CheckCircle, XCircle, Clock, RotateCcw, TrendingUp, ChevronLeft, ChevronRight,
+  Eye, X,
 } from 'lucide-react';
-import { api } from '../../api';
+import { api, resolveImageUrl } from '../../api';
+import { downloadImage } from '../../utils/downloadImage';
 import { PageHeader, StatCard } from '../../components/ui';
 
 export default function BookingsManagementPage() {
@@ -15,6 +17,7 @@ export default function BookingsManagementPage() {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [exporting, setExporting] = useState(false);
+  const [proofBooking, setProofBooking] = useState<any>(null);
   const itemsPerPage = 10;
 
   const load = useCallback(async () => {
@@ -73,6 +76,7 @@ export default function BookingsManagementPage() {
     const styles: Record<string, string> = {
       pending: 'bg-[#F9FAFB] text-[var(--text-sub)]',
       confirmed: 'bg-blue-600 text-white',
+      issued: 'bg-emerald-600 text-white',
       rejected: 'bg-[#F9FAFB] text-[var(--text-sub)]',
       cancelled: 'bg-[#F9FAFB] text-[var(--text-sub)]',
     };
@@ -80,6 +84,7 @@ export default function BookingsManagementPage() {
       <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-md ${styles[status] || 'bg-[#F9FAFB] text-[var(--text-sub)]'}`}>
         {status === 'pending' && <Clock size={10} />}
         {status === 'confirmed' && <CheckCircle size={10} />}
+        {status === 'issued' && <Ticket size={10} />}
         {status === 'rejected' && <XCircle size={10} />}
         {status === 'cancelled' && <RotateCcw size={10} />}
         {status}
@@ -129,6 +134,7 @@ export default function BookingsManagementPage() {
                 <option value="">All statuses</option>
                 <option value="pending">Pending</option>
                 <option value="confirmed">Confirmed</option>
+                <option value="issued">Issued</option>
                 <option value="rejected">Rejected</option>
                 <option value="cancelled">Cancelled</option>
               </select>
@@ -152,7 +158,7 @@ export default function BookingsManagementPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-[#F9FAFB]">
-                {['Ref', 'Passenger', 'Route', 'Date', 'Time', 'Amount', 'Agent', 'Status'].map(h => (
+                {['Ref', 'Passenger', 'Route', 'Date', 'Time', 'Amount', 'Agent', 'Proof', 'Status'].map(h => (
                   <th key={h} className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-[var(--text-sub)]">{h}</th>
                 ))}
               </tr>
@@ -160,12 +166,12 @@ export default function BookingsManagementPage() {
             <tbody className="divide-y divide-zinc-100">
               {loading ? (
                 Array.from({ length: 5 }).map((_, i) => (
-                  <tr key={i}>{Array.from({ length: 8 }).map((_, j) => (
+                  <tr key={i}>{Array.from({ length: 9 }).map((_, j) => (
                     <td key={j} className="px-6 py-3"><div className="h-4 bg-[#F9FAFB] rounded w-4/5 animate-pulse" /></td>
                   ))}</tr>
                 ))
               ) : paginated.length === 0 ? (
-                <tr><td colSpan={8} className="py-12 text-center">
+                <tr><td colSpan={9} className="py-12 text-center">
                   <Ticket size={28} className="mx-auto text-[var(--text-muted)] mb-2" />
                   <p className="text-sm text-[var(--text-muted)]">No bookings found</p>
                 </td></tr>
@@ -189,6 +195,31 @@ export default function BookingsManagementPage() {
                   <td className="px-6 py-3 text-sm font-semibold text-zinc-950">{b.totalAmount?.toLocaleString()} RWF</td>
                   <td className="px-6 py-3 text-sm text-[var(--text-sub)]">
                     {b.handledBy?.name || b.confirmedBy?.name || b.rejectedBy?.name || <span className="text-[var(--text-muted)]">—</span>}
+                  </td>
+                  <td className="px-6 py-3">
+                    {b.ticketProofImage ? (
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          onClick={() => setProofBooking(b)}
+                          className="h-7 px-2 rounded-md border border-[var(--border)] text-xs font-medium flex items-center gap-1 cursor-pointer bg-white hover:bg-[#F3F4F6] text-zinc-700"
+                          title="View ticket photo"
+                        >
+                          <Eye size={12} /> View
+                        </button>
+                        <button
+                          onClick={() => {
+                            const url = resolveImageUrl(b.ticketProofImage);
+                            if (url) downloadImage(url, `ticket-proof-${b.referenceCode}.jpg`);
+                          }}
+                          className="h-7 w-7 rounded-md border border-[var(--border)] flex items-center justify-center cursor-pointer bg-white hover:bg-[#F3F4F6] text-zinc-700"
+                          title="Download proof"
+                        >
+                          <Download size={12} />
+                        </button>
+                      </div>
+                    ) : (
+                      <span className="text-xs text-[var(--text-muted)]">Not uploaded</span>
+                    )}
                   </td>
                   <td className="px-6 py-3">{statusBadge(b.status)}</td>
                 </motion.tr>
@@ -220,6 +251,53 @@ export default function BookingsManagementPage() {
           )}
         </div>
       </div>
+
+      {proofBooking && (
+        <div
+          className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4"
+          onClick={() => setProofBooking(null)}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.96 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-lg w-full max-w-lg overflow-hidden"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--border)]">
+              <div>
+                <h3 className="text-sm font-bold text-zinc-950">Ticket photo proof</h3>
+                <p className="text-xs text-[var(--text-muted)] mt-0.5">
+                  {proofBooking.referenceCode} · {proofBooking.origin} → {proofBooking.destination}
+                </p>
+              </div>
+              <button
+                onClick={() => setProofBooking(null)}
+                className="h-8 w-8 rounded-md flex items-center justify-center cursor-pointer hover:bg-[#F3F4F6] text-zinc-600"
+              >
+                <X size={16} />
+              </button>
+            </div>
+            <div className="bg-[#F9FAFB] p-4 max-h-[65vh] overflow-auto">
+              <img
+                src={resolveImageUrl(proofBooking.ticketProofImage)}
+                alt={`Ticket proof ${proofBooking.referenceCode}`}
+                className="w-full rounded-md border border-[var(--border)] bg-white"
+              />
+            </div>
+            <div className="flex justify-end gap-2 px-5 py-4 border-t border-[var(--border)]">
+              <button
+                onClick={() => {
+                  const url = resolveImageUrl(proofBooking.ticketProofImage);
+                  if (url) downloadImage(url, `ticket-proof-${proofBooking.referenceCode}.jpg`);
+                }}
+                className="h-9 px-4 rounded-md bg-[var(--blue)] text-white text-sm font-semibold flex items-center gap-2 cursor-pointer border-none"
+              >
+                <Download size={14} /> Download proof
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }
