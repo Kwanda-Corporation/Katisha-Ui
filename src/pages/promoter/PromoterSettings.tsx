@@ -86,7 +86,7 @@ export default function PromoterSettings() {
               className="flex-1 min-w-0 px-3 py-2.5 text-sm font-mono text-[var(--studio-text)] bg-[var(--studio-muted-fill)] border border-[var(--studio-border)] outline-none focus:border-[var(--studio-accent)]"
               style={{ borderRadius: 10 }}
             />
-            <Button variant="secondary" onClick={copyLink} disabled={!referralLink} className="!rounded-[10px]">
+            <Button variant="secondary" onClick={copyLink} disabled={!referralLink} className="!rounded-sm">
               {copied ? <Check size={16} /> : <Copy size={16} />}
               {copied ? t('promoter.copied') : t('promoter.copyLink')}
             </Button>

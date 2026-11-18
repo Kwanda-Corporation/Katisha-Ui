@@ -292,7 +292,7 @@ export default function MerchantCodeModal({
                 <button
                   type="button"
                   onClick={handleCopyAndConfirm}
-                  className="h-8 px-2.5 rounded-[10px] bg-white/85 ring-1 ring-black/10 text-[11px] font-semibold text-zinc-800 flex items-center gap-1.5 hover:bg-white transition-all duration-200 cursor-pointer shrink-0 backdrop-blur-sm"
+                  className="h-8 px-2.5 rounded-sm bg-white/85 ring-1 ring-black/10 text-[11px] font-semibold text-zinc-800 flex items-center gap-1.5 hover:bg-white transition-all duration-200 cursor-pointer shrink-0 backdrop-blur-sm"
                 >
                   {copied ? <Check size={13} className="text-[#059669]" /> : <Copy size={13} />}
                   {copied ? t('booking.payCopied') : t('booking.payCopy')}
@@ -326,7 +326,7 @@ export default function MerchantCodeModal({
                   )}
                 </button>
               ) : (
-                <div className="rounded-[12px] bg-white/70 ring-1 ring-black/10 p-2.5 text-center backdrop-blur-sm">
+                <div className="rounded-sm bg-white/70 ring-1 ring-black/10 p-2.5 text-center backdrop-blur-sm">
                   <p className="text-[11px] font-medium text-zinc-700">
                     {t('booking.desktopFallback', { defaultValue: 'Use your phone to dial the code above, then confirm below.' })}
                   </p>
@@ -349,7 +349,7 @@ export default function MerchantCodeModal({
               type="button"
               onClick={onSubmit}
               disabled={!canSubmit || submitting}
-              className="w-full h-12 sm:h-13 rounded-lg sm:rounded-[16px] bg-[var(--green-cta)] hover:bg-[var(--green-cta-hover)] active:bg-[var(--green-cta-active)] text-[var(--green-ink)] text-sm font-bold shadow-[0_10px_24px_-10px_rgba(116,226,76,0.9)] active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:shadow-none disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2 whitespace-nowrap"
+              className="w-full h-12 sm:h-13 rounded-lg sm:rounded-sm bg-[var(--green-cta)] hover:bg-[var(--green-cta-hover)] active:bg-[var(--green-cta-active)] text-[var(--green-ink)] text-sm font-bold shadow-[0_10px_24px_-10px_rgba(116,226,76,0.9)] active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:shadow-none disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2 whitespace-nowrap"
             >
               {submitting ? (
                 <>

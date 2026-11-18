@@ -1,11 +1,15 @@
 @import "tailwindcss";
 
 @theme {
+  /* Buttons, cards and panels use a tight 2px corner instead of the previous
+     soft 12–20px radii. `--radius-md` (10px) is kept as the input/modal base
+     so the existing dialog panels retain their softer shape. */
+  --radius-sm: 0.125rem;
   --radius-md: 0.625rem;
-  --radius-lg: 0.75rem;
-  --radius-xl: 0.875rem;
-  --radius-2xl: 1rem;
-  --radius-3xl: 1.25rem;
+  --radius-lg: 0.125rem;
+  --radius-xl: 0.125rem;
+  --radius-2xl: 0.125rem;
+  --radius-3xl: 0.125rem;
 
   /* Brand blue ramp. Repoints Tailwind's `blue-*` utilities (used directly
      across the app) onto the Katisha blue so they match the --blue tokens
@@ -44,6 +48,9 @@
   --blue-deep: #053165;
   --blue-light: #F4F4F5;
   --blue-bg: #F4F4F5;
+  /* Pale tint of the brand blue, derived at ~9% over white. Brand blue text on
+     this fill clears WCAG AA comfortably. */
+  --blue-tint: #EFF6FF;
   /* Translucent brand ring for focus-visible. Needs its own token because the
      fixed dark-blue it replaced all but vanished on a black canvas. */
   --focus-ring: rgba(8, 84, 174, 0.35);
@@ -157,33 +164,38 @@
   --ink-strong: #18181B;
 
   /* Studio (YouTube Studio-inspired) tokens */
-  --studio-bg: var(--bg);
-  /* Cards/sections are borderless, so the zinc fill is what separates them
-     from the white page behind. */
-  --studio-surface: #F4F4F5;
-  --studio-surface-sub: #E4E4E7;
-  --studio-sidebar-bg: #FFFFFF;
-  --studio-topbar-bg: #FFFFFF;
-  --studio-border: var(--border);
+  --studio-bg: #ffffff;
+  --studio-surface: #ffffff;
+  --studio-surface-sub: #f2f2f2;
+  --studio-sidebar-bg: #ffffff;
+  /* Top nav sits one step off the white canvas so the chrome reads as a bar. */
+  --studio-topbar-bg: #F0F4FB;
+  --studio-border: #cfcfd4;
   --studio-topbar-height: 56px;
-  --studio-sidebar-width-open: 230px;
-  --studio-sidebar-width-closed: 64px;
-  --studio-text: var(--text);
-  --studio-text-sub: var(--text-sub);
-  --studio-text-muted: var(--text-muted);
-  --studio-muted-fill: #F1F5F9;
-  --studio-hover: var(--blue-light);
-  --studio-active: #E4E4E7;
-  --studio-radius-card: 24px;
-  --studio-radius-pill: 9999px;
+  --studio-sidebar-width-open: 240px;
+  --studio-sidebar-width-closed: 72px;
+  --studio-text: #0f0f0f;
+  --studio-text-sub: #4a4a4f;
+  --studio-text-muted: #6e6e76;
+  --studio-muted-fill: #f2f2f2;
+  --studio-hover: #f2f2f2;
+  --studio-active: #f2f2f2;
+  --studio-radius-card: 12px;
+  --studio-radius-pop: 12px;
+  --studio-radius-panel: 16px;
+  --studio-radius-sidebar: 10px;
+  --studio-radius-input: 8px;
+  --studio-radius-pill: 999px;
   --studio-accent: var(--blue);
-  --studio-accent-soft: var(--blue-bg);
-  /* Cards and sections are borderless; only form controls keep an outline. */
-  --studio-card-border: transparent;
-  --studio-divider: var(--border);
-  /* Highlighter marker behind the dashboard headings. */
-  --studio-marker: #DBEAFE;
-  --studio-marker-dot: #38BDF8;
+  --studio-accent-soft: rgba(8, 84, 174, 0.08);
+  --studio-card-border: #cfcfd4;
+  --studio-divider: #dedee2;
+  --studio-shadow-pop: 0 4px 24px rgba(0, 0, 0, 0.16);
+  --studio-focus-ring: 0 0 0 2px var(--blue);
+  /* Highlighter marker behind dashboard headings — now transparent so page
+     titles render as plain text (no capsule/shadow). */
+  --studio-marker: transparent;
+  --studio-marker-dot: transparent;
 
   /* Auth: white canvas to match the rest of the site, 10px (rounded-md) field
      and button radius, quiet dividers. */
@@ -202,10 +214,10 @@
   --spacing-3xl: 64px;
   --spacing-4xl: 96px;
 
-  --radius-sm: 4px;
+  --radius-sm: 2px;
   --radius-md: 10px;
-  --radius-lg: 12px;
-  --radius-xl: 14px;
+  --radius-lg: 2px;
+  --radius-xl: 2px;
   --radius-full: 9999px;
 }
 
@@ -294,33 +306,34 @@
 
   --overlay: #000000;
 
-  /* Chrome (page canvas, sidebar, top bar) is pure black; content surfaces sit
+  /* Chrome (page canvas, sidebar, top bar) is near-black; content surfaces sit
      slightly above it so cards keep a visible edge. */
-  --studio-bg: #000000;
-  --studio-sidebar-bg: #000000;
-  --studio-topbar-bg: #000000;
-  --studio-surface: #111114;
-  --studio-surface-sub: #17171B;
-  --studio-border: #1F2937;
-  --studio-text: #F1F5F9;
-  --studio-text-sub: #CBD5E1;
-  --studio-text-muted: #94A3B8;
-  --studio-muted-fill: #121317;
-  --studio-hover: #121317;
-  --studio-active: #1A1D24;
-  --studio-accent: #7DA8FB;
-  --studio-accent-soft: #0B1220;
-  --studio-card-border: transparent;
-  --studio-divider: #1F2937;
-  /* Deep blue keeps the near-white heading legible on black. */
-  --studio-marker: #14337A;
-  --studio-marker-dot: #60A5FA;
+  --studio-bg: #0f0f0f;
+  --studio-sidebar-bg: #0f0f0f;
+  --studio-topbar-bg: #0f0f0f;
+  --studio-surface: #212121;
+  --studio-surface-sub: #272727;
+  --studio-border: #55555c;
+  --studio-text: #f1f1f1;
+  --studio-text-sub: #c6cad1;
+  --studio-text-muted: #989ca4;
+  --studio-muted-fill: #272727;
+  --studio-hover: #272727;
+  --studio-active: #3f3f3f;
+  --studio-accent: #3B82F6;
+  --studio-accent-soft: rgba(59, 130, 246, 0.16);
+  --studio-card-border: #55555c;
+  --studio-divider: #4a4a52;
+  --studio-shadow-pop: 0 4px 24px rgba(0, 0, 0, 0.48);
+  --studio-marker: transparent;
+  --studio-marker-dot: transparent;
 }
 
-/* Borderless cards and sections. The dashboards predate theming and draw
-   frames with plain `border` utilities, so the frame is neutralised here
-   instead of rewriting ~270 call sites. Layout width is preserved (the 1px
-   border stays, only its colour is transparent).
+/* Visible card/list frames. The dashboards predate theming and draw frames
+   with plain `border` utilities, so those are repainted with the studio border
+   token here instead of rewriting ~270 call sites. Elements that already use a
+   token colour (`border-[var(--…)]`, e.g. accent or tone borders) are left
+   untouched so their semantic colour survives.
 
    `!important` is required: `@layer base` sets `* { border-color: var(--border) }`,
    which would otherwise repaint these frames.
@@ -329,8 +342,8 @@
    unfillable, and `border-b-2` is how the active tab is marked), table cells
    and anything inside them, plus the `divide-y` row separators. */
 .studio-shell :where(div, section, article, ul, ol, li, header, aside, figure, table, thead, tbody, tfoot, tr)
-  :not(input):not(select):not(textarea):not(button):not(a):not(td):not(th):not(:where(td, th) *)[class*='border'] {
-  border-color: transparent !important;
+  :not(input):not(select):not(textarea):not(button):not(a):not(td):not(th):not(:where(td, th) *):not([class*='border-[var(--'])[class*='border'] {
+  border-color: var(--studio-border) !important;
 }
 
 .studio-shell .recharts-tooltip-wrapper,
@@ -343,6 +356,13 @@
    sidebar) uses its own token and stays white / pure black. */
 .studio-shell .bg-white {
   background-color: var(--studio-surface);
+}
+
+/* Top nav chrome: fills are tuned for the tinted bar so icon hovers and pills
+   stay visible against it (the generic fills assume white content). */
+.studio-shell[data-theme='light'] .studio-topbar {
+  --studio-muted-fill: #E5EBF5;
+  --studio-hover: #E5EBF5;
 }
 
 /* The shell markup predates theming and still paints itself with fixed Tailwind
@@ -639,7 +659,7 @@ p {
 .clean-card {
   background: #FFFFFF;
   border: 1px solid #E4E4E7;
-  border-radius: 14px;
+  border-radius: 2px;
   overflow: hidden;
   transition: border-color 150ms ease, box-shadow 150ms ease;
 }
@@ -656,13 +676,13 @@ p {
   top: 0;
   bottom: 0;
   width: 3px;
-  border-radius: 14px 0 0 14px;
+  border-radius: 2px 0 0 2px;
 }
 
 .stat-minimal {
   background: #FFFFFF;
   border: 1px solid #E4E4E7;
-  border-radius: 14px;
+  border-radius: 2px;
   padding: 20px 22px;
   display: flex;
   flex-direction: column;
@@ -702,7 +722,7 @@ p {
 .booking-card-modern {
   background: #FFFFFF;
   border: 1px solid #E4E4E7;
-  border-radius: 14px;
+  border-radius: 2px;
   overflow: hidden;
   transition: border-color 150ms ease;
   position: relative;
@@ -717,7 +737,7 @@ p {
   top: 0;
   bottom: 0;
   width: 3px;
-  border-radius: 14px 0 0 14px;
+  border-radius: 2px 0 0 2px;
 }
 .booking-card-modern--pending::before { background: #0854AE; }
 .booking-card-modern--confirmed::before { background: #0854AE; }
@@ -770,7 +790,7 @@ p {
 .pipeline-item {
   background: #FFFFFF;
   border: 1px solid #E4E4E7;
-  border-radius: 14px;
+  border-radius: 2px;
   padding: 12px 14px;
   border-top: 3px solid;
 }
@@ -792,7 +812,7 @@ p {
 .filter-bar {
   background: #FFFFFF;
   border: 1px solid #E4E4E7;
-  border-radius: 14px;
+  border-radius: 2px;
   padding: 12px 16px;
   margin-bottom: 20px;
   display: flex;
@@ -848,7 +868,7 @@ p {
 .booking-table-wrapper {
   background: #FFFFFF;
   border: 1px solid #E4E4E7;
-  border-radius: 14px;
+  border-radius: 2px;
   overflow: hidden;
 }
 .booking-table {
@@ -903,7 +923,7 @@ p {
   background: #FFFFFF;
   border: 1px solid #FDE68A;
   border-left: 4px solid var(--warning);
-  border-radius: 14px;
+  border-radius: 2px;
   margin-bottom: 6px;
 }
 
@@ -912,7 +932,7 @@ p {
   text-align: center;
   padding: 56px 24px;
   background: #FFFFFF;
-  border-radius: 14px;
+  border-radius: 2px;
   border: 1px solid #E4E4E7;
 }
 .empty-state__icon {
@@ -1007,7 +1027,7 @@ p {
 .metric-card {
   background: #FFFFFF;
   border: 1px solid #E4E4E7;
-  border-radius: 14px;
+  border-radius: 2px;
   padding: 20px 24px;
   display: flex;
   flex-direction: column;
@@ -1266,4 +1286,301 @@ p {
 * {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
+}
+
+/* ── YouTube-Studio page template layer ─────────────────────────────────────
+   The four page templates are built from these primitives. Class names avoid
+   the substring "border" on purpose: the legacy border-neutralising rule above
+   targets `[class*='border']`, so `.vdk-card` / `.vdk-band` / `.vdk-row` keep
+   their real 1px frames. */
+
+.vdk-title {
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--studio-text);
+}
+
+/* Phones: the page title drops one step so it and its actions cannot collide. */
+@media (max-width: 479px) {
+  .vdk-title {
+    font-size: 20px;
+    line-height: 28px;
+  }
+  .vdk-title-row {
+    min-height: 48px;
+  }
+  .vdk-page {
+    padding-top: 16px;
+    padding-bottom: 32px;
+  }
+}
+
+/* Template 1 — dashboard card grid */
+.vdk-dash-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  padding: 0 var(--vdk-gutter);
+}
+@media (min-width: 768px) {
+  .vdk-dash-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+  .vdk-dash-grid > *:nth-child(3) { grid-column: span 2; }
+}
+@media (min-width: 1200px) {
+  .vdk-dash-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .vdk-dash-grid > *:nth-child(3) { grid-column: span 1; }
+}
+
+.vdk-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--studio-surface);
+  border: 1px solid var(--studio-border);
+  border-radius: 16px;
+  padding: 24px;
+  min-height: 0;
+}
+@media (max-width: 639px) {
+  .vdk-card { padding: 16px; border-radius: 14px; }
+  .vdk-panel { padding: 16px; }
+}
+@media (min-width: 768px) {
+  .vdk-card { min-height: 400px; }
+}
+
+/* Full-bleed bands + rows for list pages (Templates 3 & 4) */
+.vdk-band { border-bottom: 1px solid var(--studio-border); }
+.vdk-row { border-bottom: 1px solid var(--studio-border); }
+.vdk-row:hover { background: #f9f9f9; }
+.studio-shell[data-theme='dark'] .vdk-row:hover { background: rgba(255, 255, 255, 0.04); }
+.vdk-outlined { border: 1px solid var(--studio-border); }
+
+/* Template 2 — KPI strip + attached chart panel */
+.vdk-strip {
+  border: 1px solid var(--studio-border);
+  border-bottom: 0;
+  border-radius: 16px 16px 0 0;
+  overflow: hidden;
+}
+.vdk-chartpanel {
+  border-left: 1px solid var(--studio-border);
+  border-right: 1px solid var(--studio-border);
+  border-bottom: 1px solid var(--studio-border);
+  border-radius: 0 0 16px 16px;
+}
+
+/* Status badges (Template 3 column) */
+.vdk-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+}
+.vdk-badge-green { background: #e6f4ea; color: #137333; }
+.vdk-badge-amber { background: #fef7e0; color: #b06000; }
+.vdk-badge-red   { background: #fce8e6; color: #c5221f; }
+.vdk-badge-grey  { background: #f2f2f2; color: #606060; }
+.studio-shell[data-theme='dark'] .vdk-badge-green { background: #0e2b18; color: #6fcf97; }
+.studio-shell[data-theme='dark'] .vdk-badge-amber { background: #2b2010; color: #e0a352; }
+.studio-shell[data-theme='dark'] .vdk-badge-red   { background: #2d1614; color: #f28b82; }
+.studio-shell[data-theme='dark'] .vdk-badge-grey  { background: #272727; color: #aaaaaa; }
+
+/* Skeleton shimmer (disabled automatically by the reduced-motion rule below) */
+.vdk-skel {
+  display: block;
+  background: var(--studio-muted-fill);
+  border-radius: 6px;
+  position: relative;
+  overflow: hidden;
+}
+.vdk-skel::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+  animation: vdk-shimmer 1.4s infinite;
+}
+@keyframes vdk-shimmer { to { transform: translateX(100%); } }
+.studio-shell[data-theme='dark'] .vdk-skel::after {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.06), transparent);
+}
+
+/* ── Page frame & gutters ───────────────────────────────────────────────────
+   ONE 32px left gutter and ONE 32px right gutter on desktop (24 tablet, 16
+   mobile). Bands stay full-bleed while their content respects the gutters. */
+:root { --vdk-gutter: 16px; }
+@media (min-width: 768px) { :root { --vdk-gutter: 24px; } }
+@media (min-width: 1200px) { :root { --vdk-gutter: 32px; } }
+
+/* Data tables scroll horizontally on phones instead of crushing their
+   columns. The minimum width is set per-table from the number of columns
+   still visible on mobile (see DataTable.tsx); from the `md` breakpoint up
+   the table goes back to filling its container. */
+.vdk-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+}
+.vdk-table {
+  min-width: var(--vdk-table-min, 540px);
+}
+@media (min-width: 768px) {
+  .vdk-table { min-width: 0; }
+}
+
+/* Phones: the column width classes (% widths tuned for the desktop grid)
+   would starve the first column once most columns are hidden. Let every
+   visible column share the width equally instead. */
+@media (max-width: 767px) {
+  .vdk-table th:not(.vdk-cell-check),
+  .vdk-table td:not(.vdk-cell-check) {
+    width: auto;
+  }
+  .vdk-table th.vdk-cell-check,
+  .vdk-table td.vdk-cell-check {
+    width: 52px;
+  }
+}
+
+.vdk-page { padding-top: 24px; padding-bottom: 48px; }
+.vdk-page-compact { padding-top: 8px; }
+.vdk-gutter-x { padding-left: var(--vdk-gutter); padding-right: var(--vdk-gutter); }
+.vdk-pl { padding-left: var(--vdk-gutter); }
+.vdk-pr { padding-right: var(--vdk-gutter); }
+
+/* Page header title row — min-height 56, never clipped. */
+.vdk-title-row { min-height: 56px; }
+.vdk-title-row-compact { min-height: 44px; }
+
+/* Circular outlined icon button (title-row actions). */
+.vdk-iconbtn {
+  width: 40px;
+  height: 40px;
+  border-radius: 9999px;
+  border: 1px solid var(--studio-border);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--studio-text);
+  background: transparent;
+  cursor: pointer;
+  transition: background 150ms ease, border-color 150ms ease;
+}
+.vdk-iconbtn:hover { background: var(--studio-muted-fill); }
+
+/* Notification / notice band (Audio library "i" band). */
+.vdk-notice {
+  background: var(--studio-surface-sub);
+  border-bottom: 1px solid var(--studio-border);
+}
+
+/* Stat cards (list pages) — no shadow, not clickable. */
+.vdk-stat {
+  display: flex;
+  flex-direction: column;
+  background: var(--studio-surface);
+  border: 1px solid var(--studio-border);
+  border-radius: 16px;
+  padding: 16px 20px;
+  min-height: 88px;
+}
+.vdk-stat-grid {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: 16px;
+}
+@media (max-width: 999px) {
+  .vdk-stat-grid { grid-auto-flow: row; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 599px) {
+  .vdk-stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .vdk-stat { padding: 12px 14px; min-height: 76px; }
+}
+.vdk-progress {
+  height: 4px;
+  border-radius: 9999px;
+  background: var(--studio-muted-fill);
+  overflow: hidden;
+}
+.vdk-progress > span {
+  display: block;
+  height: 100%;
+  border-radius: 9999px;
+  background: var(--studio-accent);
+}
+
+/* Reports side panel + lower cards (no forced min-height). */
+.vdk-panel {
+  background: var(--studio-surface);
+  border: 1px solid var(--studio-border);
+  border-radius: 16px;
+  padding: 24px;
+}
+
+/* Mini bar chart axis (Live panel). */
+.vdk-axis { border-bottom: 1px solid #909090; }
+.studio-shell[data-theme='dark'] .vdk-axis { border-bottom-color: #606060; }
+
+/* Soft neutral pill (See more, Advanced mode, Got it…). */
+.vdk-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 16px;
+  border-radius: 9999px;
+  background: var(--studio-muted-fill);
+  color: var(--studio-text);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+.vdk-pill:hover { background: var(--studio-border); }
+.vdk-pill:disabled { opacity: 0.5; cursor: default; }
+
+/* KPI cell hover (Reports analytics strip). */
+.vdk-kpi-cell { transition: background 150ms ease; }
+
+/* Keyboard focus ring, shared across template controls. */
+.vdk-focus:focus-visible {
+  outline: 2px solid var(--studio-accent);
+  outline-offset: 2px;
+}
+
+@keyframes vdk-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+.vdk-live-dot { animation: vdk-pulse 2s ease-in-out infinite; }
+
+/* Dialog / modal entrance (Search modal + shared Dialog). */
+@keyframes vdk-modal-in {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.vdk-modal-enter { animation: vdk-modal-in 120ms ease-out; }
+
+/* Respect users who prefer reduced motion: keep the UI usable without animation. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }

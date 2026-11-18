@@ -46,7 +46,7 @@ export default function Tabs({
                 role="tab"
                 aria-selected={active}
                 onClick={() => onTabChange(tab.id)}
-                className={`whitespace-nowrap py-3 px-1 border-b-2 text-sm transition-colors cursor-pointer bg-transparent ${tabClass}`}
+                className={`whitespace-nowrap h-12 flex items-center px-1 border-b-2 text-[15px] transition-colors cursor-pointer bg-transparent ${tabClass}`}
               >
                 {tab.label}
                 {typeof tab.count === 'number' && (

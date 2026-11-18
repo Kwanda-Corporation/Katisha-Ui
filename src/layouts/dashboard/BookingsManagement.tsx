@@ -260,7 +260,7 @@ export default function BookingsManagementPage() {
           <motion.div
             initial={{ opacity: 0, scale: 0.96 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-lg w-full max-w-lg overflow-hidden"
+            className="bg-white rounded-[12px] w-full max-w-lg overflow-hidden"
             onClick={e => e.stopPropagation()}
           >
             <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--border)]">

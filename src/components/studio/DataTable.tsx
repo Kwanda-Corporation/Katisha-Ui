@@ -1,6 +1,7 @@
 import { ReactNode, useMemo, useState } from 'react'
+import type { CSSProperties } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ArrowUp, ArrowDown, ChevronsUpDown } from 'lucide-react'
+import { ArrowDown, ArrowUp, X } from 'lucide-react'
 
 export interface Column<T> {
   key: string
@@ -13,6 +14,17 @@ export interface Column<T> {
   align?: 'left' | 'right' | 'center'
   className?: string
   headerClassName?: string
+  /** Hides this column below the md breakpoint (list-page mobile rule). */
+  hideOnMobile?: boolean
+  /** Initial sort direction when this is the default sorted column. */
+  defaultSort?: 'asc' | 'desc'
+  /** Suppress the automatic title tooltip for plain-text cells. */
+  noTooltip?: boolean
+  /**
+   * Wrap long values across lines instead of clipping them with an ellipsis.
+   * Use for crucial columns (names, routes) that must always be fully visible.
+   */
+  wrap?: boolean
 }
 
 interface DataTableProps<T> {
@@ -22,8 +34,10 @@ interface DataTableProps<T> {
   getRowId?: (row: T, index: number) => string
   emptyState?: ReactNode
   className?: string
-  /** Enables the select-all + per-row checkboxes. */
+  /** Enables the select-all + per-row checkboxes (only where bulk actions exist). */
   selectable?: boolean
+  /** Disable selection for rows that are already completed/final. */
+  isRowSelectable?: (row: T) => boolean
   /** Renders bulk actions when one or more rows are selected. */
   bulkActions?: (selectedIds: string[]) => ReactNode
   onSelectionChange?: (selectedIds: string[]) => void
@@ -40,6 +54,53 @@ function rowIdOf<T>(row: T, index: number, getRowId?: (row: T, index: number) =>
   return String(r.id ?? r._id ?? index)
 }
 
+/** Leading list cell: 32px avatar / icon tile + primary text (500). */
+export function EntityCell({
+  avatar,
+  icon,
+  title,
+  subtitle,
+  round = false,
+  wrap = false,
+}: {
+  avatar?: ReactNode
+  icon?: ReactNode
+  title: ReactNode
+  subtitle?: ReactNode
+  /** Round avatar (people) vs 8px rounded square (things). */
+  round?: boolean
+  /** Wrap the title/subtitle instead of clipping with an ellipsis. */
+  wrap?: boolean
+}) {
+  return (
+    <div className="flex items-center gap-3 min-w-0">
+      {(avatar || icon) && (
+        <span
+          className={`w-8 h-8 shrink-0 flex items-center justify-center overflow-hidden text-[var(--studio-text)] ${
+            round ? 'rounded-full text-white' : 'rounded-lg bg-[var(--studio-muted-fill)]'
+          }`}
+          style={round ? { background: 'var(--studio-accent)' } : undefined}
+        >
+          {avatar || icon}
+        </span>
+      )}
+      <span className="min-w-0 flex-1">
+        <span
+          className={`block text-sm font-medium text-[var(--studio-text)] ${wrap ? 'whitespace-normal break-words' : 'truncate'}`}
+          title={!wrap && typeof title === 'string' ? title : undefined}
+        >
+          {title}
+        </span>
+        {subtitle !== undefined && (
+          <span className={`block text-xs text-[var(--studio-text-muted)] ${wrap ? 'whitespace-normal break-words' : 'truncate'}`}>
+            {subtitle}
+          </span>
+        )}
+      </span>
+    </div>
+  )
+}
+
 export default function DataTable<T>({
   columns,
   data,
@@ -47,6 +108,7 @@ export default function DataTable<T>({
   emptyState,
   className = '',
   selectable = false,
+  isRowSelectable,
   bulkActions,
   onSelectionChange,
   onRowClick,
@@ -54,8 +116,9 @@ export default function DataTable<T>({
   skeletonRows = 5,
 }: DataTableProps<T>) {
   const { t } = useTranslation()
-  const [sortKey, setSortKey] = useState<string | null>(null)
-  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc')
+  const defaultCol = columns.find((c) => c.defaultSort)
+  const [sortKey, setSortKey] = useState<string | null>(defaultCol?.key ?? null)
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>(defaultCol?.defaultSort ?? 'asc')
   const [selected, setSelected] = useState<string[]>([])
 
   const rows = useMemo(() => {
@@ -79,8 +142,17 @@ export default function DataTable<T>({
     })
   }, [data, columns, sortKey, sortDir])
 
-  const allIds = useMemo(() => rows.map((r, i) => rowIdOf(r, i, getRowId)), [rows, getRowId])
-  const allSelected = allIds.length > 0 && selected.length === allIds.length
+  const selectableIds = useMemo(
+    () =>
+      rows.reduce<string[]>((ids, row, index) => {
+        if (!isRowSelectable || isRowSelectable(row)) {
+          ids.push(rowIdOf(row, index, getRowId))
+        }
+        return ids;
+      }, []),
+    [rows, getRowId, isRowSelectable],
+  )
+  const allSelected = selectableIds.length > 0 && selectableIds.every((id) => selected.includes(id))
   const someSelected = selected.length > 0 && !allSelected
 
   const emitSelection = (next: string[]) => {
@@ -94,7 +166,7 @@ export default function DataTable<T>({
       else { setSortKey(null); setSortDir('asc') }
     } else {
       setSortKey(key)
-      setSortDir('asc')
+      setSortDir('desc')
     }
   }
 
@@ -105,69 +177,102 @@ export default function DataTable<T>({
   const alignClass = (a?: Column<T>['align']) =>
     a === 'right' ? 'text-right' : a === 'center' ? 'text-center' : 'text-left'
 
+  const hideCls = (c: Column<T>) => (c.hideOnMobile ? 'hidden md:table-cell' : '')
+
+  /** Horizontal padding — 16px between cells, page gutter on the outer edges. */
+  const edgePad = (index: number) => {
+    const isFirstData = index === 0
+    const isLast = index === columns.length - 1
+    // Phones get slightly tighter cell padding so more of the row is readable.
+    const left = isFirstData ? (selectable ? 'pl-2 md:pl-4' : 'vdk-pl') : 'pl-3 md:pl-4'
+    const right = isLast ? 'vdk-pr' : 'pr-3 md:pr-4'
+    return `${left} ${right}`
+  }
+
+  // On phones the table keeps a readable minimum width and scrolls sideways
+  // (keeping every column at a legible size) instead of squeezing the text.
+  // From `md` up the CSS drops the minimum and it fills the page again.
+  const visibleColumnCount = columns.filter((c) => !c.hideOnMobile).length + (selectable ? 1 : 0)
+  const tableMinWidth = Math.max(380, Math.min(1120, visibleColumnCount * 136))
+
   return (
     <div className={className}>
       {selectable && selected.length > 0 && bulkActions && (
-        <div className="flex flex-wrap items-center gap-2 px-4 py-2.5 mb-2 rounded-xl bg-[var(--studio-accent-soft)] border border-[var(--studio-border)]">
+        <div className="flex flex-wrap items-center gap-3 min-h-12 py-2 vdk-gutter-x vdk-band">
+          <span className="text-sm font-medium text-[var(--studio-text)]">{t('studio.nSelected', { count: selected.length })}</span>
           {bulkActions(selected)}
+          <button
+            type="button"
+            onClick={() => emitSelection([])}
+            aria-label={t('studio.clearSelection')}
+            className="ml-auto w-10 h-10 flex items-center justify-center rounded-full text-[var(--studio-text-sub)] hover:bg-[var(--studio-hover)] cursor-pointer"
+          >
+            <X size={18} />
+          </button>
         </div>
       )}
-      <div className="overflow-x-auto border border-[var(--studio-border)] rounded-2xl bg-[var(--studio-surface)]">
-        <table className="w-full divide-y divide-[var(--studio-border)]">
-          <thead className="bg-[var(--studio-surface-sub)]">
-            <tr>
+
+      <div className="vdk-table-scroll no-scrollbar">
+        <table
+          className="vdk-table w-full table-fixed border-collapse"
+          style={{ '--vdk-table-min': `${tableMinWidth}px` } as CSSProperties}
+        >
+          <thead>
+            <tr className="vdk-band h-10">
               {selectable && (
-                <th className="w-10 px-4 py-3">
+                <th className="vdk-cell-check vdk-pl w-[52px] md:w-[56px] pr-0 text-left">
                   <input
                     type="checkbox"
                     aria-label={t('studio.selectAllRows')}
                     checked={allSelected}
                     ref={(el) => { if (el) el.indeterminate = someSelected }}
-                    onChange={(e) => emitSelection(e.target.checked ? allIds : [])}
+                    onChange={(e) => emitSelection(e.target.checked ? selectableIds : [])}
                     className="cursor-pointer accent-[var(--studio-accent)]"
+                    style={{ width: 16, height: 16 }}
                   />
                 </th>
               )}
-              {columns.map((column) => {
+              {columns.map((column, index) => {
                 const active = sortKey === column.key
+                const ariaSort = active ? (sortDir === 'asc' ? 'ascending' : 'descending') : column.sortable ? 'none' : undefined
                 return (
                   <th
                     key={column.key}
                     scope="col"
-                    className={`px-4 py-3 text-xs uppercase tracking-wider text-[var(--studio-text-sub)] ${alignClass(column.align)} ${active ? 'font-bold text-[var(--studio-text)]' : 'font-medium'} ${column.headerClassName || ''}`}
+                    aria-sort={ariaSort}
+                    className={`h-10 text-[12px] md:text-[13px] ${active ? 'font-semibold text-[var(--studio-text)]' : 'font-medium text-[var(--studio-text-sub)]'} ${alignClass(column.align)} ${edgePad(index)} ${hideCls(column)} ${column.headerClassName || ''}`}
                   >
                     {column.sortable ? (
                       <button
                         type="button"
                         onClick={() => toggleSort(column.key)}
-                        className={`inline-flex items-center gap-1 cursor-pointer bg-transparent border-none p-0 ${alignClass(column.align)}`}
+                        className={`inline-flex max-w-full items-center gap-1 cursor-pointer bg-transparent border-none p-0 text-[12px] md:text-[13px] ${alignClass(column.align)} ${active ? 'font-semibold text-[var(--studio-text)]' : 'text-[var(--studio-text-sub)]'}`}
                         aria-label={t('studio.sortBy', { column: column.header })}
                       >
-                        {column.header}
-                        {active
-                          ? (sortDir === 'asc' ? <ArrowUp size={13} /> : <ArrowDown size={13} />)
-                          : <ChevronsUpDown size={13} className="opacity-40" />}
+                        <span className="truncate">{column.header}</span>
+                        {active && (sortDir === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />)}
                       </button>
                     ) : (
-                      column.header
+                      <span className={`block ${column.wrap ? 'whitespace-normal' : 'truncate'}`}>{column.header}</span>
                     )}
                   </th>
                 )
               })}
             </tr>
           </thead>
-          <tbody className="divide-y divide-[var(--studio-border)] bg-white">
+          <tbody>
             {loading
               ? Array.from({ length: skeletonRows }).map((_, rowIndex) => (
-                  <tr key={`skeleton-${rowIndex}`}>
-                    {columns.map((column) => (
+                  <tr key={`skeleton-${rowIndex}`} className="h-[52px] vdk-row">
+                    {selectable && <td className="vdk-cell-check vdk-pl w-[52px] md:w-[56px] pr-0" />}
+                    {columns.map((column, index) => (
                       <td
                         key={column.key}
-                        className={`px-4 py-3 ${alignClass(column.align)} ${column.className || ''}`}
+                        className={`${edgePad(index)} ${hideCls(column)} ${column.className || ''}`}
                       >
                         <span
-                          className="block h-4 rounded bg-[var(--studio-muted-fill)] animate-pulse"
-                          style={{ width: `${55 + ((rowIndex + column.key.length) % 3) * 15}%` }}
+                          className="vdk-skel"
+                          style={{ width: `${55 + ((rowIndex + column.key.length) % 3) * 15}%`, height: 14 }}
                         />
                       </td>
                     ))}
@@ -175,36 +280,53 @@ export default function DataTable<T>({
                 ))
               : rows.map((row, index) => {
                   const id = rowIdOf(row, index, getRowId)
-                  const checked = selected.includes(id)
+                  const canSelect = isRowSelectable ? isRowSelectable(row) : true
+                  const checked = canSelect && selected.includes(id)
                   return (
                     <tr
                       key={id}
-                      className={`hover:bg-[var(--studio-surface-sub)] ${onRowClick ? 'cursor-pointer' : ''} ${checked ? 'bg-[var(--studio-accent-soft)]' : ''}`}
+                      className={`h-[52px] vdk-row ${onRowClick ? 'cursor-pointer' : ''} ${checked ? 'bg-[var(--studio-accent-soft)]' : ''}`}
                       onClick={onRowClick ? () => onRowClick(row) : undefined}
                       tabIndex={onRowClick ? 0 : undefined}
                       onKeyDown={onRowClick ? (e) => { if (e.key === 'Enter') onRowClick(row) } : undefined}
                     >
                       {selectable && (
-                        <td className="w-10 px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                        <td className="vdk-cell-check vdk-pl w-[52px] md:w-[56px] pr-0" onClick={(e) => e.stopPropagation()}>
                           <input
                             type="checkbox"
                             aria-label={t('studio.selectRow')}
                             checked={checked}
+                            disabled={!canSelect}
                             onChange={(e) => {
                               emitSelection(e.target.checked ? [...selected, id] : selected.filter((s) => s !== id))
                             }}
-                            className="cursor-pointer accent-[var(--studio-accent)]"
+                            className="cursor-pointer accent-[var(--studio-accent)] disabled:cursor-not-allowed disabled:opacity-35"
+                            style={{ width: 16, height: 16 }}
                           />
                         </td>
                       )}
-                      {columns.map((column) => (
-                        <td
-                          key={column.key}
-                          className={`px-4 py-3 text-sm text-[var(--studio-text)] ${alignClass(column.align)} ${column.className || ''}`}
-                        >
-                          {column.render ? column.render(row) : ((row as Record<string, unknown>)[column.key] as ReactNode)}
-                        </td>
-                      ))}
+                      {columns.map((column, index) => {
+                        const raw = (row as Record<string, unknown>)[column.key]
+                        const isText = column.render == null && (raw == null || typeof raw === 'string' || typeof raw === 'number')
+                        return (
+                          <td
+                            key={column.key}
+                            className={`text-[13px] md:text-sm text-[var(--studio-text)] align-middle ${alignClass(column.align)} ${edgePad(index)} ${hideCls(column)} ${column.className || ''}`}
+                          >
+                            {column.render ? (
+                              column.render(row)
+                            ) : column.noTooltip ? (
+                              <span className={`block ${column.wrap ? 'whitespace-normal break-words' : 'truncate'}`}>{raw as ReactNode}</span>
+                            ) : isText ? (
+                              <span className={`block ${column.wrap ? 'whitespace-normal break-words' : 'truncate'}`} title={column.wrap || raw == null ? undefined : String(raw)}>
+                                {raw == null || raw === '' ? '—' : (raw as ReactNode)}
+                              </span>
+                            ) : (
+                              (raw as ReactNode)
+                            )}
+                          </td>
+                        )
+                      })}
                     </tr>
                   )
                 })}

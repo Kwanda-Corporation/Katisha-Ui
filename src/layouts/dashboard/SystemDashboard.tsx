@@ -21,6 +21,7 @@ import StatRow from '../../components/studio/StatRow'
 import DataTable, { Column } from '../../components/studio/DataTable'
 import StudioPagination from '../../components/studio/StudioPagination'
 import EmptyState from '../../components/studio/EmptyState'
+import { PageHeader, IconButton, PillButton } from '../../components/studio'
 
 const ACCENT = 'var(--studio-accent)'
 const RECENT_PER_PAGE = 8
@@ -454,27 +455,26 @@ export default function SystemDashboard() {
   return (
     <div className="space-y-6">
       {/* ── Header ───────────────────────────────────────────────── */}
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className="space-y-1">
-          <StudioHeading as="h1" sparkles>
-            {t(`dashboard.ops.${greetingKey}`, {
-              name: user?.name?.split(' ')[0] || t('dashboard.ops.adminFallback'),
-            })}
-          </StudioHeading>
-          <p className="text-sm text-[var(--studio-text-sub)] text-center">
-            {t('dashboard.ops.systemSubtitle')}
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <button type="button" onClick={refreshAll} className={pill} style={{ borderRadius: 'var(--studio-radius-pill)' }}>
-            <RefreshCw size={14} aria-hidden="true" />
-            {t('dashboard.ops.refresh')}
-          </button>
-          <button type="button" onClick={csvExport} className={pill} style={{ borderRadius: 'var(--studio-radius-pill)' }}>
-            <Download size={14} aria-hidden="true" />
-            {t('dashboard.ops.csvReport')}
-          </button>
-        </div>
+      <PageHeader
+        title={t(`dashboard.ops.${greetingKey}`, {
+          name: user?.name?.split(' ')[0] || t('dashboard.ops.adminFallback'),
+        })}
+        actions={
+          <>
+            <PillButton variant="outlined" size="md" icon={<Download size={16} aria-hidden="true" />} onClick={csvExport}>
+              {t('dashboard.ops.csvReport')}
+            </PillButton>
+            <IconButton
+              variant="outlined"
+              label={t('dashboard.ops.refresh')}
+              icon={<RefreshCw size={18} className={loading ? 'animate-spin' : ''} aria-hidden="true" />}
+              onClick={refreshAll}
+            />
+          </>
+        }
+      />
+      <div className="px-4 sm:px-6 -mt-2">
+        <p className="text-sm text-[var(--studio-text-sub)]">{t('dashboard.ops.systemSubtitle')}</p>
       </div>
 
       {lastUpdated && (
@@ -971,7 +971,7 @@ export default function SystemDashboard() {
           role="presentation"
         >
           <div
-            className="w-full max-w-md rounded-2xl border border-[var(--studio-border)] bg-[var(--studio-surface)] shadow-2xl"
+            className="w-full max-w-md rounded-[16px] border border-[var(--studio-border)] bg-[var(--studio-surface)] shadow-2xl"
             onClick={(e) => e.stopPropagation()}
             role="dialog"
             aria-modal="true"
@@ -1063,7 +1063,7 @@ export default function SystemDashboard() {
           role="presentation"
         >
           <div
-            className="w-full max-w-lg rounded-2xl border border-[var(--studio-border)] bg-[var(--studio-surface)] shadow-2xl max-h-[92vh] flex flex-col"
+            className="w-full max-w-lg rounded-[16px] border border-[var(--studio-border)] bg-[var(--studio-surface)] shadow-2xl max-h-[92vh] flex flex-col"
             onClick={(e) => e.stopPropagation()}
             role="dialog"
             aria-modal="true"

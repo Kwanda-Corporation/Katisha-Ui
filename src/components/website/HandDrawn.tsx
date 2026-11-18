@@ -199,7 +199,7 @@ export function TestimonialCard({
   className?: string;
 }) {
   return (
-    <figure className={`relative rounded-[14px] border border-[var(--border)] bg-white p-5 sm:p-6 ${className}`}>
+    <figure className={`relative rounded-sm border border-[var(--border)] bg-white p-5 sm:p-6 ${className}`}>
       <div className="flex items-center gap-3.5">
         <div className="relative shrink-0">
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--blue)] text-[15px] font-bold text-white">

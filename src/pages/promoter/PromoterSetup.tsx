@@ -324,7 +324,7 @@ export default function PromoterSetup() {
           <button
             type="button"
             onClick={() => setPath('existing')}
-            className="w-full text-left p-4 rounded-[12px] border border-[var(--auth-border)] bg-[var(--auth-field)] hover:bg-[#FBFAF8] transition-colors cursor-pointer"
+            className="w-full text-left p-4 rounded-sm border border-[var(--auth-border)] bg-[var(--auth-field)] hover:bg-[#FBFAF8] transition-colors cursor-pointer"
           >
             <div className="flex items-start gap-3">
               <LogIn size={18} className="text-[var(--text-sub)] mt-0.5 shrink-0" />
@@ -341,7 +341,7 @@ export default function PromoterSetup() {
           <button
             type="button"
             onClick={() => setPath('new')}
-            className="w-full text-left p-4 rounded-[12px] border border-[var(--auth-border)] bg-[var(--auth-field)] hover:bg-[#FBFAF8] transition-colors cursor-pointer"
+            className="w-full text-left p-4 rounded-sm border border-[var(--auth-border)] bg-[var(--auth-field)] hover:bg-[#FBFAF8] transition-colors cursor-pointer"
           >
             <div className="flex items-start gap-3">
               <UserPlus size={18} className="text-[var(--text-sub)] mt-0.5 shrink-0" />
@@ -366,7 +366,7 @@ export default function PromoterSetup() {
       >
         <SEO title={t('promoter.signInToContinue')} noindex />
         <div className="space-y-4 animate-in">
-          <div className="p-4 rounded-[12px] border border-[var(--auth-border)] bg-[var(--auth-field)]">
+          <div className="p-4 rounded-sm border border-[var(--auth-border)] bg-[var(--auth-field)]">
             <p className="text-sm font-semibold text-[var(--text)] flex items-center gap-2">
               <LogIn size={16} /> {t('auth.signIn')}
             </p>

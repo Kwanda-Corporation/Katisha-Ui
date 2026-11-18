@@ -316,7 +316,7 @@ function PaymentMethodSidebar({
               type="button"
               disabled={!method.enabled}
               onClick={() => method.enabled && onSelect(method.id)}
-              className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-[14px] text-left transition-all duration-150 ${
+              className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-sm text-left transition-all duration-150 ${
                 isSelected
                   ? 'bg-white shadow-[0_2px_10px_-4px_rgba(15,23,42,0.18)]'
                   : method.enabled
@@ -338,7 +338,7 @@ function PaymentMethodSidebar({
           );
         })}
       </div>
-      <div className="rounded-[14px]  px-3.5 py-3 mt-20">
+      <div className="rounded-sm  px-3.5 py-3 mt-20">
         <p className="text-[11px] font-bold uppercase tracking-wider text-[#52525B] mb-0.5">{t('booking.total')}</p>
         <p className="text-lg font-extrabold text-zinc-900 tabular-nums">{(total ?? 0).toLocaleString()} <span className=" font-extrabold uppercase tracking-wider text-green-600">{currency}</span> </p>
       </div>
@@ -493,7 +493,7 @@ export default function PaymentModal({
                   placeholder={t('booking.payPhonePlaceholder')}
                   aria-invalid={!!phoneError}
                   maxLength={11}
-                  className={`w-full h-12 sm:h-14 rounded-[14px] sm:rounded-[16px] border bg-white pl-11 pr-4 text-base outline-none placeholder:text-[#A1A1AA] transition-all duration-200 ${
+                  className={`w-full h-12 sm:h-14 rounded-sm sm:rounded-sm border bg-white pl-11 pr-4 text-base outline-none placeholder:text-[#A1A1AA] transition-all duration-200 ${
                     phoneError
                       ? 'border-[#FCA5A5] focus:border-[#EF4444] focus:ring-2 focus:ring-[#EF4444]/20'
                       : 'border-gray-400 border-dashed focus:border-[#064187] focus:ring-2 focus:ring-[#064187]/20'
@@ -523,7 +523,7 @@ export default function PaymentModal({
                     value={guestName}
                     onChange={e => onGuestNameChange?.(e.target.value)}
                     placeholder={t('booking.guestNamePlaceholder')}
-                    className="w-full h-12 rounded-[14px] border border-[#E5E7EB] bg-white pl-11 pr-4 text-sm outline-none placeholder:text-[#A1A1AA] focus:border-[#064187] focus:ring-2 focus:ring-[#064187]/20 transition-all duration-200"
+                    className="w-full h-12 rounded-sm border border-[#E5E7EB] bg-white pl-11 pr-4 text-sm outline-none placeholder:text-[#A1A1AA] focus:border-[#064187] focus:ring-2 focus:ring-[#064187]/20 transition-all duration-200"
                   />
                 </div>
               </div>
@@ -534,7 +534,7 @@ export default function PaymentModal({
                 <button
                   type="button"
                   onClick={onToggleExtraContactPhone}
-                  className="w-full flex items-center gap-3 rounded-[14px] border border-dashed border-[#D1D5DB] bg-white px-4 py-3 text-left hover:border-[#064187] hover:bg-[#F8FAFC] transition-all duration-200 cursor-pointer"
+                  className="w-full flex items-center gap-3 rounded-sm border border-dashed border-[#D1D5DB] bg-white px-4 py-3 text-left hover:border-[#064187] hover:bg-[#F8FAFC] transition-all duration-200 cursor-pointer"
                 >
                   <span className="w-7 h-7 rounded-full bg-[#EFF6FF] text-[#064187] flex items-center justify-center shrink-0">
                     <Plus size={14} />
@@ -568,7 +568,7 @@ export default function PaymentModal({
                       placeholder={t('booking.payPhonePlaceholder')}
                       aria-invalid={!!contactPhoneError}
                       maxLength={11}
-                      className={`w-full h-12 rounded-[14px] border bg-white pl-11 pr-4 text-sm outline-none placeholder:text-[#A1A1AA] transition-all duration-200 ${
+                      className={`w-full h-12 rounded-sm border bg-white pl-11 pr-4 text-sm outline-none placeholder:text-[#A1A1AA] transition-all duration-200 ${
                         contactPhoneError
                           ? 'border-[#FCA5A5] focus:border-[#EF4444] focus:ring-2 focus:ring-[#EF4444]/20'
                           : 'border-[#E5E7EB] focus:border-[#064187] focus:ring-2 focus:ring-[#064187]/20'
@@ -587,7 +587,7 @@ export default function PaymentModal({
                   type="button"
                   onClick={onToggleFreeTicket}
                   aria-pressed={useFreeTicket}
-                  className={`w-full flex items-center gap-4 px-4 py-3 rounded-[14px] border transition-all duration-200 cursor-pointer ${
+                  className={`w-full flex items-center gap-4 px-4 py-3 rounded-sm border transition-all duration-200 cursor-pointer ${
                     useFreeTicket
                       ? 'bg-[#F4F4F5] border-[#064187] shadow-[0_0_0_3px_rgba(37,99,235,0.10)]'
                       : 'bg-white border-[#E5E7EB] hover:shadow-[0_4px_14px_-6px_rgba(15,23,42,0.12)]'
@@ -617,7 +617,7 @@ export default function PaymentModal({
             {!useFreeTicket && ussdCode && (
               <>
                 <div className="" />
-                <div className="rounded-[16px] bg-[#F6F7F9] p-4 space-y-3">
+                <div className="rounded-sm bg-[#F6F7F9] p-4 space-y-3">
                   <h4 className="text-[15px] font-bold text-[#111827]">
                     {t('booking.payOption2', { defaultValue: `Option 2: Dial this on your ${providerName} phone to pay` })}
                   </h4>
@@ -629,7 +629,7 @@ export default function PaymentModal({
                     <button
                       type="button"
                       onClick={handleCopy}
-                      className="h-10 px-4 rounded-[12px] bg-white border border-[#E5E7EB] text-sm font-semibold text-[#111827] flex items-center gap-2 hover:bg-[#F8FAFC] transition-all duration-200 cursor-pointer shrink-0"
+                      className="h-10 px-4 rounded-sm bg-white border border-[#E5E7EB] text-sm font-semibold text-[#111827] flex items-center gap-2 hover:bg-[#F8FAFC] transition-all duration-200 cursor-pointer shrink-0"
                     >
                       {copied ? <Check size={15} className="text-[#059669]" /> : <Copy size={15} />}
                       {copied ? t('booking.payCopied') : t('booking.payCopy')}
@@ -640,7 +640,7 @@ export default function PaymentModal({
             )}
 
             {submitError && (
-              <div className="flex items-start gap-2.5 p-3.5 rounded-[14px]" style={{ background: '#FEF2F2', border: '1px solid #FCA5A5' }}>
+              <div className="flex items-start gap-2.5 p-3.5 rounded-sm" style={{ background: '#FEF2F2', border: '1px solid #FCA5A5' }}>
                 <AlertCircle size={16} className="text-[#DC2626] mt-0.5 shrink-0" />
                 <p className="text-[13px] font-medium text-[#B91C1C]">{submitError}</p>
               </div>
@@ -654,7 +654,7 @@ export default function PaymentModal({
                 type="button"
                 onClick={onSubmit}
                 disabled={!canPay || submitting}
-                className="w-full h-12 sm:h-14 rounded-[14px] sm:rounded-[16px] bg-[var(--green-cta)] hover:bg-[var(--green-cta-hover)] active:bg-[var(--green-cta-active)] text-[var(--green-ink)] text-sm font-bold shadow-[0_10px_24px_-10px_rgba(116,226,76,0.9)] active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:shadow-none disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2 whitespace-nowrap"
+                className="w-full h-12 sm:h-14 rounded-sm sm:rounded-sm bg-[var(--green-cta)] hover:bg-[var(--green-cta-hover)] active:bg-[var(--green-cta-active)] text-[var(--green-ink)] text-sm font-bold shadow-[0_10px_24px_-10px_rgba(116,226,76,0.9)] active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:shadow-none disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2 whitespace-nowrap"
               >
                 {submitting ? (
                   <>
@@ -670,7 +670,7 @@ export default function PaymentModal({
                 type="button"
                 onClick={onSubmit}
                 disabled={submitting}
-                className="w-full h-12 sm:h-14 rounded-[14px] sm:rounded-[16px] bg-[var(--green-cta)] hover:bg-[var(--green-cta-hover)] active:bg-[var(--green-cta-active)] text-[var(--green-ink)] text-sm font-bold shadow-[0_10px_24px_-10px_rgba(116,226,76,0.9)] active:scale-[0.98] transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2"
+                className="w-full h-12 sm:h-14 rounded-sm sm:rounded-sm bg-[var(--green-cta)] hover:bg-[var(--green-cta-hover)] active:bg-[var(--green-cta-active)] text-[var(--green-ink)] text-sm font-bold shadow-[0_10px_24px_-10px_rgba(116,226,76,0.9)] active:scale-[0.98] transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2"
               >
                 {submitting ? (
                   <>
