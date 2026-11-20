@@ -1711,7 +1711,7 @@ export default function BookingWizard() {
   };
 
   return (
-    <div className="w-full px-4 sm:px-6 md:px-6 pt-6 pb-6 sm:pb-10 md:pt-0.5 max-w-6xl mx-auto">
+    <div className="booking-ui w-full px-4 sm:px-6 md:px-6 pt-6 pb-6 sm:pb-10 md:pt-0.5 max-w-6xl mx-auto">
 
       {/* Main wizard column */}
         <div className="w-full max-w-5xl mx-auto">

@@ -264,6 +264,7 @@
     "eTicket": "E-Ticket",
     "ticketPhoto": "Ticket Photo",
     "ticketPhotoHelp": "Photo of your ticket taken by the agent.",
+    "ticketPhotoNotAvailable": "No ticket photo is available for this booking yet.",
     "downloadPhoto": "Download Photo",
     "viewTicketPhoto": "View full size",
     "showTicket": "Please show this ticket to the boarding officer when boarding.",
@@ -657,6 +658,8 @@
       "downloadReceiptTitle": "Download receipt",
       "downloadReceiptBody": "Payment confirmed. Download the receipt for {{ref}} below.",
       "receiptNotReady": "The ticket is still being generated. Please try again in a moment.",
+      "viewTicketPhoto": "View agent-uploaded ticket photo",
+      "ticketPhotoBody": "Ticket photo uploaded by the agent for {{ref}}.",
       "receiptLoadFailed": "Could not load the receipt.",
       "payment": {
         "paid": "Paid",

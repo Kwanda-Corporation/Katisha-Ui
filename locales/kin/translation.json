@@ -266,6 +266,7 @@
     "eTicket": "Itike ya digitale",
     "ticketPhoto": "Ifoto y'itike",
     "ticketPhotoHelp": "Ifoto y'itike yawe yafashwe n'umukozi.",
+    "ticketPhotoNotAvailable": "Nta foto y'itike iraboneka kuri iri tike kugeza ubu.",
     "downloadPhoto": "Manura ifoto",
     "viewTicketPhoto": "Reba munini",
     "showTicket": "Nyamuneka werekane iyi tike abakozi b'ingendo igihe utangiye urugendo.",
@@ -657,6 +658,8 @@
       "downloadReceiptTitle": "Pakua inyemezabwishyu",
       "downloadReceiptBody": "Ubwishyu bwemejwe. Pakua inyemezabwishyu ya {{ref}} hepfo.",
       "receiptNotReady": "Itike iracyakorwa. Ongera ugerageze nyuma y'akanya gato.",
+      "viewTicketPhoto": "Reba ifoto y'itike yashyizwe n'umukozi",
+      "ticketPhotoBody": "Ifoto y'itike yashyizwe n'umukozi kuri {{ref}}.",
       "receiptLoadFailed": "Ntibyakunze gupakura inyemezabwishyu.",
       "payment": {
         "paid": "Byishyuwe",

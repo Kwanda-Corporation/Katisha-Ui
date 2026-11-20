@@ -264,6 +264,7 @@
     "eTicket": "Billet électronique",
     "ticketPhoto": "Photo du billet",
     "ticketPhotoHelp": "Photo de votre billet prise par l'agent.",
+    "ticketPhotoNotAvailable": "Aucune photo de billet n'est encore disponible pour cette réservation.",
     "downloadPhoto": "Télécharger la photo",
     "viewTicketPhoto": "Voir en grand",
     "showTicket": "Veuillez présenter ce billet à l'agent d'embarquement lors de votre montée.",
@@ -657,6 +658,8 @@
       "downloadReceiptTitle": "Télécharger le reçu",
       "downloadReceiptBody": "Paiement confirmé. Téléchargez le reçu de {{ref}} ci-dessous.",
       "receiptNotReady": "Le billet est encore en cours de génération. Veuillez réessayer dans un instant.",
+      "viewTicketPhoto": "Voir la photo du billet téléversée par l'agent",
+      "ticketPhotoBody": "Photo du billet téléversée par l'agent pour {{ref}}.",
       "receiptLoadFailed": "Impossible de charger le reçu.",
       "payment": {
         "paid": "Payé",
