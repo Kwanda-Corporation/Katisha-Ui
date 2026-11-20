@@ -163,7 +163,7 @@ export default function Onboarding() {
   }
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="booking-ui min-h-screen bg-white flex flex-col">
       <SEO
         title="Rwanda & East Africa Bus Tickets"
         description="Book bus tickets online in Rwanda and across East Africa at RURA-approved prices. Compare routes from Kigali to Kampala, Nairobi, Dar es Salaam, Mwanza, Lubumbashi & more, choose your seat, and pay with MTN Mobile Money, Airtel Money or M-Pesa. Instant e-tickets and live journey tracking with Jaguar Express, Simba Coaches, Trinity Express and Taqwa Classic Coaches."
@@ -199,7 +199,7 @@ export default function Onboarding() {
                   <button
                     key={lang.code}
                     onClick={() => handleLanguageSelect(lang.code)}
-                    className="w-full flex items-center gap-4 p-4 rounded-lg border border-[var(--border)] bg-white hover:border-[var(--blue)] text-left transition-all cursor-pointer font-inherit"
+                    className="w-full flex items-center gap-4 p-4 rounded-xl border border-[var(--border)] bg-white hover:border-[var(--blue)] text-left transition-all cursor-pointer font-inherit"
                   >
                     <ReactCountryFlag
                       countryCode={lang.countryCode}
