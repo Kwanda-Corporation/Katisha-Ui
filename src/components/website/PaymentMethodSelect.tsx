@@ -59,7 +59,7 @@ export default function PaymentMethodSelect({
               onClick={() => onSelect('momo_merchant')}
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.98 }}
-              className="w-full text-left p-4 sm:p-5 mt-1 rounded-[16px] border border-gray-400 hover:border-[#064187] bg-white hover:shadow-[0_4px_20px_-6px_rgba(8, 84, 174,0.25)] transition-all duration-200 cursor-pointer group"
+              className="w-full text-left p-4 sm:p-5 mt-1 rounded-sm border border-gray-400 hover:border-[#064187] bg-white hover:shadow-[0_4px_20px_-6px_rgba(8, 84, 174,0.25)] transition-all duration-200 cursor-pointer group"
             >
               <div className="flex items-start gap-3.5">
                 <span className="w-11 h-11 rounded-lg bg-[#FFF7E6] flex items-center justify-center shrink-0 group-hover:bg-[#FFCB05]/20 transition-colors">
@@ -100,7 +100,7 @@ export default function PaymentMethodSelect({
               onClick={() => onSelect('pawapay_online')}
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.98 }}
-              className="w-full text-left p-4 sm:p-5 rounded-[16px] border border-gray-400 hover:border-[#064187] bg-white hover:shadow-[0_4px_20px_-6px_rgba(8, 84, 174,0.25)] transition-all duration-200 cursor-pointer group"
+              className="w-full text-left p-4 sm:p-5 rounded-sm border border-gray-400 hover:border-[#064187] bg-white hover:shadow-[0_4px_20px_-6px_rgba(8, 84, 174,0.25)] transition-all duration-200 cursor-pointer group"
             >
               <div className="flex items-start gap-3.5">
                 <span className="w-11 h-11 rounded-lg bg-[#EFF6FF] flex items-center justify-center shrink-0 group-hover:bg-blue-100 transition-colors">

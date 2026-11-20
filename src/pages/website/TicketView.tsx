@@ -1,15 +1,18 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router';
-import { ArrowLeft, Loader, AlertCircle, Bus } from 'lucide-react';
+import { ArrowLeft, Download, Loader, AlertCircle, Bus } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { api, resolveImageUrl } from '../../api';
 import { useAuth } from '../../contexts/AuthContext';
 import { cacheTicketWithImage, getCachedTicket } from '../../services/ticketCache';
+import { downloadImage } from '../../utils/downloadImage';
 import SEO from '../../components/seo/SEO';
 
 export default function TicketView() {
   const { bookingId } = useParams<{ bookingId: string }>();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { isAuthenticated } = useAuth();
   const [ticketData, setTicketData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -47,6 +50,20 @@ export default function TicketView() {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Cached offline images are blob/data URLs; don't rewrite those against the API origin.
+  const imageSrc = (url?: string) => {
+    if (!url) return undefined;
+    if (url.startsWith('blob:') || url.startsWith('data:')) return url;
+    return resolveImageUrl(url) || url;
+  };
+
+  const downloadTicketImage = (url: string | undefined, kind: 'ticket' | 'photo') => {
+    const src = imageSrc(url);
+    if (!src || !ticketData?.booking) return;
+    const name = kind === 'photo' ? 'ticket-photo' : 'ticket';
+    void downloadImage(src, `${name}-${ticketData.booking.referenceCode || 'ticket'}.${kind === 'photo' ? 'jpg' : 'png'}`);
   };
 
   if (!isAuthenticated) {
@@ -106,13 +123,64 @@ export default function TicketView() {
             transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
           >
             {/* Ticket Image */}
-            <div className="rounded-lg overflow-hidden border border-[var(--border)] bg-white mb-4">
-              <img
-                src={ticketData.ticket.imageUrl}
-                alt={`Ticket ${ticketData.booking.referenceCode}`}
-                className="w-full h-auto"
-              />
-            </div>
+            {ticketData.ticket?.imageUrl && (
+              <div className="rounded-lg overflow-hidden border border-[var(--border)] bg-white mb-4">
+                <img
+                  src={imageSrc(ticketData.ticket.imageUrl)}
+                  alt={`Ticket ${ticketData.booking.referenceCode}`}
+                  className="w-full h-auto"
+                />
+                <div className="p-3 border-t border-[var(--border)] flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => downloadTicketImage(ticketData.ticket.imageUrl, 'ticket')}
+                    className="h-9 px-4 rounded-lg bg-[var(--blue)] text-white text-xs font-semibold flex items-center gap-2 cursor-pointer border-none hover:bg-[var(--blue-dark)] transition-colors"
+                  >
+                    <Download size={14} />
+                    {t('booking.downloadTicket') || 'Download Ticket'}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Photo of the physical ticket, uploaded by the agent */}
+            {ticketData.booking.ticketProofImage && (
+              <div className="rounded-lg border border-[var(--border)] bg-white p-4 mb-4">
+                <div className="flex items-start justify-between gap-3 mb-3">
+                  <div>
+                    <p className="text-sm font-bold text-[var(--text)]">
+                      {t('booking.ticketPhoto') || 'Ticket Photo'}
+                    </p>
+                    <p className="text-xs text-[var(--text-muted)] mt-0.5">
+                      {t('booking.ticketPhotoHelp') || 'Photo of your ticket taken by the agent.'}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => downloadTicketImage(ticketData.booking.ticketProofImage, 'photo')}
+                    className="shrink-0 h-9 px-4 rounded-lg bg-[var(--blue)] text-white text-xs font-semibold flex items-center gap-2 cursor-pointer border-none hover:bg-[var(--blue-dark)] transition-colors"
+                  >
+                    <Download size={14} />
+                    {t('booking.downloadPhoto') || 'Download Photo'}
+                  </button>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const src = imageSrc(ticketData.booking.ticketProofImage);
+                    if (src) window.open(src, '_blank', 'noopener');
+                  }}
+                  title={t('booking.viewTicketPhoto') || 'View full size'}
+                  className="block w-full cursor-pointer border-none bg-transparent p-0"
+                >
+                  <img
+                    src={imageSrc(ticketData.booking.ticketProofImage)}
+                    alt={`Ticket photo ${ticketData.booking.referenceCode}`}
+                    className="w-full max-h-[420px] object-contain rounded-lg border border-[var(--border)]"
+                  />
+                </button>
+              </div>
+            )}
 
             {/* Status badges */}
             <div className="flex items-center gap-2 mb-4">

@@ -7,9 +7,16 @@ import { ROLE_CONFIG } from '../../config/roleConfig'
 import UseIsSmallScreen from '../../Hooks/UseIsSmallScreen'
 import TopBar, { type QuickAction } from './TopBar'
 import Sidebar from './Sidebar'
+import NotificationPanel from './NotificationPanel'
 import { STUDIO_NAV, ROLE_LABEL_KEY, ROLE_HOME, type StudioNavItem } from './studioNav'
 
 const SIDEBAR_KEY = 'katisha_studio_sidebar'
+
+/** Roles with a dedicated settings page reachable from the account menu. */
+const SETTINGS_ROUTE: Record<string, string | undefined> = {
+  agency_admin: '/dashboard/agency-settings',
+  promoter: '/dashboard/promoter/settings',
+}
 
 interface StudioShellProps {
   children: ReactNode
@@ -37,6 +44,7 @@ export default function StudioShell({
   const isSmall = UseIsSmallScreen()
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [notifOpen, setNotifOpen] = useState(false)
 
   // Persisted sidebar state; default collapsed on small screens.
   useEffect(() => {
@@ -65,12 +73,15 @@ export default function StudioShell({
   if (!user) return null
 
   const cfg = ROLE_CONFIG[user.role as keyof typeof ROLE_CONFIG]
-  const avatarColor = cfg?.color || 'var(--blue)'
+  const avatarColor = cfg?.color || '#0854AE'
   const roleLabel = t(ROLE_LABEL_KEY[user.role] || 'roles.user')
   const roleCfgNav = STUDIO_NAV[user.role]
   const resolvedNav = nav ?? roleCfgNav?.nav ?? []
   const resolvedSystem = systemNav ?? roleCfgNav?.system ?? []
   const roles = (user as { roles?: string[] }).roles?.length ? (user as { roles?: string[] }).roles! : [user.role]
+
+  const settingsRoute = SETTINGS_ROUTE[user.role]
+  const openSettings = settingsRoute ? () => navigate(settingsRoute) : undefined
 
   const switchRole = (role: string) => {
     navigate(ROLE_HOME[role] || '/')
@@ -93,7 +104,18 @@ export default function StudioShell({
         roleLabelFor={(r) => t(ROLE_LABEL_KEY[r] || 'roles.user')}
         onSwitchRole={switchRole}
         notificationCount={notificationCount}
+        onToggleNotifications={() => setNotifOpen((v) => !v)}
+        notificationsOpen={notifOpen}
+        onOpenSettings={openSettings}
       />
+
+      {notifOpen && (
+        <NotificationPanel
+          open={notifOpen}
+          onClose={() => setNotifOpen(false)}
+          anchorRight={isSmall ? 8 : 16}
+        />
+      )}
 
       <div className="flex flex-1 min-h-0">
         <Sidebar
@@ -106,13 +128,12 @@ export default function StudioShell({
           userName={user.name}
           roleLabel={roleLabel}
           avatarColor={avatarColor}
+          onOpenSettings={openSettings}
         />
 
         <main className="flex-1 min-w-0 overflow-y-auto">
-          <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            {header}
-            {children}
-          </div>
+          {header}
+          {children}
         </main>
       </div>
     </div>

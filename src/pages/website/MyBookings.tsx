@@ -34,6 +34,8 @@ export default function MyBookings() {
   const [totalPages, setTotalPages] = useState(1);
   const [ticketModalBooking, setTicketModalBooking] = useState<any>(null);
   const [ticketImageUrl, setTicketImageUrl] = useState<string | null>(null);
+  const [ticketProofUrl, setTicketProofUrl] = useState<string | null>(null);
+  const [ticketView, setTicketView] = useState<'eticket' | 'photo'>('eticket');
   const [ticketLoading, setTicketLoading] = useState(false);
   const [ticketError, setTicketError] = useState('');
   const [merchantReceiptBooking, setMerchantReceiptBooking] = useState<any>(null);
@@ -49,6 +51,13 @@ export default function MyBookings() {
     if (!url) return;
     await downloadImage(url, `katisha-receipt-${booking.referenceCode || 'receipt'}.png`);
   }, [merchantReceiptBooking]);
+
+  const closeTicketModal = () => {
+    setTicketModalBooking(null);
+    setTicketImageUrl(null);
+    setTicketProofUrl(null);
+    setTicketView('eticket');
+  };
 
   // Lazily fetch ticket images for bookings that are missing one (e.g. ticket
   // generation failed at booking time). Falls back to the local cache first.
@@ -133,23 +142,32 @@ export default function MyBookings() {
     setTicketLoading(true);
     setTicketError('');
     setTicketImageUrl(null);
+    setTicketProofUrl(null);
+    setTicketView('eticket');
     try {
       const res = await api.viewTicket(booking._id);
       const data = res.data;
-      const url = data?.ticket?.imageUrl;
-      if (url) {
-        setTicketImageUrl(url);
-        cacheTicketWithImage(booking._id, url, data.booking).catch(() => {});
-      } else {
+      const eTicketUrl = resolveImageUrl(data?.ticket?.imageUrl);
+      // The photo uploaded by the agent when the physical ticket was issued.
+      const proofUrl = resolveImageUrl(data?.booking?.ticketProofImage);
+      setTicketImageUrl(eTicketUrl || null);
+      setTicketProofUrl(proofUrl || null);
+      setTicketView(eTicketUrl ? 'eticket' : proofUrl ? 'photo' : 'eticket');
+      if (!eTicketUrl && !proofUrl) {
         setTicketError('Ticket image not available');
+      }
+      if (eTicketUrl) {
+        cacheTicketWithImage(booking._id, eTicketUrl, data.booking).catch(() => {});
       }
     } catch (err: any) {
       // Offline fallback: use the locally saved image (blob) if available.
       const cached = await getCachedTicket(booking._id);
-      if (cached?.ticketImageBlob) {
-        setTicketImageUrl(URL.createObjectURL(cached.ticketImageBlob));
-      } else if (cached?.ticketImageUrl) {
-        setTicketImageUrl(cached.ticketImageUrl);
+      const cachedUrl = cached?.ticketImageBlob
+        ? URL.createObjectURL(cached.ticketImageBlob)
+        : cached?.ticketImageUrl;
+      if (cachedUrl) {
+        setTicketImageUrl(cachedUrl);
+        setTicketView('eticket');
       } else {
         setTicketError(err.message || 'Failed to load ticket');
       }
@@ -178,13 +196,17 @@ export default function MyBookings() {
   // opening the image in a new tab when the remote host blocks cross-origin
   // fetches.
   const downloadTicket = useCallback(async () => {
-    const url = ticketImageUrl;
+    const isPhoto = ticketView === 'photo';
+    const url = isPhoto ? ticketProofUrl : ticketImageUrl;
     const booking = ticketModalBooking;
     if (!url || !booking) return;
-    await downloadImage(url, `ticket-${booking.referenceCode || 'ticket'}.png`);
+    const name = isPhoto ? 'ticket-photo' : 'ticket';
+    await downloadImage(url, `${name}-${booking.referenceCode || 'ticket'}.${isPhoto ? 'jpg' : 'png'}`);
     setTicketModalBooking(null);
     setTicketImageUrl(null);
-  }, [ticketImageUrl, ticketModalBooking]);
+    setTicketProofUrl(null);
+    setTicketView('eticket');
+  }, [ticketView, ticketProofUrl, ticketImageUrl, ticketModalBooking]);
 
   // Real-time updates
   useEffect(() => {
@@ -226,10 +248,11 @@ export default function MyBookings() {
   };
 
   const { today: todayBookings, upcoming: upcomingBookings } = splitBookings();
+  const activeTicketImageUrl = ticketView === 'photo' ? ticketProofUrl : ticketImageUrl;
 
   const TicketCard = ({ booking, index, isToday }: { booking: any; index: number; isToday?: boolean }) => {
     const isMerchantPending = booking.paymentChannel === 'momo_merchant' && booking.paymentStatus === 'processing';
-    const displayImage = booking.ticketImage || booking.merchantReceiptImage;
+    const displayImage = booking.ticketProofImage || booking.ticketImage || booking.merchantReceiptImage;
     return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
@@ -422,11 +445,11 @@ export default function MyBookings() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
             className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
-            onClick={() => { setTicketModalBooking(null); setTicketImageUrl(null); }}
+            onClick={closeTicketModal}
           >
             {/* Close button */}
             <button
-              onClick={() => { setTicketModalBooking(null); setTicketImageUrl(null); }}
+              onClick={closeTicketModal}
               className="absolute top-4 right-4 z-50 w-10 h-10 rounded-lg bg-white/90 hover:bg-white flex items-center justify-center cursor-pointer border-none transition-colors"
             >
               <X size={20} className="text-[var(--text)]" />
@@ -466,16 +489,40 @@ export default function MyBookings() {
                     {t('common.retry') || 'Try Again'}
                   </button>
                 </div>
-              ) : ticketImageUrl ? (
+              ) : activeTicketImageUrl ? (
                 <div className="flex flex-col lg:flex-row lg:items-center gap-5 lg:gap-8 w-full">
                   <div className="flex flex-col items-center gap-4 lg:flex-1 lg:min-w-0">
+                    {ticketImageUrl && ticketProofUrl && (
+                      <div className="flex gap-2 p-1 rounded-lg bg-white/10">
+                        <button
+                          type="button"
+                          onClick={() => setTicketView('eticket')}
+                          className={`px-4 py-2 rounded-md text-sm font-semibold cursor-pointer border-none transition-colors ${
+                            ticketView === 'eticket' ? 'bg-white text-[var(--text)]' : 'text-white/80 hover:bg-white/10'
+                          }`}
+                        >
+                          {t('booking.eTicket') || 'E-Ticket'}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setTicketView('photo')}
+                          className={`px-4 py-2 rounded-md text-sm font-semibold cursor-pointer border-none transition-colors ${
+                            ticketView === 'photo' ? 'bg-white text-[var(--text)]' : 'text-white/80 hover:bg-white/10'
+                          }`}
+                        >
+                          {t('booking.ticketPhoto') || 'Ticket Photo'}
+                        </button>
+                      </div>
+                    )}
                     <img
-                      src={ticketImageUrl}
+                      src={activeTicketImageUrl}
                       alt={`Ticket ${ticketModalBooking.referenceCode}`}
-                      className="w-auto h-auto max-w-full max-h-[80vh] rounded-lg"
+                      className="w-auto h-auto max-w-full max-h-[76vh] rounded-lg"
                     />
                     <p className="text-white/90 text-sm font-semibold text-center">
-                      {t('booking.ticketHelp') || 'If you have any problem with your ticket, please contact us on +250 793 216 191.'}
+                      {ticketView === 'photo'
+                        ? (t('booking.ticketPhotoHelp') || 'Photo of your ticket taken by the agent.')
+                        : (t('booking.ticketHelp') || 'If you have any problem with your ticket, please contact us on +250 793 216 191.')}
                     </p>
                   </div>
                   <div className="flex w-full lg:w-auto lg:shrink-0 lg:items-center">
@@ -484,7 +531,9 @@ export default function MyBookings() {
                       className="w-full lg:w-auto h-14 lg:h-16 px-8 lg:px-10 rounded-lg bg-[var(--blue)] hover:bg-[var(--blue-dark)] text-white text-base lg:text-lg font-semibold cursor-pointer border-none flex items-center justify-center gap-2.5 transition-colors shadow-lg"
                     >
                       <Download size={24} />
-                      {t('booking.downloadTicket') || 'Download Ticket'}
+                      {ticketView === 'photo'
+                        ? (t('booking.downloadPhoto') || 'Download Photo')
+                        : (t('booking.downloadTicket') || 'Download Ticket')}
                     </button>
                   </div>
                 </div>

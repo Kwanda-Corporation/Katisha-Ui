@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router'
-import { Menu, Search, HelpCircle, Bell, ChevronDown, LogOut, Check, Sun, Moon } from 'lucide-react'
+import { Menu, Search, Bell, ChevronDown, LogOut, Check, Sun, Moon, Plus, Settings } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../contexts/AuthContext'
 import { useTheme } from '../../contexts/ThemeContext'
@@ -19,12 +19,17 @@ interface TopBarProps {
   onHamburger: () => void
   roleLabel: string
   userName: string
+  /** Fixed brand colour for the avatar (stays solid in both schemes). */
   avatarColor: string
   quickActions?: QuickAction[]
   roles?: string[]
   roleLabelFor?: (role: string) => string
   onSwitchRole?: (role: string) => void
   notificationCount?: number
+  onToggleNotifications: () => void
+  notificationsOpen: boolean
+  /** Renders a Settings menu item + sidebar action when supplied. */
+  onOpenSettings?: () => void
 }
 
 export default function TopBar({
@@ -37,6 +42,9 @@ export default function TopBar({
   roleLabelFor,
   onSwitchRole,
   notificationCount = 0,
+  onToggleNotifications,
+  notificationsOpen,
+  onOpenSettings,
 }: TopBarProps) {
   const { t } = useTranslation()
   const { logout } = useAuth()
@@ -61,18 +69,18 @@ export default function TopBar({
 
   return (
     <header
-      className="shrink-0 w-full bg-[var(--studio-topbar-bg)] flex items-center justify-between px-3 sm:px-4 z-[960]"
+      className="studio-topbar shrink-0 w-full bg-[var(--studio-topbar-bg)] flex items-center justify-between px-2 sm:px-4 z-[960] border-b border-[var(--studio-border)]"
       style={{ height: 'var(--studio-topbar-height)' }}
     >
       {/* Left */}
-      <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+      <div className="flex items-center gap-1 sm:gap-3 min-w-0">
         <button
           type="button"
           onClick={onHamburger}
           aria-label={t('studio.toggleSidebar')}
           className="p-2 rounded-full hover:bg-[var(--studio-muted-fill)] cursor-pointer"
         >
-          <Menu size={18} className="text-[var(--studio-text-sub)]" />
+          <Menu size={20} className="text-[var(--studio-text)]" />
         </button>
         <button
           type="button"
@@ -81,26 +89,37 @@ export default function TopBar({
           aria-label="Katisha"
         >
           <Logo />
+          <span className="hidden md:block text-[11px] font-medium text-[var(--studio-text-sub)] tracking-tight">
+            Katisha
+          </span>
+          <span className="hidden lg:block text-xs text-[var(--studio-text-muted)] border border-[var(--studio-border)] rounded px-1.5 py-0.5 leading-none">
+            {t('studio.adminBadge', 'Admin')}
+          </span>
         </button>
-        <div className="hidden sm:flex items-baseline gap-1.5 min-w-0">
-          <span className="font-semibold text-[var(--studio-text)] whitespace-nowrap">Katisha Studio</span>
-          <span className="text-sm text-[var(--studio-text-muted)] truncate">{roleLabel}</span>
-        </div>
       </div>
 
       {/* Right */}
-      <div className="flex items-center gap-1 sm:gap-1.5">
+      <div className="flex items-center gap-0.5 sm:gap-1">
         <TopIconButton label={t('studio.search')} onClick={() => navigate('/book')}>
-          <Search size={17} />
+          <Search size={20} />
         </TopIconButton>
-        <TopIconButton label={t('studio.help')} onClick={() => window.open('/guide', '_blank', 'noopener')}>
-          <HelpCircle size={17} />
-        </TopIconButton>
-        <TopIconButton label={t('studio.notifications')} onClick={() => navigate('/dashboard/notifications')}>
+
+        <TopIconButton
+          label={
+            notificationCount > 0
+              ? `${t('studio.notifications')} (${notificationCount} unread)`
+              : t('studio.notifications')
+          }
+          onClick={onToggleNotifications}
+          active={notificationsOpen}
+        >
           <span className="relative">
-            <Bell size={17} />
+            <Bell size={20} />
             {notificationCount > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 min-w-[15px] h-[15px] px-1 rounded-full bg-[var(--error)] text-white text-[9px] font-bold flex items-center justify-center">
+              <span
+                aria-hidden="true"
+                className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-1 rounded-full bg-[var(--error)] text-white text-[9px] font-bold leading-none flex items-center justify-center ring-2 ring-[var(--studio-topbar-bg)]"
+              >
                 {notificationCount > 99 ? '99+' : notificationCount}
               </span>
             )}
@@ -112,10 +131,10 @@ export default function TopBar({
             key={action.key}
             type="button"
             onClick={action.onClick}
-            className="hidden md:inline-flex items-center gap-2 h-9 px-3.5 border border-[var(--studio-border)] bg-[var(--studio-surface)] text-[var(--studio-text)] text-sm font-medium hover:bg-[var(--studio-muted-fill)] cursor-pointer"
+            className="hidden md:inline-flex items-center gap-1.5 h-9 px-3.5 bg-[var(--studio-accent)] text-white text-sm font-medium hover:opacity-90 cursor-pointer"
             style={{ borderRadius: 'var(--studio-radius-pill)' }}
           >
-            {action.icon}
+            {action.icon ?? <Plus size={18} />}
             {action.label}
           </button>
         ))}
@@ -134,7 +153,7 @@ export default function TopBar({
             onClick={() => setMenuOpen((v) => !v)}
             aria-haspopup="menu"
             aria-expanded={menuOpen}
-            className="flex items-center gap-1.5 p-0.5 rounded-full hover:bg-[var(--studio-muted-fill)] cursor-pointer"
+            className="flex items-center gap-1 p-0.5 rounded-full hover:bg-[var(--studio-muted-fill)] cursor-pointer"
           >
             <span
               className="flex items-center justify-center text-white font-semibold select-none"
@@ -149,12 +168,25 @@ export default function TopBar({
           {menuOpen && (
             <div
               role="menu"
-              className="absolute right-0 top-[calc(100%+8px)] w-64 bg-[var(--studio-surface)] border border-[var(--studio-border)] rounded-2xl overflow-hidden py-1.5 z-[970]"
+              className="absolute right-0 top-[calc(100%+8px)] w-64 bg-[var(--studio-surface)] border border-[var(--studio-border)] rounded-[var(--studio-radius-pop)] shadow-[var(--studio-shadow-pop)] overflow-hidden py-1.5 z-[970]"
             >
               <div className="px-4 py-3 border-b border-[var(--studio-border)]">
                 <p className="text-sm font-semibold text-[var(--studio-text)] truncate">{userName}</p>
                 <p className="text-xs text-[var(--studio-text-muted)]">{roleLabel}</p>
               </div>
+
+              {onOpenSettings && (
+                <div className="px-1 py-1.5 border-b border-[var(--studio-border)]">
+                  <button
+                    role="menuitem"
+                    type="button"
+                    onClick={() => { setMenuOpen(false); onOpenSettings() }}
+                    className="flex items-center gap-2.5 w-full px-4 py-2 text-sm text-left text-[var(--studio-text)] hover:bg-[var(--studio-muted-fill)] cursor-pointer"
+                  >
+                    <Settings size={15} /> {t('studio.settings')}
+                  </button>
+                </div>
+              )}
 
               {roles.length > 1 && onSwitchRole && (
                 <div className="py-1.5 border-b border-[var(--studio-border)]">
@@ -217,14 +249,14 @@ export default function TopBar({
   )
 }
 
-function TopIconButton({ label, onClick, children }: { label: string; onClick: () => void; children: React.ReactNode }) {
+function TopIconButton({ label, onClick, children, active }: { label: string; onClick: () => void; children: React.ReactNode; active?: boolean }) {
   return (
     <button
       type="button"
       onClick={onClick}
       aria-label={label}
       title={label}
-      className="p-2 rounded-full hover:bg-[var(--studio-muted-fill)] cursor-pointer text-[var(--studio-text-sub)]"
+      className={`p-2 rounded-full cursor-pointer text-[var(--studio-text)] ${active ? 'bg-[var(--studio-muted-fill)]' : 'hover:bg-[var(--studio-muted-fill)]'}`}
     >
       {children}
     </button>

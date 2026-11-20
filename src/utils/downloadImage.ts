@@ -14,7 +14,20 @@ export async function downloadImage(url: string, filename: string): Promise<void
   try {
     let href = url;
     if (!url.startsWith('blob:') && !url.startsWith('data:')) {
-      const res = await fetch(url, { mode: 'cors' });
+      // Locally-stored uploads are protected by the API's upload middleware;
+      // Cloudinary URLs are public, so don't attach a token to those requests.
+      const headers: Record<string, string> = {};
+      const token = typeof localStorage !== 'undefined' ? localStorage.getItem('vdk_access_token') : null;
+      if (token) {
+        try {
+          if (new URL(url, window.location.href).pathname.startsWith('/uploads/')) {
+            headers.Authorization = `Bearer ${token}`;
+          }
+        } catch {
+          // Keep the unauthenticated request; the fallback below still applies.
+        }
+      }
+      const res = await fetch(url, { mode: 'cors', headers });
       if (!res.ok) throw new Error(`fetch failed with status ${res.status}`);
       const blob = await res.blob();
       href = URL.createObjectURL(blob);

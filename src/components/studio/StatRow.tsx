@@ -26,9 +26,9 @@ export default function StatRow({ label, value, trend, trendLabel, className = '
 
   return (
     <div className={`flex items-center justify-between gap-3 py-2.5 ${className}`}>
-      <span className="text-sm text-[var(--studio-text-sub)]">{label}</span>
-      <span className="flex items-center gap-2 text-sm font-semibold text-[var(--studio-text)]">
-        {value}
+      <span className="shrink-0 text-sm text-[var(--studio-text-sub)]">{label}</span>
+      <span className="flex min-w-0 flex-wrap items-center justify-end gap-2 text-right text-sm font-semibold text-[var(--studio-text)]">
+        <span className="break-words">{value}</span>
         {hasTrend && (
           <span className="inline-flex items-center gap-0.5 text-xs font-medium" style={{ color: trendColor }}>
             <TrendIcon size={13} aria-hidden="true" />

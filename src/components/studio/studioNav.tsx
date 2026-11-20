@@ -12,6 +12,8 @@ export interface StudioNavItem {
   labelKey: string
   path: string
   icon: React.ReactNode
+  /** Optional group header shown above a run of items (YouTube Studio groups). */
+  group?: string
 }
 
 export interface StudioNavConfig {
