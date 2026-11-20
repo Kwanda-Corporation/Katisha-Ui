@@ -6,7 +6,7 @@ import {
 import {
   DollarSign, Ticket, Route, Users, Building2,
   Download, RefreshCw, Clock, Wallet,
-  Smartphone, Globe, Star, X, CheckCircle2, Loader2,
+  Smartphone, Globe, Star, X, CheckCircle2, Loader2, Eye,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
@@ -96,6 +96,7 @@ export default function SystemDashboard() {
   const [paidLoading, setPaidLoading] = useState(false)
   const [paidError, setPaidError] = useState('')
   const [receiptTarget, setReceiptTarget] = useState<any>(null)
+  const [receiptMode, setReceiptMode] = useState<'receipt' | 'photo'>('receipt')
   const [receiptImageUrl, setReceiptImageUrl] = useState('')
   const [receiptLoading, setReceiptLoading] = useState(false)
   const [receiptError, setReceiptError] = useState('')
@@ -137,6 +138,7 @@ export default function SystemDashboard() {
     setReceiptImageUrl('')
     setReceiptError('')
     setReceiptLoading(false)
+    setReceiptMode('receipt')
   }, [])
 
   // Opens the receipt viewer once after a successful manual confirmation. The
@@ -144,6 +146,7 @@ export default function SystemDashboard() {
   // returned it yet, fetch it from the ticket endpoint.
   const openReceiptModal = useCallback(async (booking: any, imageUrl?: string) => {
     setReceiptTarget(booking)
+    setReceiptMode('receipt')
     setReceiptError('')
     setReceiptLoading(false)
 
@@ -162,6 +165,34 @@ export default function SystemDashboard() {
       else setReceiptError(t('dashboard.ops.receiptNotReady'))
     } catch (err: any) {
       setReceiptError(err?.message || t('dashboard.ops.receiptLoadFailed'))
+    } finally {
+      setReceiptLoading(false)
+    }
+  }, [t])
+
+  // The agent-uploaded photo of the physical ticket. Recent bookings already
+  // carry ticketProofImage; fall back to the ticket endpoint for older rows.
+  const openTicketPhotoModal = useCallback(async (booking: any) => {
+    setReceiptTarget(booking)
+    setReceiptMode('photo')
+    setReceiptError('')
+    setReceiptLoading(false)
+
+    const directUrl = resolveImageUrl(booking.ticketProofImage) || ''
+    if (directUrl) {
+      setReceiptImageUrl(directUrl)
+      return
+    }
+
+    setReceiptImageUrl('')
+    setReceiptLoading(true)
+    try {
+      const res = await api.viewTicket(booking._id)
+      const url = resolveImageUrl(res.data?.booking?.ticketProofImage) || ''
+      if (url) setReceiptImageUrl(url)
+      else setReceiptError(t('booking.ticketPhotoNotAvailable'))
+    } catch (err: any) {
+      setReceiptError(err?.message || t('booking.ticketPhotoNotAvailable'))
     } finally {
       setReceiptLoading(false)
     }
@@ -195,9 +226,13 @@ export default function SystemDashboard() {
 
   const downloadReceipt = useCallback(async () => {
     if (!receiptImageUrl || !receiptTarget) return
-    await downloadImage(receiptImageUrl, `receipt-${receiptTarget.referenceCode || 'receipt'}.png`)
+    const ref = receiptTarget.referenceCode || (receiptMode === 'photo' ? 'ticket-photo' : 'receipt')
+    const filename = receiptMode === 'photo'
+      ? `ticket-photo-${ref}.jpg`
+      : `receipt-${ref}.png`
+    await downloadImage(receiptImageUrl, filename)
     closeReceiptModal()
-  }, [receiptImageUrl, receiptTarget, closeReceiptModal])
+  }, [receiptImageUrl, receiptTarget, receiptMode, closeReceiptModal])
 
   const overview = data?.overview || {}
   const revenue = data?.revenue || {}
@@ -434,23 +469,40 @@ export default function SystemDashboard() {
       header: t('dashboard.ops.actions'),
       align: 'right',
       render: (b) => {
-        if ((b.paymentStatus || '').toLowerCase() !== 'failed') {
+        const showPhoto = Boolean(resolveImageUrl(b.ticketProofImage))
+        const showPaid = (b.paymentStatus || '').toLowerCase() === 'failed'
+        if (!showPhoto && !showPaid) {
           return <span className="text-xs text-[var(--studio-text-muted)]">—</span>
         }
         return (
-          <button
-            type="button"
-            onClick={() => setPaidTarget(b)}
-            className="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-semibold rounded-full bg-[var(--tone-success-fill)] text-[var(--tone-success-ink)] hover:brightness-95 transition-colors cursor-pointer border-none"
-            title={t('dashboard.ops.confirmPaidTitle')}
-          >
-            <CheckCircle2 size={13} aria-hidden="true" />
-            {t('dashboard.ops.markPaid')}
-          </button>
+          <div className="inline-flex items-center justify-end gap-1.5 flex-wrap">
+            {showPhoto && (
+              <button
+                type="button"
+                onClick={() => openTicketPhotoModal(b)}
+                className="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-semibold rounded-full bg-[var(--tone-info-fill)] text-[var(--tone-info-ink)] hover:brightness-95 transition-colors cursor-pointer border-none"
+                title={t('dashboard.ops.viewTicketPhoto')}
+              >
+                <Eye size={13} aria-hidden="true" />
+                {t('booking.ticketPhoto')}
+              </button>
+            )}
+            {showPaid && (
+              <button
+                type="button"
+                onClick={() => setPaidTarget(b)}
+                className="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-semibold rounded-full bg-[var(--tone-success-fill)] text-[var(--tone-success-ink)] hover:brightness-95 transition-colors cursor-pointer border-none"
+                title={t('dashboard.ops.confirmPaidTitle')}
+              >
+                <CheckCircle2 size={13} aria-hidden="true" />
+                {t('dashboard.ops.markPaid')}
+              </button>
+            )}
+          </div>
         )
       },
     },
-  ], [t])
+  ], [t, openTicketPhotoModal])
 
   return (
     <div className="space-y-6">
@@ -1072,10 +1124,12 @@ export default function SystemDashboard() {
             <div className="flex items-start justify-between gap-3 px-6 pt-6 pb-4 border-b border-[var(--studio-border)]">
               <div className="min-w-0">
                 <h2 id="download-receipt-title" className="text-lg font-semibold text-[var(--studio-text)]">
-                  {t('dashboard.ops.downloadReceiptTitle')}
+                  {receiptMode === 'photo' ? t('booking.ticketPhoto') : t('dashboard.ops.downloadReceiptTitle')}
                 </h2>
                 <p className="text-sm text-[var(--studio-text-sub)] mt-1">
-                  {t('dashboard.ops.downloadReceiptBody', { ref: receiptTarget.referenceCode })}
+                  {receiptMode === 'photo'
+                    ? t('dashboard.ops.ticketPhotoBody', { ref: receiptTarget.referenceCode })
+                    : t('dashboard.ops.downloadReceiptBody', { ref: receiptTarget.referenceCode })}
                 </p>
               </div>
               <button
@@ -1101,7 +1155,9 @@ export default function SystemDashboard() {
                   </p>
                   <button
                     type="button"
-                    onClick={() => openReceiptModal(receiptTarget)}
+                    onClick={() => receiptMode === 'photo'
+                      ? openTicketPhotoModal(receiptTarget)
+                      : openReceiptModal(receiptTarget)}
                     className="inline-flex items-center justify-center h-9 px-4 rounded-full border border-[var(--studio-border)] bg-[var(--studio-surface)] text-sm font-semibold text-[var(--studio-text)] hover:bg-[var(--studio-muted-fill)] cursor-pointer transition-colors"
                   >
                     {t('common.retry')}
@@ -1110,7 +1166,7 @@ export default function SystemDashboard() {
               ) : receiptImageUrl ? (
                 <img
                   src={receiptImageUrl}
-                  alt={t('dashboard.ops.downloadReceiptTitle')}
+                  alt={receiptMode === 'photo' ? t('booking.ticketPhoto') : t('dashboard.ops.downloadReceiptTitle')}
                   className="mx-auto w-full max-w-sm rounded-xl border border-[var(--studio-border)]"
                 />
               ) : null}
@@ -1131,7 +1187,7 @@ export default function SystemDashboard() {
                 className="inline-flex items-center justify-center gap-2 h-10 px-5 rounded-full bg-[var(--studio-accent)] text-sm font-semibold text-white hover:brightness-95 cursor-pointer transition-colors border-none disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 <Download size={15} aria-hidden="true" />
-                {t('dashboard.ops.downloadReceipt')}
+                {receiptMode === 'photo' ? t('booking.downloadPhoto') : t('dashboard.ops.downloadReceipt')}
               </button>
             </div>
           </div>

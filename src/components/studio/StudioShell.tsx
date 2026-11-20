@@ -131,7 +131,7 @@ export default function StudioShell({
           onOpenSettings={openSettings}
         />
 
-        <main className="flex-1 min-w-0 overflow-y-auto">
+        <main className="flex-1 min-w-0 overflow-y-auto px-4 py-5 sm:px-6 sm:py-6 lg:px-8">
           {header}
           {children}
         </main>

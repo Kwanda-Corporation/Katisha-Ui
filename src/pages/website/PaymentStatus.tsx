@@ -266,7 +266,7 @@ export default function PaymentStatus() {
     // bg changed from bg-white to a faint slate tint — the ticket card is
     // still white, and that tiny contrast is what makes the perforated edge
     // (which cuts real transparency) actually visible against the page.
-    <div className="min-h-screen bg-[#F8FAFC] flex flex-col">
+    <div className="booking-ui min-h-screen bg-[#F8FAFC] flex flex-col">
       <SEO title="Payment" noindex />
       <TopNav />
 

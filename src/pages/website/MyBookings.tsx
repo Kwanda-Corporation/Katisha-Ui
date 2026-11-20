@@ -311,7 +311,7 @@ export default function MyBookings() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="booking-ui min-h-screen bg-white">
         <SEO title="My Bus Trips & Ticket History - Katisha" noindex canonical={location.pathname} />
         <TopNav />
         <main className="max-w-4xl mx-auto px-5 sm:px-6 py-16 sm:py-24 flex flex-col items-center text-center">
@@ -333,7 +333,7 @@ export default function MyBookings() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="booking-ui min-h-screen bg-white">
       <SEO title="My Bus Trips & Ticket History - Katisha" noindex canonical={location.pathname} />
       <TopNav />
 

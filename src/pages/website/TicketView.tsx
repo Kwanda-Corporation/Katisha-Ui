@@ -68,7 +68,7 @@ export default function TicketView() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-white flex flex-col items-center justify-center px-4">
+      <div className="booking-ui min-h-screen bg-white flex flex-col items-center justify-center px-4">
         <h2 className="text-2xl font-bold text-[var(--text)] mb-1">Login Required</h2>
         <p className="text-sm text-[var(--text-sub)] mb-4">Please log in to view your ticket.</p>
         <button
@@ -82,7 +82,7 @@ export default function TicketView() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="booking-ui min-h-screen bg-white">
       <SEO title="Bus Ticket Details & E-Ticket - Katisha" noindex />
       {/* Top bar */}
       <div className="sticky top-0 z-10 bg-white border-b border-[var(--border)] px-4 py-3 flex items-center gap-3">

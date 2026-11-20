@@ -264,6 +264,7 @@
     "eTicket": "Tiketi ya kidijitali",
     "ticketPhoto": "Picha ya tiketi",
     "ticketPhotoHelp": "Picha ya tiketi yako iliyopigwa na wakala.",
+    "ticketPhotoNotAvailable": "Hakuna picha ya tiketi inayopatikana kwa uhifadhi huu kwa sasa.",
     "downloadPhoto": "Pakua picha",
     "viewTicketPhoto": "Tazama ukubwa kamili",
     "showTicket": "Tafadhali onyesha tiketi hii kwa afisa wa kuingia unaposafiri.",
@@ -657,6 +658,8 @@
       "downloadReceiptTitle": "Pakua risiti",
       "downloadReceiptBody": "Malipo yamethibitishwa. Pakua risiti ya {{ref}} hapa chini.",
       "receiptNotReady": "Tikiti bado linatengenezwa. Tafadhali jaribu tena baada ya muda mfupi.",
+      "viewTicketPhoto": "Tazama picha ya tiketi iliyopakiwa na wakala",
+      "ticketPhotoBody": "Picha ya tiketi iliyopakiwa na wakala kwa {{ref}}.",
       "receiptLoadFailed": "Imeshindwa kupakia risiti.",
       "payment": {
         "paid": "Imelipwa",

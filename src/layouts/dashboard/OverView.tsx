@@ -4,7 +4,7 @@ import {
   Banknote, CheckCircle2,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { Link, useNavigate } from 'react-router'
+import { useNavigate } from 'react-router'
 import { api } from '../../api'
 import { useAuth } from '../../contexts/AuthContext'
 import { viaLabel } from '../../utils/via'
@@ -61,7 +61,6 @@ export default function OverviewPage() {
   const [bookingsLoading, setBookingsLoading] = useState(true)
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
-  const [totalBookings, setTotalBookings] = useState(0)
   const [totalPages, setTotalPages] = useState(1)
 
   const loadAnalytics = useCallback(async () => {
@@ -79,7 +78,6 @@ export default function OverviewPage() {
       const res = await api.getAgencyBookings({ page: String(page), limit: String(pageSize) })
       if (res.data) {
         setBookings(res.data.bookings || [])
-        setTotalBookings(res.data.total || 0)
         setTotalPages(res.data.pages || 1)
       }
     } catch {} finally {
@@ -96,7 +94,6 @@ export default function OverviewPage() {
   useEffect(() => { setPage(1) }, [pageSize])
 
   const overview = data?.overview || {}
-  const revenue = data?.revenue || {}
   const topRoutes = data?.topRoutes || []
 
   const dayBookings = overview.dayBookings ?? 0
@@ -104,7 +101,6 @@ export default function OverviewPage() {
   const monthBookings = overview.monthBookings ?? 0
   const totalBookingsCount = overview.totalBookings ?? 0
   const completedBookings = overview.completedBookings ?? 0
-  const revenueNet = revenue.netRevenue ?? 0
 
   const completionRate = totalBookingsCount > 0
     ? Math.round((completedBookings / totalBookingsCount) * 100)
