@@ -390,22 +390,30 @@ function RegisterUserModal({ onClose, onSave }: { onClose: () => void; onSave: (
   };
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-[rgba(42,47,78,0.70)] p-4">
+    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-[rgba(15,23,42,0.62)] p-3 backdrop-blur-[2px]">
       <motion.div
-        initial={{ opacity: 0, scale: 0.96, y: 12 }}
+        initial={{ opacity: 0, scale: 0.97, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.96, y: 8 }}
-        className="bg-white rounded-md w-full max-w-lg overflow-hidden"
+        exit={{ opacity: 0, scale: 0.97, y: 8 }}
+        className="flex max-h-[82vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-[var(--studio-border)] bg-white shadow-2xl"
       >
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--studio-border)]">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-md bg-[var(--studio-accent)]/10 flex items-center justify-center">
-              <UserPlus size={16} className="text-[var(--studio-accent)]" />
-            </div>
-            <h3 className="font-[var(--font-body)] text-base font-semibold text-[var(--studio-text)]">Invite New User</h3>
+        <div className="flex items-center gap-3 border-b border-[var(--studio-border)] px-6 py-4 sm:px-7">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--studio-accent-soft)]">
+            <UserPlus size={18} className="text-[var(--studio-accent)]" />
           </div>
-          <button onClick={onClose} className="p-1.5 rounded-md hover:bg-[var(--studio-muted-fill)] text-[var(--studio-text-muted)] transition-colors">
-            <X size={16} />
+          <div className="min-w-0 flex-1">
+            <h3 className="font-[var(--font-body)] text-base font-semibold text-[var(--studio-text)]">Invite New User</h3>
+            <p className="font-[var(--font-body)] text-xs text-[var(--studio-text-muted)]">
+              Create an account and send a secure setup link by email.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[var(--studio-text-muted)] transition-colors hover:bg-[var(--studio-muted-fill)]"
+          >
+            <X size={17} />
           </button>
         </div>
 
@@ -413,170 +421,188 @@ function RegisterUserModal({ onClose, onSave }: { onClose: () => void; onSave: (
           {success ? (
             <motion.div
               key="success"
-              initial={{ opacity: 0, scale: 0.95 }}
+              initial={{ opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="px-6 py-12 text-center"
+              className="min-h-0 flex-1 overflow-y-auto px-6 py-10 text-center sm:px-7"
             >
-              <div className="w-16 h-16 rounded-full bg-[var(--studio-accent-soft)] border border-[var(--studio-border)] flex items-center justify-center mx-auto mb-4">
-                <Check size={28} className="text-[var(--studio-accent)]" />
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-[var(--studio-accent-soft)] border border-[var(--studio-border)]">
+                <Check size={26} className="text-[var(--studio-accent)]" />
               </div>
               <p className="font-[var(--font-body)] text-lg font-semibold text-[var(--studio-text)]">User Invited!</p>
-              <p className="font-[var(--font-body)] text-sm text-[var(--studio-text-sub)] mt-1">
+              <p className="mx-auto mt-1 max-w-md font-[var(--font-body)] text-sm text-[var(--studio-text-sub)]">
                 {emailSent
                   ? <>A setup link has been sent to <strong>{form.email}</strong></>
                   : <>The account was created, but the setup email could not be delivered to <strong>{form.email}</strong>.</>}
               </p>
               {setupUrl && !emailSent && (
-                <div className="mt-3 bg-[var(--fill-subtle)] border border-[var(--studio-border)] rounded-md px-3 py-2 text-xs text-[var(--studio-text-sub)] break-all text-left">
-                  <div className="flex items-center justify-between gap-2 mb-1">
+                <div className="mx-auto mt-4 max-w-lg rounded-xl border border-[var(--studio-border)] bg-[var(--fill-subtle)] px-3 py-2 text-left text-xs text-[var(--studio-text-sub)]">
+                  <div className="mb-1 flex items-center justify-between gap-2">
                     <p className="font-semibold">Copy this setup link to the agent:</p>
                     <button
                       type="button"
                       onClick={() => void navigator.clipboard?.writeText(setupUrl)}
-                      className="inline-flex items-center gap-1 text-[var(--studio-accent)] font-semibold hover:underline"
+                      className="inline-flex items-center gap-1 font-semibold text-[var(--studio-accent)] hover:underline"
                     >
                       <Copy size={12} /> Copy
                     </button>
                   </div>
-                  <a href={setupUrl} className="text-[var(--studio-accent)] underline" target="_blank" rel="noopener noreferrer">{setupUrl}</a>
+                  <a href={setupUrl} className="break-all text-[var(--studio-accent)] underline" target="_blank" rel="noopener noreferrer">{setupUrl}</a>
                 </div>
               )}
+              <button
+                type="button"
+                onClick={onClose}
+                className="mt-6 inline-flex h-9 items-center justify-center rounded-full border border-[var(--studio-border)] bg-white px-5 text-sm font-semibold text-[var(--studio-text)] hover:bg-[var(--studio-muted-fill)]"
+              >
+                Close
+              </button>
             </motion.div>
           ) : (
-            <motion.div key="form" className="px-6 py-5 space-y-4">{error && (
-                <motion.div
-                  initial={{ opacity: 0, y: -6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="flex items-center gap-2 text-sm text-[var(--error)] bg-[var(--error-bg)] px-3 py-2.5 rounded-md border border-[var(--error-border)]"
-                >
-                  <AlertCircle size={14} className="flex-shrink-0" /> {error}
-                </motion.div>
-              )}
-
-              <div>
-                <label className="block font-[var(--font-body)] text-xs font-semibold text-[var(--studio-text-sub)] uppercase tracking-wide mb-2">
-                  Role <span className="text-blue-400">*</span>
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  {(['system_admin', 'agent', 'user'] as const).map(role => {
-                    const m = ROLE_META[role as UserRole];
-                    const active = form.role === role;
-                    return (
-                      <button
-                        key={role}
-                        type="button"
-                        onClick={() => setForm(f => ({ ...f, role, agencyId: '', agentAssignment: 'independent' }))}
-                        className={`flex items-center gap-2 p-3 rounded-md border text-left transition-all ${active ? m.className : 'bg-white text-[var(--studio-text-muted)] border-[var(--studio-border)]'}`}
-                        style={active ? { borderColor: 'currentColor' } : {}}
-                      >
-                        <span>{m.icon}</span>
-                        <div>
-                          <span className="text-sm font-medium leading-tight block">{m.label}</span>
-                          <span className="text-xs opacity-75">{m.description}</span>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {form.role === 'agent' && (
-                <div className="mt-1 bg-[var(--fill-subtle)] border border-[var(--studio-border)] rounded-md px-3 py-2.5">
-                  <p className="text-xs font-semibold text-[var(--studio-text-sub)] mb-2">Agent type</p>
-                  <div className="grid grid-cols-2 gap-2">
-                    {([
-                      { value: 'independent', label: 'Independent', hint: 'No agency — assign routes later' },
-                      { value: 'agency', label: 'Agency agent', hint: 'Belongs to one agency' },
-                    ] as const).map(option => (
-                      <button
-                        key={option.value}
-                        type="button"
-                        onClick={() => setForm(f => ({ ...f, agentAssignment: option.value, agencyId: '' }))}
-                        className={`text-left px-3 py-2 rounded-md border text-xs transition-colors ${
-                          form.agentAssignment === option.value
-                            ? 'border-[var(--studio-accent)] bg-[var(--studio-accent-soft)] text-[var(--studio-text)]'
-                            : 'border-[var(--studio-border)] bg-white text-[var(--studio-text-sub)] hover:bg-[var(--fill-hover)]'
-                        }`}
-                      >
-                        <span className="block font-semibold text-sm">{option.label}</span>
-                        <span className="block opacity-80 mt-0.5">{option.hint}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <Input
-                label="Full Name *"
-                placeholder="First and last name"
-                value={form.name}
-                onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-              />
-
-              <div className="grid grid-cols-2 gap-3">
-                <Input
-                  label="Email *"
-                  type="email"
-                  placeholder="user@example.com"
-                  value={form.email}
-                  onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
-                />
-                <PhoneInput
-                  label="Phone"
-                  value={form.phone}
-                  onChange={(val) => setForm(f => ({ ...f, phone: val }))}
-                  placeholder="7XX XXX XXX"
-                />
-              </div>
-
-              <AnimatePresence>
-                {needsAgency && (
+            <motion.div key="form" className="flex min-h-0 flex-1 flex-col">
+              <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-6 py-5 sm:px-7">
+                {error && (
                   <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="overflow-hidden"
+                    initial={{ opacity: 0, y: -6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex items-center gap-2 rounded-lg border border-[var(--error-border)] bg-[var(--error-bg)] px-3 py-2.5 text-sm text-[var(--error)]"
                   >
-                    <label className="block font-[var(--font-body)] text-xs font-semibold text-[var(--studio-text-sub)] uppercase tracking-wide mb-1.5">
-                      {form.role === 'agent' ? 'Assigned Agency' : 'Agency'} <span className="text-blue-400">*</span>
-                    </label>
-                    <div className="relative">
-                      <select
-                        className="w-full h-12 px-4 rounded-md border border-[var(--studio-border)] bg-white font-[var(--font-body)] text-base text-[var(--studio-text)] appearance-none focus:outline-none focus:border-[var(--studio-accent)] cursor-pointer"
-                        value={form.agencyId}
-                        onChange={e => setForm(f => ({ ...f, agencyId: e.target.value }))}
-                      >
-                        <option value="">Select agency</option>
-                        {agencies.map(a => (
-                          <option key={a._id} value={a._id}>{a.name}</option>
-                        ))}
-                      </select>
-                      <ChevronDown size={13} className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--studio-text-muted)] pointer-events-none" />
-                    </div>
+                    <AlertCircle size={14} className="flex-shrink-0" /> {error}
                   </motion.div>
                 )}
-              </AnimatePresence>
 
-              <div className="bg-[var(--fill-subtle)] rounded-md px-3 py-2.5 flex items-start gap-2 border border-[var(--studio-border)]">
-                <Mail size={13} className="text-[var(--studio-text-muted)] mt-0.5 flex-shrink-0" />
-                <p className="font-[var(--font-body)] text-xs text-[var(--studio-text-sub)]">
-                  The user will receive an email with a link to set up their account. Their account remains inactive until they complete setup.
-                </p>
+                <div>
+                  <label className="mb-2 block font-[var(--font-body)] text-xs font-semibold uppercase tracking-wide text-[var(--studio-text-sub)]">
+                    Role <span className="text-blue-400">*</span>
+                  </label>
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                    {(['system_admin', 'agent', 'user'] as const).map(role => {
+                      const m = ROLE_META[role as UserRole];
+                      const active = form.role === role;
+                      return (
+                        <button
+                          key={role}
+                          type="button"
+                          onClick={() => setForm(f => ({ ...f, role, agencyId: '', agentAssignment: 'independent' }))}
+                          className={`flex items-center gap-3 rounded-xl border p-3 text-left transition-all ${
+                            active ? m.className : 'border-[var(--studio-border)] bg-white text-[var(--studio-text-muted)] hover:bg-[var(--fill-hover)]'
+                          }`}
+                          style={active ? { borderColor: 'currentColor' } : {}}
+                        >
+                          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/70">
+                            {m.icon}
+                          </span>
+                          <span className="min-w-0">
+                            <span className="block text-sm font-semibold leading-tight">{m.label}</span>
+                            <span className="mt-0.5 hidden text-xs opacity-75 sm:block">{m.description}</span>
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {form.role === 'agent' && (
+                  <div className="rounded-xl border border-[var(--studio-border)] bg-[var(--fill-subtle)] px-4 py-3">
+                    <p className="mb-2 text-xs font-semibold text-[var(--studio-text-sub)]">Agent type</p>
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                      {([
+                        { value: 'independent', label: 'Independent', hint: 'No agency — assign routes later' },
+                        { value: 'agency', label: 'Agency agent', hint: 'Belongs to one agency' },
+                      ] as const).map(option => (
+                        <button
+                          key={option.value}
+                          type="button"
+                          onClick={() => setForm(f => ({ ...f, agentAssignment: option.value, agencyId: '' }))}
+                          className={`rounded-lg border px-3 py-2 text-left text-xs transition-colors ${
+                            form.agentAssignment === option.value
+                              ? 'border-[var(--studio-accent)] bg-[var(--studio-accent-soft)] text-[var(--studio-text)]'
+                              : 'border-[var(--studio-border)] bg-white text-[var(--studio-text-sub)] hover:bg-[var(--fill-hover)]'
+                          }`}
+                        >
+                          <span className="block text-sm font-semibold">{option.label}</span>
+                          <span className="mt-0.5 block opacity-80">{option.hint}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                  <Input
+                    label="Full name *"
+                    placeholder="First and last name"
+                    value={form.name}
+                    onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+                  />
+                  <Input
+                    label="Email *"
+                    type="email"
+                    placeholder="user@example.com"
+                    value={form.email}
+                    onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+                  />
+                  <PhoneInput
+                    label="Phone"
+                    value={form.phone}
+                    onChange={(val) => setForm(f => ({ ...f, phone: val }))}
+                    placeholder="7XX XXX XXX"
+                  />
+                </div>
+
+                <AnimatePresence>
+                  {needsAgency && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="rounded-xl border border-[var(--studio-border)] bg-[var(--fill-subtle)] px-4 py-3">
+                        <label className="mb-1.5 block font-[var(--font-body)] text-xs font-semibold uppercase tracking-wide text-[var(--studio-text-sub)]">
+                          {form.role === 'agent' ? 'Assigned Agency' : 'Agency'} <span className="text-blue-400">*</span>
+                        </label>
+                        <div className="relative">
+                          <select
+                            className="h-11 w-full appearance-none rounded-lg border border-[var(--studio-border)] bg-white px-4 font-[var(--font-body)] text-sm text-[var(--studio-text)] focus:border-[var(--studio-accent)] focus:outline-none"
+                            value={form.agencyId}
+                            onChange={e => setForm(f => ({ ...f, agencyId: e.target.value }))}
+                          >
+                            <option value="">Select agency</option>
+                            {agencies.map(a => (
+                              <option key={a._id} value={a._id}>{a.name}</option>
+                            ))}
+                          </select>
+                          <ChevronDown size={13} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[var(--studio-text-muted)]" />
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                <div className="flex items-start gap-2 rounded-xl border border-[var(--studio-border)] bg-[var(--fill-subtle)] px-4 py-3">
+                  <Mail size={14} className="mt-0.5 flex-shrink-0 text-[var(--studio-text-muted)]" />
+                  <p className="font-[var(--font-body)] text-xs text-[var(--studio-text-sub)]">
+                    The user will receive an email with a link to set up their account. Their account remains inactive until they complete setup.
+                  </p>
+                </div>
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-2 border-t border-[var(--studio-border)]">
-                <Button variant="secondary" size="sm" onClick={onClose}>
-                  Cancel
-                </Button>
-                <Button
-                  variant="primary"
-                  size="sm"
-                  onClick={handleSubmit}
-                  disabled={saving || !form.name || !form.email || !form.role || (needsAgency && !form.agencyId)}
-                  loading={saving}
-                >
-                  {saving ? 'Sending invite…' : 'Send Invite'}
-                </Button>
+              <div className="flex items-center justify-between gap-3 border-t border-[var(--studio-border)] bg-[var(--fill-subtle)] px-6 py-4 sm:px-7">
+                <span className="hidden text-xs text-[var(--studio-text-muted)] sm:block">Fields marked * are required</span>
+                <div className="ml-auto flex items-center gap-3">
+                  <Button variant="secondary" size="sm" onClick={onClose}>
+                    Cancel
+                  </Button>
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    onClick={handleSubmit}
+                    disabled={saving || !form.name || !form.email || !form.role || (needsAgency && !form.agencyId)}
+                    loading={saving}
+                  >
+                    {saving ? 'Sending invite…' : 'Send Invite'}
+                  </Button>
+                </div>
               </div>
             </motion.div>
           )}
