@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   DollarSign, Percent, Save, Loader,
@@ -6,7 +6,7 @@ import {
   CheckSquare, Square, KeyRound, ShieldAlert, AlertTriangle,
 } from 'lucide-react';
 import { api } from '../../api';
-import { PageHeader, StatCard, Modal } from '../../components/ui';
+import { PageHeader, StatCard, Modal, Pagination } from '../../components/ui';
 
 const SETTINGS = [
   {
@@ -66,19 +66,27 @@ interface PayoutSummary {
     netSystemFees?: number;
   };
   batchFeesPaid?: number;
-  recentBatches?: Array<{
-    batchId: string;
-    totalAmount: number;
-    bookingCount: number;
-    phoneNumber: string;
-    status: string;
-    requestedByLabel?: string;
-    balanceBefore?: number;
-    balanceAfter?: number;
-    measuredFee?: number;
-    error?: string;
-    createdAt: string;
-  }>;
+  recentBatches?: PayoutBatch[];
+}
+
+interface PayoutBatch {
+  id: string;
+  batchId: string;
+  totalAmount: number;
+  bookingCount: number;
+  phoneNumber: string;
+  status: string;
+  requestedByLabel?: string;
+  balanceBefore?: number;
+  balanceAfter?: number;
+  measuredFee?: number;
+  error?: string;
+  createdAt: string;
+}
+
+interface PayoutHistoryPage {
+  batches: PayoutBatch[];
+  pagination: { page: number; limit: number; total: number; totalPages: number };
 }
 
 const PIN_LENGTH = 8;
@@ -112,7 +120,41 @@ export default function AccountingPage() {
   const [pinSaving, setPinSaving] = useState(false);
   const [pinError, setPinError] = useState('');
 
+  const [history, setHistory] = useState<PayoutHistoryPage>({
+    batches: [],
+    pagination: { page: 1, limit: 10, total: 0, totalPages: 1 },
+  });
+  const [historyPage, setHistoryPage] = useState(1);
+  const [historyStatus, setHistoryStatus] = useState('');
+  const [historyLoading, setHistoryLoading] = useState(false);
+
+  const loadHistory = useCallback(async () => {
+    setHistoryLoading(true);
+    try {
+      const params: Record<string, string> = {
+        page: String(historyPage),
+        limit: '10',
+      };
+      if (historyStatus) params.status = historyStatus;
+      const res = await api.getPayoutHistory(params);
+      setHistory({
+        batches: res.data?.batches || [],
+        pagination: res.data?.pagination || {
+          page: historyPage,
+          limit: 10,
+          total: 0,
+          totalPages: 1,
+        },
+      });
+    } catch {
+      setHistory({ batches: [], pagination: { page: 1, limit: 10, total: 0, totalPages: 1 } });
+    } finally {
+      setHistoryLoading(false);
+    }
+  }, [historyPage, historyStatus]);
+
   useEffect(() => { loadData(); }, []);
+  useEffect(() => { void loadHistory(); }, [loadHistory]);
 
   const loadData = async () => {
     setLoading(true);
@@ -181,8 +223,8 @@ export default function AccountingPage() {
   const toggle = (id: string) => {
     setSelected(prev => {
       const next = new Set(prev);
-      next.delete(id);
-      if (!next.delete(id)) next.add(id);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
       return next;
     });
   };
@@ -266,7 +308,7 @@ export default function AccountingPage() {
       setPin('');
       setSelected(new Set());
       setPayoutNotice(res.data?.message || 'Payout dispatched');
-      await loadData();
+      await Promise.all([loadData(), loadHistory()]);
     } catch (err: any) {
       setPayoutError(err.message || 'Payout failed');
     } finally {
@@ -518,11 +560,28 @@ export default function AccountingPage() {
       </div>
 
       <div className="bg-white rounded-md border border-[var(--studio-border)] p-5">
-        <div className="flex items-center gap-2 mb-4">
-          <History size={16} style={{ color: 'var(--blue)' }} />
-          <h4 className="text-sm font-bold text-[var(--studio-text)]">Payout History</h4>
+        <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
+          <div className="flex items-center gap-2">
+            <History size={16} style={{ color: 'var(--blue)' }} />
+            <h4 className="text-sm font-bold text-[var(--studio-text)]">Payout History</h4>
+          </div>
+          <select
+            value={historyStatus}
+            onChange={e => { setHistoryStatus(e.target.value); setHistoryPage(1); }}
+            className="h-8 px-2 rounded-md border border-[var(--studio-border)] text-xs bg-white text-[var(--studio-text-sub)]"
+            aria-label="Filter payout history by status"
+          >
+            <option value="">All statuses</option>
+            <option value="processing">Processing</option>
+            <option value="submitted">Submitted</option>
+            <option value="completed">Completed</option>
+            <option value="failed">Failed</option>
+            <option value="skipped">Skipped</option>
+          </select>
         </div>
-        {(payout.recentBatches?.length ?? 0) === 0 ? (
+        {historyLoading ? (
+          <div className="text-center py-8"><Loader size={22} className="mx-auto animate-spin text-[var(--blue)]" /></div>
+        ) : history.batches.length === 0 ? (
           <p className="text-sm text-[var(--studio-text-sub)]">No payouts have been made yet.</p>
         ) : (
           <div className="overflow-x-auto">
@@ -541,7 +600,7 @@ export default function AccountingPage() {
                 </tr>
               </thead>
               <tbody>
-                {(payout.recentBatches || []).map(b => {
+                {history.batches.map(b => {
                   const st = PAYOUT_STATUS[b.status]
                     || { label: b.status, color: 'var(--tone-neutral-ink)', fill: 'var(--tone-neutral-fill)' };
                   return (
@@ -566,6 +625,13 @@ export default function AccountingPage() {
                 })}
               </tbody>
             </table>
+            <Pagination
+              page={history.pagination.page}
+              totalPages={history.pagination.totalPages}
+              total={history.pagination.total}
+              pageSize={history.pagination.limit}
+              onPageChange={setHistoryPage}
+            />
           </div>
         )}
       </div>

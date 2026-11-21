@@ -17,7 +17,7 @@ function GlobalNotificationListener({ onNew }: { onNew: () => void }) {
 
   useEffect(() => {
     if (!socket) return
-    const onEvent = () => { playNotificationSequence() }
+    const onEvent = () => { playNotificationSequence(); onNew() }
     const onNewBooking = (data: any) => {
       playNotificationSequence()
       onNew()
@@ -55,23 +55,31 @@ export default function DashboardLayout() {
     if (!isAuthenticated) navigate('/login', { replace: true })
   }, [isAuthenticated, navigate])
 
-  // Poll the unread count; socket events bump it optimistically in between.
+  // Poll the unread count; socket events and in-app "mark read" actions
+  // refresh it in between so the bell never disagrees with the list.
+  const loadUnread = useCallback(() => {
+    api.getNotifications({ page: '1', limit: '1' })
+      .then((res: any) => {
+        const count = res?.data?.unreadCount ?? res?.unreadCount ?? res?.data?.totalUnread ?? 0
+        setUnread(Number(count) || 0)
+      })
+      .catch(() => { /* the bell still links to the notifications page */ })
+  }, [])
+
   useEffect(() => {
-    if (!isAuthenticated) return
-    let cancelled = false
-    const load = () => {
-      api.getNotifications({ page: '1', limit: '1' })
-        .then((res: any) => {
-          if (cancelled) return
-          const count = res?.data?.unreadCount ?? res?.unreadCount ?? res?.data?.totalUnread ?? 0
-          setUnread(Number(count) || 0)
-        })
-        .catch(() => { /* the bell still links to the notifications page */ })
+    if (!isAuthenticated) {
+      setUnread(0)
+      return
     }
-    load()
-    const timer = setInterval(load, 60_000)
-    return () => { cancelled = true; clearInterval(timer) }
-  }, [isAuthenticated])
+    loadUnread()
+    const timer = setInterval(loadUnread, 60_000)
+    const onChanged = () => loadUnread()
+    window.addEventListener('notifications:changed', onChanged)
+    return () => {
+      clearInterval(timer)
+      window.removeEventListener('notifications:changed', onChanged)
+    }
+  }, [isAuthenticated, loadUnread])
 
   const bumpUnread = useCallback(() => setUnread((n) => n + 1), [])
 

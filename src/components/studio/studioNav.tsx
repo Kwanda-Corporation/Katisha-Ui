@@ -35,6 +35,7 @@ export const STUDIO_NAV: Record<string, StudioNavConfig> = {
       { id: 'overview', labelKey: 'nav.overview', path: '/dashboard/overview-admin', icon: <AppWindow size={size} /> },
       { id: 'users', labelKey: 'nav.users', path: '/dashboard/users', icon: <Users size={size} /> },
       { id: 'organizations', labelKey: 'nav.organizations', path: '/dashboard/organizations', icon: <Building2 size={size} /> },
+      { id: 'bookings', labelKey: 'nav.bookings', path: '/dashboard/bookings', icon: <Ticket size={size} /> },
       { id: 'routes', labelKey: 'nav.routes', path: '/dashboard/routes', icon: <Route size={size} /> },
       { id: 'schedules', labelKey: 'nav.schedules', path: '/dashboard/schedules', icon: <Clock size={size} /> },
       { id: 'accounting', labelKey: 'nav.accounting', path: '/dashboard/accounting', icon: <DollarSign size={size} /> },

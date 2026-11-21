@@ -52,7 +52,9 @@ export default function NotificationPanel({ open, onClose, anchorRight = 0 }: No
     setLoading(true)
     try {
       const res = await authFetch('/notifications?limit=20')
-      const data = res?.data?.data ?? res?.data ?? res?.notifications ?? []
+      // authFetch returns the full { ok, message, data } envelope; the list is
+      // inside `data.notifications`, not `data` itself.
+      const data = res?.data?.notifications ?? res?.notifications ?? []
       setNotifications(Array.isArray(data) ? data : [])
     } catch {
       setNotifications([])
@@ -68,8 +70,9 @@ export default function NotificationPanel({ open, onClose, anchorRight = 0 }: No
   const markAllRead = async () => {
     const res = await authFetch('/notifications/mark-all-read', { method: 'PUT' })
     if (!res) return
-    setNotifications((ns) => ns.map((n) => ({ ...n, status: 'read' })))
+    setNotifications((ns) => ns.map((n) => ({ ...n, status: 'read', isRead: true, read: true })))
     window.dispatchEvent(new Event('notifications:changed'))
+    void fetchNotifications()
   }
 
   if (!open) return null
