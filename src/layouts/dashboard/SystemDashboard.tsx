@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useMemo } from 'react'
+import { useEffect, useState, useCallback, useMemo, type ReactNode } from 'react'
 import {
   BarChart, Bar, ComposedChart, Line, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -21,6 +21,7 @@ import StatRow from '../../components/studio/StatRow'
 import DataTable, { Column } from '../../components/studio/DataTable'
 import StudioPagination from '../../components/studio/StudioPagination'
 import EmptyState from '../../components/studio/EmptyState'
+import Dialog from '../../components/studio/Dialog'
 import { PageHeader, IconButton, PillButton } from '../../components/studio'
 
 const ACCENT = 'var(--studio-accent)'
@@ -68,6 +69,21 @@ const TOOLTIP_STYLE = {
 }
 
 const rwf = (n: number) => `${(n || 0).toLocaleString()} RWF`
+const paidTotalOf = (b: any) =>
+  (b?.totalAmount || 0) + (b?.systemFee || 0) + (b?.paymentFee || 0)
+
+function DetailRow({ label, value, mono = false }: { label: string; value: ReactNode; mono?: boolean }) {
+  return (
+    <div className="flex items-start justify-between gap-4 py-2 border-b border-[var(--studio-border)] last:border-b-0">
+      <dt className="shrink-0 text-[11px] font-semibold uppercase tracking-wide text-[var(--studio-text-muted)]">
+        {label}
+      </dt>
+      <dd className={`min-w-0 break-words text-right text-sm text-[var(--studio-text)] ${mono ? 'font-mono text-xs' : ''}`}>
+        {value ?? '—'}
+      </dd>
+    </div>
+  )
+}
 
 function parseLocalDate(iso: string): Date | null {
   if (!iso) return null
@@ -100,6 +116,12 @@ export default function SystemDashboard() {
   const [receiptImageUrl, setReceiptImageUrl] = useState('')
   const [receiptLoading, setReceiptLoading] = useState(false)
   const [receiptError, setReceiptError] = useState('')
+  const [detail, setDetail] = useState<{
+    booking: any
+    ticket: any
+    loading: boolean
+    error: string
+  } | null>(null)
 
   const loadAnalytics = useCallback(async () => {
     try {
@@ -140,6 +162,35 @@ export default function SystemDashboard() {
     setReceiptLoading(false)
     setReceiptMode('receipt')
   }, [])
+
+  const closeBookingDetail = useCallback(() => setDetail(null), [])
+
+  const openBookingDetail = useCallback((booking: any) => {
+    if (!booking?._id) return
+    setDetail({ booking, ticket: null, loading: true, error: '' })
+    api.getBooking(booking._id)
+      .then((res: any) => {
+        setDetail((prev) => {
+          if (!prev || prev.booking._id !== booking._id) return prev
+          return {
+            booking: res?.data?.booking || prev.booking,
+            ticket: res?.data?.ticket || prev.ticket,
+            loading: false,
+            error: '',
+          }
+        })
+      })
+      .catch((err: any) => {
+        setDetail((prev) => {
+          if (!prev || prev.booking._id !== booking._id) return prev
+          return {
+            ...prev,
+            loading: false,
+            error: err?.message || t('dashboard.ops.bookingDetailLoadFailed'),
+          }
+        })
+      })
+  }, [t])
 
   // Opens the receipt viewer once after a successful manual confirmation. The
   // receipt is the very ticket image issued for the booking; if the API has not
@@ -249,6 +300,14 @@ export default function SystemDashboard() {
   const paymentBreakdown = data?.paymentBreakdown || {}
   const bookingMix = data?.bookingMix || {}
   const dailySeries = data?.dailySeries || []
+
+  const detailBooking = detail?.booking
+  const detailTicket = detail?.ticket
+  const detailShowPhoto = Boolean(resolveImageUrl(detailBooking?.ticketProofImage))
+  const detailShowPaid = (detailBooking?.paymentStatus || '').toLowerCase() === 'failed'
+  const detailReceiptUrl = resolveImageUrl(
+    detailTicket?.imageUrl || detailBooking?.ticketImageUrl
+  )
 
   const dayBookings = overview.dayBookings ?? 0
   const weekBookings = overview.weekBookings ?? 0
@@ -384,125 +443,85 @@ export default function SystemDashboard() {
     )
   }
 
+  // Only the details needed to scan a booking stay in the table. Everything
+  // else lives in the click-through detail dialog, so rows fit without a
+  // horizontal scroll on normal dashboard widths.
   const recentColumns: Column<any>[] = useMemo(() => [
     {
-      key: 'referenceCode',
-      header: t('dashboard.ops.ref'),
-      sortable: true,
+      key: 'passenger',
+      header: t('dashboard.ops.passenger'),
+      wrap: true,
       render: (b) => (
-        <span className="font-mono text-xs font-semibold text-[var(--studio-accent)]">{b.referenceCode}</span>
-      ),
-    },
-    { key: 'agencyName', header: t('dashboard.ops.agency'), sortValue: (b) => b.agency?.name || '', render: (b) => b.agency?.name || '—' },
-    { key: 'passenger', header: t('dashboard.ops.passenger'), render: (b) => passengerOf(b) },
-    { key: 'phone', header: t('dashboard.ops.phone'), render: (b) => <span className="text-[var(--studio-text-sub)]">{phoneOf(b)}</span> },
-    { key: 'seats', header: t('dashboard.ops.passengers'), align: 'center' },
-    { key: 'route', header: t('dashboard.ops.route'), render: (b) => <span className="text-[var(--studio-text-sub)]">{routeOf(b)}</span> },
-    {
-      key: 'travelDate',
-      header: t('dashboard.ops.date'),
-      sortValue: (b) => b.travelDate || '',
-      render: (b) => (
-        <span className="text-[var(--studio-text-sub)]">
-          {parseLocalDate(b.travelDate)?.toLocaleDateString() || '—'}
-        </span>
-      ),
-    },
-    { key: 'travelTime', header: t('dashboard.ops.time'), render: (b) => <span className="text-[var(--studio-text-sub)]">{b.travelTime}</span> },
-    {
-      key: 'ticket',
-      header: t('dashboard.ops.colTicket'),
-      align: 'right',
-      sortValue: (b) => (b.totalAmount || 0),
-      render: (b) => <span className="text-[var(--studio-text-sub)]">{rwf(b.totalAmount || 0)}</span>,
-    },
-    {
-      key: 'paid',
-      header: t('dashboard.ops.colPaid'),
-      align: 'right',
-      sortValue: (b) => (b.totalAmount || 0) + (b.systemFee || 0) + (b.paymentFee || 0),
-      render: (b) => <span className="font-semibold">{rwf((b.totalAmount || 0) + (b.systemFee || 0) + (b.paymentFee || 0))}</span>,
-    },
-    {
-      key: 'earning',
-      header: t('dashboard.ops.colEarn'),
-      align: 'right',
-      render: (b) => <span className="font-semibold text-[var(--studio-accent)]">{rwf(b.systemFee || 0)}</span>,
-    },
-    {
-      key: 'proc',
-      header: t('dashboard.ops.colProc'),
-      align: 'right',
-      render: (b) => <span className="text-[var(--studio-text-sub)]">{rwf(b.paymentFee || 0)}</span>,
-    },
-    {
-      key: 'payment',
-      header: t('dashboard.ops.payment'),
-      render: (b) => (
-        <div className="flex items-center gap-1.5 flex-wrap">
-          {paymentChannelBadge(b)}
-          <span
-            className={`inline-flex items-center text-xs font-medium px-2 py-0.5 rounded-full ${
-              PAYMENT_PILL[(b.paymentStatus || '').toLowerCase()] || 'bg-[var(--studio-muted-fill)] text-[var(--studio-text-sub)]'
-            }`}
-          >
-            {paymentLabel(b.paymentStatus)}
+        <div className="min-w-0">
+          <span className="block truncate text-sm font-medium text-[var(--studio-text)]" title={passengerOf(b)}>
+            {passengerOf(b)}
+          </span>
+          <span className="block truncate text-xs text-[var(--studio-text-muted)]">
+            {b.agency?.name || t('dashboard.ops.guest')}
           </span>
         </div>
       ),
     },
     {
-      key: 'status',
-      header: t('dashboard.ops.status'),
+      key: 'route',
+      header: t('dashboard.ops.route'),
+      wrap: true,
       render: (b) => (
-        <span
-          className={`inline-flex items-center text-xs font-semibold px-2.5 py-1 rounded-full ${
-            STATUS_PILL[(b.status || '').toLowerCase()] || 'bg-[var(--studio-muted-fill)] text-[var(--studio-text-sub)]'
-          }`}
-        >
-          {statusLabel(b.status)}
-        </span>
+        <span className="block whitespace-normal break-words text-[var(--studio-text-sub)]">{routeOf(b)}</span>
       ),
     },
     {
-      key: 'actions',
-      header: t('dashboard.ops.actions'),
-      align: 'right',
-      render: (b) => {
-        const showPhoto = Boolean(resolveImageUrl(b.ticketProofImage))
-        const showPaid = (b.paymentStatus || '').toLowerCase() === 'failed'
-        if (!showPhoto && !showPaid) {
-          return <span className="text-xs text-[var(--studio-text-muted)]">—</span>
-        }
-        return (
-          <div className="inline-flex items-center justify-end gap-1.5 flex-wrap">
-            {showPhoto && (
-              <button
-                type="button"
-                onClick={() => openTicketPhotoModal(b)}
-                className="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-semibold rounded-full bg-[var(--tone-info-fill)] text-[var(--tone-info-ink)] hover:brightness-95 transition-colors cursor-pointer border-none"
-                title={t('dashboard.ops.viewTicketPhoto')}
-              >
-                <Eye size={13} aria-hidden="true" />
-                {t('booking.ticketPhoto')}
-              </button>
-            )}
-            {showPaid && (
-              <button
-                type="button"
-                onClick={() => setPaidTarget(b)}
-                className="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-semibold rounded-full bg-[var(--tone-success-fill)] text-[var(--tone-success-ink)] hover:brightness-95 transition-colors cursor-pointer border-none"
-                title={t('dashboard.ops.confirmPaidTitle')}
-              >
-                <CheckCircle2 size={13} aria-hidden="true" />
-                {t('dashboard.ops.markPaid')}
-              </button>
-            )}
-          </div>
-        )
-      },
+      key: 'travelDate',
+      header: t('dashboard.ops.date'),
+      sortable: true,
+      sortValue: (b) => b.travelDate || '',
+      render: (b) => (
+        <div className="leading-tight">
+          <span className="block text-[var(--studio-text-sub)]">
+            {parseLocalDate(b.travelDate)?.toLocaleDateString() || '—'}
+          </span>
+          <span className="block text-xs text-[var(--studio-text-muted)]">{b.travelTime || '—'}</span>
+        </div>
+      ),
     },
-  ], [t, openTicketPhotoModal])
+    {
+      key: 'seats',
+      header: t('dashboard.ops.passengers'),
+      align: 'center',
+      hideOnMobile: true,
+    },
+    {
+      key: 'paid',
+      header: t('dashboard.ops.colPaid'),
+      align: 'right',
+      sortable: true,
+      sortValue: (b) => paidTotalOf(b),
+      render: (b) => <span className="font-semibold">{rwf(paidTotalOf(b))}</span>,
+    },
+    {
+      key: 'status',
+      header: t('dashboard.ops.bookingStatus'),
+      align: 'center',
+      render: (b) => (
+        <div className="flex flex-col items-center gap-1">
+          <span
+            className={`inline-flex items-center text-[11px] font-medium px-2 py-0.5 rounded-full ${
+              PAYMENT_PILL[(b.paymentStatus || '').toLowerCase()] || 'bg-[var(--studio-muted-fill)] text-[var(--studio-text-sub)]'
+            }`}
+          >
+            {paymentLabel(b.paymentStatus)}
+          </span>
+          <span
+            className={`inline-flex items-center text-[11px] font-semibold px-2 py-0.5 rounded-full ${
+              STATUS_PILL[(b.status || '').toLowerCase()] || 'bg-[var(--studio-muted-fill)] text-[var(--studio-text-sub)]'
+            }`}
+          >
+            {statusLabel(b.status)}
+          </span>
+        </div>
+      ),
+    },
+  ], [t])
 
   return (
     <div className="space-y-6">
@@ -935,6 +954,7 @@ export default function SystemDashboard() {
             data={paginatedRecent}
             getRowId={(b) => String(b._id)}
             loading={loading}
+            onRowClick={openBookingDetail}
             emptyState={
               <EmptyState
                 icon={Ticket}
@@ -1013,6 +1033,158 @@ export default function SystemDashboard() {
           </div>
         )}
       </StudioCard>
+
+      {/* ── Booking detail (click any recent-booking row) ─────────── */}
+      {detail && detailBooking && (
+        <Dialog
+          open
+          onClose={closeBookingDetail}
+          size="lg"
+          maxWidth={720}
+          title={t('dashboard.ops.bookingDetails')}
+          subtitle={`${passengerOf(detailBooking)} · ${detailBooking.referenceCode || '—'}`}
+          footer={
+            <>
+              <PillButton variant="outlined" size="sm" onClick={closeBookingDetail}>
+                {t('common.close')}
+              </PillButton>
+              {detailReceiptUrl && (
+                <PillButton
+                  variant="outlined"
+                  size="sm"
+                  icon={<Download size={14} aria-hidden="true" />}
+                  onClick={() => {
+                    const booking = detailBooking
+                    const url = detailReceiptUrl
+                    closeBookingDetail()
+                    openReceiptModal(booking, url)
+                  }}
+                >
+                  {t('dashboard.ops.downloadReceipt')}
+                </PillButton>
+              )}
+              {detailShowPhoto && (
+                <PillButton
+                  variant="outlined"
+                  size="sm"
+                  icon={<Eye size={14} aria-hidden="true" />}
+                  onClick={() => {
+                    const booking = detailBooking
+                    closeBookingDetail()
+                    openTicketPhotoModal(booking)
+                  }}
+                >
+                  {t('booking.ticketPhoto')}
+                </PillButton>
+              )}
+              {detailShowPaid && (
+                <PillButton
+                  variant="primary"
+                  size="sm"
+                  icon={<CheckCircle2 size={14} aria-hidden="true" />}
+                  onClick={() => {
+                    const booking = detailBooking
+                    closeBookingDetail()
+                    setPaidTarget(booking)
+                  }}
+                >
+                  {t('dashboard.ops.markPaid')}
+                </PillButton>
+              )}
+            </>
+          }
+        >
+          {detail.loading && (
+            <div className="mb-4 flex items-center gap-2 text-xs text-[var(--studio-text-muted)]">
+              <Loader2 size={14} className="animate-spin" aria-hidden="true" />
+              {t('common.loading')}
+            </div>
+          )}
+          {detail.error && (
+            <p className="mb-4 rounded-lg bg-[var(--tone-danger-fill)] px-3 py-2 text-xs text-[var(--tone-danger-ink)]">
+              {detail.error}
+            </p>
+          )}
+
+          <div className="space-y-5">
+            <section>
+              <h3 className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-[var(--studio-accent)]">
+                {t('dashboard.ops.passengerDetails')}
+              </h3>
+              <dl>
+                <DetailRow label={t('dashboard.ops.passenger')} value={passengerOf(detailBooking)} />
+                <DetailRow label={t('dashboard.ops.phone')} value={phoneOf(detailBooking)} />
+                <DetailRow label={t('dashboard.ops.agency')} value={detailBooking.agency?.name || '—'} />
+              </dl>
+            </section>
+
+            <section>
+              <h3 className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-[var(--studio-accent)]">
+                {t('dashboard.ops.travelDetails')}
+              </h3>
+              <dl>
+                <DetailRow label={t('dashboard.ops.route')} value={routeOf(detailBooking)} />
+                <DetailRow
+                  label={t('dashboard.ops.date')}
+                  value={parseLocalDate(detailBooking.travelDate)?.toLocaleDateString() || '—'}
+                />
+                <DetailRow label={t('dashboard.ops.time')} value={detailBooking.travelTime || '—'} />
+                <DetailRow label={t('dashboard.ops.passengers')} value={detailBooking.seats ?? '—'} />
+              </dl>
+            </section>
+
+            <section>
+              <h3 className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-[var(--studio-accent)]">
+                {t('dashboard.ops.paymentDetails')}
+              </h3>
+              <dl>
+                <DetailRow
+                  label={t('dashboard.ops.paymentStatus')}
+                  value={
+                    <span
+                      className={`inline-flex items-center text-xs font-semibold px-2.5 py-1 rounded-full ${
+                        PAYMENT_PILL[(detailBooking.paymentStatus || '').toLowerCase()] || 'bg-[var(--studio-muted-fill)] text-[var(--studio-text-sub)]'
+                      }`}
+                    >
+                      {paymentLabel(detailBooking.paymentStatus)}
+                    </span>
+                  }
+                />
+                <DetailRow label={t('dashboard.ops.paymentChannel')} value={paymentChannelBadge(detailBooking)} />
+                <DetailRow label={t('dashboard.ops.colPaid')} value={rwf(paidTotalOf(detailBooking))} />
+                <DetailRow label={t('dashboard.ops.colEarn')} value={rwf(detailBooking.systemFee || 0)} />
+                <DetailRow label={t('dashboard.ops.colProc')} value={rwf(detailBooking.paymentFee || 0)} />
+              </dl>
+            </section>
+
+            <section>
+              <h3 className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-[var(--studio-accent)]">
+                {t('dashboard.ops.bookingStatus')}
+              </h3>
+              <dl>
+                <DetailRow label={t('dashboard.ops.ref')} value={detailBooking.referenceCode || '—'} mono />
+                <DetailRow
+                  label={t('dashboard.ops.bookingStatus')}
+                  value={
+                    <span
+                      className={`inline-flex items-center text-xs font-semibold px-2.5 py-1 rounded-full ${
+                        STATUS_PILL[(detailBooking.status || '').toLowerCase()] || 'bg-[var(--studio-muted-fill)] text-[var(--studio-text-sub)]'
+                      }`}
+                    >
+                      {statusLabel(detailBooking.status)}
+                    </span>
+                  }
+                />
+                <DetailRow label={t('dashboard.ops.ticketStatus')} value={detailTicket?.status || detailBooking.ticketStatus || '—'} />
+                <DetailRow
+                  label={t('dashboard.ops.createdAt')}
+                  value={detailBooking.createdAt ? new Date(detailBooking.createdAt).toLocaleString() : '—'}
+                />
+              </dl>
+            </section>
+          </div>
+        </Dialog>
+      )}
 
       {/* ── Confirm failed payment as paid ───────────────────────── */}
       {paidTarget && (

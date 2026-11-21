@@ -157,7 +157,7 @@ export default function OverviewPage() {
     },
     {
       key: 'status',
-      header: t('dashboard.ops.status'),
+      header: t('dashboard.ops.bookingStatus'),
       render: (b) => <StatusBadge status={b.status}>{statusLabel(b.status)}</StatusBadge>,
     },
   ], [t])
