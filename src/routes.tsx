@@ -37,6 +37,7 @@ const NotificationsPage = lazy(() => import('./pages/dashboards/NotificationsPag
 const Announcements = lazy(() => import('./pages/dashboards/Announcements'));
 const OrganisationsPage = lazy(() => import('./potals/SystemAdmin/Organizations'));
 const UsersPage = lazy(() => import('./potals/SystemAdmin/Users'));
+const SystemBookingsPage = lazy(() => import('./potals/SystemAdmin/SystemBookings'));
 const SystemAdminOverview = lazy(() => import('./layouts/dashboard/SystemDashboard'));
 const RoutePricesPage = lazy(() => import('./potals/SystemAdmin/RoutePricing'));
 const PromotionsPage = lazy(() => import('./potals/SystemAdmin/Promotions'));
@@ -175,6 +176,13 @@ export default function AppRoutes() {
         <Route path="users" element={
           <ProtectedRoute roles={[UserRole.SYSTEM_ADMIN]}>
             <UsersPage />
+          </ProtectedRoute>
+        } />
+
+        {/* System-admin bookings */}
+        <Route path="bookings" element={
+          <ProtectedRoute roles={[UserRole.SYSTEM_ADMIN]}>
+            <SystemBookingsPage />
           </ProtectedRoute>
         } />
 

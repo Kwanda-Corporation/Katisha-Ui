@@ -45,9 +45,15 @@ export default function NotificationsPage() {
 
   const handleMarkRead = async () => {
     try {
-      await api.markNotificationsRead();
-      setNotifications(n => n.map(not => ({ ...not, read: true })));
-      setUnreadCount(0);
+      const res: any = await api.markNotificationsRead();
+      setNotifications(n => n.map(not => ({
+        ...not,
+        isRead: true,
+        read: true,
+        status: 'read',
+      })));
+      setUnreadCount(Number(res?.data?.unreadCount ?? 0));
+      window.dispatchEvent(new Event('notifications:changed'));
     } catch {}
   };
 
@@ -78,7 +84,9 @@ export default function NotificationsPage() {
         <div className="flex flex-col gap-3">
           {notifications.map((n: any) => (
             <motion.div key={n._id} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }}
-              className={`bg-white rounded-md border p-5 transition-all ${n.isRead ? 'border-[var(--border)]' : 'border-zinc-200 bg-[var(--blue-light)]/30'}`}
+              className={`bg-white rounded-md border p-5 transition-all ${
+                (n.isRead || n.read || n.status === 'read') ? 'border-[var(--border)]' : 'border-zinc-200 bg-[var(--blue-light)]/30'
+              }`}
             >
               <div className="flex items-start gap-4">
                 <div className={`w-10 h-10 rounded-md flex items-center justify-center shrink-0 ${typeColors[n.type] || 'bg-[#F9FAFB] text-[var(--text-sub)]'}`}>

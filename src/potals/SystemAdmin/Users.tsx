@@ -4,7 +4,7 @@ import {
   Users, UserPlus, Search, X, Check, AlertCircle,
   MoreHorizontal, Eye, Power, Mail, Phone, Shield, Clock,
   ChevronDown, RefreshCw, Building2, Trash2,
-  User, Loader2, Route, MapPin,
+  User, Loader2, Route, MapPin, Copy,
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { PageHeader, Button, Input, PhoneInput, Modal } from '../../components/ui';
@@ -22,6 +22,7 @@ interface UserRecord {
   phoneNumber: string;
   role: UserRole;
   organization: string;
+  agencyId?: string;
   status: UserStatus;
   emailVerified: boolean;
   isActive: boolean;
@@ -333,14 +334,18 @@ function RegisterUserModal({ onClose, onSave }: { onClose: () => void; onSave: (
   const [form, setForm] = useState({
     name: '', email: '', phone: '', role: '' as string,
     agencyId: '',
+    agentAssignment: 'independent' as 'independent' | 'agency',
   });
   const [agencies, setAgencies] = useState<Array<{ _id: string; name: string }>>([]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [setupUrl, setSetupUrl] = useState('');
+  const [emailSent, setEmailSent] = useState(true);
 
-  const needsAgency = form.role === 'agency_admin';
+  // Agents are special: they can work platform-wide (independent) or belong to
+  // one agency. Other invite roles never need an agency here.
+  const needsAgency = form.role === 'agency_admin' || (form.role === 'agent' && form.agentAssignment === 'agency');
 
   useEffect(() => {
     if (needsAgency) {
@@ -364,12 +369,17 @@ function RegisterUserModal({ onClose, onSave }: { onClose: () => void; onSave: (
         email: form.email,
         phone: form.phone || undefined,
         role: form.role,
-        agencyId: form.agencyId || undefined,
+        agencyId: needsAgency ? form.agencyId : undefined,
       });
       if (res?.data) {
         setSetupUrl(res.data.setupUrl || '');
+        setEmailSent(res.data.emailSent !== false);
         setSuccess(true);
-        setTimeout(() => { onSave(); onClose(); }, 1800);
+        // Only auto-close when the email actually went out. If delivery failed
+        // the admin must be able to copy the setup link or resend it.
+        if (res.data.emailSent !== false) {
+          setTimeout(() => { onSave(); onClose(); }, 1800);
+        }
       } else {
         setError('Failed to create user');
       }
@@ -412,11 +422,22 @@ function RegisterUserModal({ onClose, onSave }: { onClose: () => void; onSave: (
               </div>
               <p className="font-[var(--font-body)] text-lg font-semibold text-[var(--studio-text)]">User Invited!</p>
               <p className="font-[var(--font-body)] text-sm text-[var(--studio-text-sub)] mt-1">
-                A setup link has been sent to <strong>{form.email}</strong>
+                {emailSent
+                  ? <>A setup link has been sent to <strong>{form.email}</strong></>
+                  : <>The account was created, but the setup email could not be delivered to <strong>{form.email}</strong>.</>}
               </p>
-              {setupUrl && (
-                <div className="mt-3 bg-[var(--fill-subtle)] border border-[var(--studio-border)] rounded-md px-3 py-2 text-xs text-[var(--studio-text-sub)] break-all">
-                  <p className="font-semibold mb-1">Setup URL (dev mode):</p>
+              {setupUrl && !emailSent && (
+                <div className="mt-3 bg-[var(--fill-subtle)] border border-[var(--studio-border)] rounded-md px-3 py-2 text-xs text-[var(--studio-text-sub)] break-all text-left">
+                  <div className="flex items-center justify-between gap-2 mb-1">
+                    <p className="font-semibold">Copy this setup link to the agent:</p>
+                    <button
+                      type="button"
+                      onClick={() => void navigator.clipboard?.writeText(setupUrl)}
+                      className="inline-flex items-center gap-1 text-[var(--studio-accent)] font-semibold hover:underline"
+                    >
+                      <Copy size={12} /> Copy
+                    </button>
+                  </div>
                   <a href={setupUrl} className="text-[var(--studio-accent)] underline" target="_blank" rel="noopener noreferrer">{setupUrl}</a>
                 </div>
               )}
@@ -444,7 +465,7 @@ function RegisterUserModal({ onClose, onSave }: { onClose: () => void; onSave: (
                       <button
                         key={role}
                         type="button"
-                        onClick={() => setForm(f => ({ ...f, role, agencyId: '' }))}
+                        onClick={() => setForm(f => ({ ...f, role, agencyId: '', agentAssignment: 'independent' }))}
                         className={`flex items-center gap-2 p-3 rounded-md border text-left transition-all ${active ? m.className : 'bg-white text-[var(--studio-text-muted)] border-[var(--studio-border)]'}`}
                         style={active ? { borderColor: 'currentColor' } : {}}
                       >
@@ -460,9 +481,29 @@ function RegisterUserModal({ onClose, onSave }: { onClose: () => void; onSave: (
               </div>
 
               {form.role === 'agent' && (
-                <p className="mt-2 text-xs text-[var(--studio-text-sub)] bg-[var(--studio-accent-soft)] border border-[var(--studio-border)] rounded-md px-3 py-2">
-                  Agents are agency-independent. Assign their routes after the account is created.
-                </p>
+                <div className="mt-1 bg-[var(--fill-subtle)] border border-[var(--studio-border)] rounded-md px-3 py-2.5">
+                  <p className="text-xs font-semibold text-[var(--studio-text-sub)] mb-2">Agent type</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {([
+                      { value: 'independent', label: 'Independent', hint: 'No agency — assign routes later' },
+                      { value: 'agency', label: 'Agency agent', hint: 'Belongs to one agency' },
+                    ] as const).map(option => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => setForm(f => ({ ...f, agentAssignment: option.value, agencyId: '' }))}
+                        className={`text-left px-3 py-2 rounded-md border text-xs transition-colors ${
+                          form.agentAssignment === option.value
+                            ? 'border-[var(--studio-accent)] bg-[var(--studio-accent-soft)] text-[var(--studio-text)]'
+                            : 'border-[var(--studio-border)] bg-white text-[var(--studio-text-sub)] hover:bg-[var(--fill-hover)]'
+                        }`}
+                      >
+                        <span className="block font-semibold text-sm">{option.label}</span>
+                        <span className="block opacity-80 mt-0.5">{option.hint}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
               )}
 
               <Input
@@ -497,7 +538,7 @@ function RegisterUserModal({ onClose, onSave }: { onClose: () => void; onSave: (
                     className="overflow-hidden"
                   >
                     <label className="block font-[var(--font-body)] text-xs font-semibold text-[var(--studio-text-sub)] uppercase tracking-wide mb-1.5">
-                      Agency <span className="text-blue-400">*</span>
+                      {form.role === 'agent' ? 'Assigned Agency' : 'Agency'} <span className="text-blue-400">*</span>
                     </label>
                     <div className="relative">
                       <select
@@ -556,6 +597,30 @@ function UserDrawer({
 }) {
   const statusMeta = STATUS_META[user.status] ?? STATUS_META.inactive;
   const [toggling, setToggling] = useState(false);
+  const [resending, setResending] = useState(false);
+  const [resendError, setResendError] = useState('');
+  const [resendNotice, setResendNotice] = useState('');
+  const [resendUrl, setResendUrl] = useState('');
+
+  const handleResend = async () => {
+    setResending(true);
+    setResendError('');
+    setResendNotice('');
+    setResendUrl('');
+    try {
+      const res = await api.resendSetupEmail(user.id);
+      const data = res?.data;
+      if (data?.emailSent) {
+        setResendNotice('Setup email sent.');
+      } else {
+        setResendUrl(data?.setupUrl || '');
+        setResendError(data?.message || 'Email delivery failed. Copy the setup link below.');
+      }
+    } catch (err: any) {
+      setResendError(err.message || 'Failed to resend setup email');
+    }
+    setResending(false);
+  };
 
   const handleToggle = async () => {
     setToggling(true);
@@ -616,9 +681,28 @@ function UserDrawer({
           </div>
 
           <div className="pt-2 space-y-2">
-            <Button variant="secondary" fullWidth size="sm">
-              <Mail size={14} /> Resend Setup Email
-            </Button>
+            {!user.isActive && (
+              <Button variant="secondary" fullWidth size="sm" onClick={() => void handleResend()} disabled={resending} loading={resending}>
+                <Mail size={14} /> {resending ? 'Resending…' : 'Resend Setup Email'}
+              </Button>
+            )}
+            {resendNotice && (
+              <p className="text-xs text-[var(--tone-success-ink)] text-center">{resendNotice}</p>
+            )}
+            {resendError && (
+              <div className="text-xs text-[var(--error)] bg-[var(--error-bg)] border border-[var(--error-border)] rounded-md px-3 py-2 space-y-1">
+                <p>{resendError}</p>
+                {resendUrl && (
+                  <button
+                    type="button"
+                    onClick={() => void navigator.clipboard?.writeText(resendUrl)}
+                    className="inline-flex items-center gap-1 font-semibold hover:underline"
+                  >
+                    <Copy size={12} /> Copy setup link
+                  </button>
+                )}
+              </div>
+            )}
             <button
               onClick={handleToggle}
               disabled={toggling}
@@ -684,8 +768,10 @@ export default function UsersPage() {
   const { authFetch, user: currentUser } = useAuth();
   const [users, setUsers] = useState<UserRecord[]>([]);
   const [pagination, setPagination] = useState<Pagination>({ page: 1, limit: 20, total: 0, totalPages: 1 });
+  const [roleCounts, setRoleCounts] = useState<Partial<Record<UserRole, number>>>({});
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState<UserRole | ''>('');
   const [statusFilter, setStatusFilter] = useState<UserStatus | ''>('');
   const [showRegister, setShowRegister] = useState(false);
@@ -698,43 +784,53 @@ export default function UsersPage() {
 
   const fetchUsers = async () => {
     setLoading(true);
-    const params = new URLSearchParams({
+    const params: Record<string, string> = {
       page: String(page),
       limit: '20',
-      ...(search ? { search } : {}),
+      ...(debouncedSearch ? { search: debouncedSearch } : {}),
       ...(roleFilter ? { role: roleFilter } : {}),
       ...(statusFilter ? { status: statusFilter } : {}),
-    });
-    const res = await authFetch(`/users?${params}`);
-    if (res) {
-      const data = res.data ?? res;
-      const raw: any[] = data.users ?? data.data ?? (Array.isArray(data) ? data : []);
-      const mapped: UserRecord[] = raw.map(u => ({
-        id: u._id ?? u.id,
-        name: u.name,
-        email: u.email ?? '',
-        phoneNumber: u.phoneNumber ?? u.phone ?? '',
-        role: (u.role === 'user' || u.role === 'agent' || u.role === 'system_admin' || u.role === 'agency_admin' || u.role === 'pickup_agent')
-          ? (u.role as UserRole)
-          : 'user',
-        organization: u.agency ?? u.organization ?? '',
-        status: u.status ?? (u.isActive ? 'active' : 'inactive'),
-        emailVerified: u.emailVerified ?? false,
-        isActive: u.isActive ?? false,
-        lastLogin: u.lastLogin ?? u.lastActive ?? null,
-        createdAt: u.createdAt,
-      }));
+    };
+    try {
+      const res = await api.getUsers(params);
+      const data = res?.data ?? {};
+      const raw: any[] = Array.isArray(data.users) ? data.users : [];
+      const mapped: UserRecord[] = raw.map(u => {
+        const agencyName = typeof u.agency === 'object' ? u.agency?.name : null;
+        const agencyId = typeof u.agency === 'object' ? u.agency?._id : u.agency;
+        return {
+          id: u._id ?? u.id,
+          name: u.name,
+          email: u.email ?? '',
+          phoneNumber: u.phone ?? u.phoneNumber ?? '',
+          role: (u.role === 'user' || u.role === 'agent' || u.role === 'system_admin' || u.role === 'agency_admin' || u.role === 'pickup_agent')
+            ? (u.role as UserRole)
+            : 'user',
+          organization: agencyName ?? u.organization ?? (agencyId ? String(agencyId) : ''),
+          agencyId: agencyId ? String(agencyId) : undefined,
+          status: u.isActive === false ? 'inactive' : 'active',
+          emailVerified: u.emailVerified ?? false,
+          isActive: u.isActive ?? false,
+          lastLogin: u.lastLogin ?? u.lastActive ?? null,
+          createdAt: u.createdAt,
+        };
+      });
       setUsers(mapped);
       if (data.pagination) setPagination(data.pagination);
+      if (data.roleCounts) setRoleCounts(data.roleCounts);
+    } catch {
+      setUsers([]);
     }
     setLoading(false);
   };
 
-  useEffect(() => { fetchUsers(); }, [page, roleFilter, statusFilter]);
+  // Debounce the search box, then fetch once from the single source of truth.
   useEffect(() => {
-    const t = setTimeout(fetchUsers, 400);
+    const t = setTimeout(() => setDebouncedSearch(search), 350);
     return () => clearTimeout(t);
   }, [search]);
+
+  useEffect(() => { fetchUsers(); }, [page, roleFilter, statusFilter, debouncedSearch]);
 
   const toggleUser = async (user: UserRecord) => {
     await authFetch(`/users/${user.id}/status`, {
@@ -756,11 +852,6 @@ export default function UsersPage() {
     }
     setDeleteBusy(false);
   };
-
-  const roleCounts = users.reduce<Partial<Record<UserRole, number>>>((acc, u) => {
-    acc[u.role] = (acc[u.role] ?? 0) + 1;
-    return acc;
-  }, {});
 
   return (
     <div className="space-y-5">
@@ -919,9 +1010,11 @@ export default function UsersPage() {
                   </td>
                   <td className="px-4 py-3 text-[var(--studio-text-sub)] text-xs max-w-[120px] truncate">
                     {user.organization ? (
-                      <span className="font-mono bg-[var(--fill-strong)]/50 px-1.5 py-0.5 rounded text-[var(--studio-text-sub)] text-xs">
-                        {user.organization.slice(0, 8)}…
+                      <span className="bg-[var(--fill-strong)]/50 px-1.5 py-0.5 rounded text-[var(--studio-text-sub)] text-xs" title={user.organization}>
+                        {user.role === 'agent' && !user.agencyId ? 'Independent · ' : ''}{user.organization}
                       </span>
+                    ) : user.role === 'agent' ? (
+                      <span className="text-[var(--studio-text-muted)]">Independent</span>
                     ) : (
                       <span className="text-[var(--studio-text-muted)]">—</span>
                     )}
@@ -965,7 +1058,7 @@ export default function UsersPage() {
         {pagination.totalPages > 1 && (
           <div className="flex items-center justify-between px-4 py-3 border-t border-[var(--studio-border)] bg-[var(--fill-subtle)]">
             <p className="font-[var(--font-body)] text-xs text-[var(--studio-text-sub)]">
-              Showing {((page - 1) * 20) + 1}–{Math.min(page * 20, pagination.total)} of {pagination.total}
+              Showing {((page - 1) * pagination.limit) + 1}–{Math.min(page * pagination.limit, pagination.total)} of {pagination.total}
             </p>
             <div className="flex items-center gap-1">
               <button

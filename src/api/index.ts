@@ -110,6 +110,7 @@ export const api = {
   changePassword: (data: { currentPassword: string; newPassword: string; confirmPassword: string }) =>
     request('/auth/change-password', { method: 'PATCH', body: JSON.stringify(data) }),
   createUserWithInvite: (data: any) => request('/auth/create-user', { method: 'POST', body: JSON.stringify(data) }),
+  resendSetupEmail: (userId: string) => request('/auth/resend-setup-email', { method: 'POST', body: JSON.stringify({ userId }) }),
   verifySetupToken: (token: string) => request(`/auth/verify-setup?token=${token}`),
   setupAccount: (data: any) => request('/auth/setup-account', { method: 'POST', body: JSON.stringify(data) }),
   getRewards: () => request('/auth/rewards'),
@@ -159,6 +160,25 @@ export const api = {
   viewTicket: (id: string) => request(`/bookings/${id}/ticket`),
   getTakenSeats: (params: Record<string, string>) => request('/bookings/taken-seats', { params }),
   getPaymentConfig: () => request('/bookings/payment-config'),
+  getSystemBookings: (params?: Record<string, string>) => request('/bookings/admin/all', { params }),
+  downloadSystemBookingsReport: async (params?: Record<string, string>) => {
+    let url = `${API_BASE}/bookings/admin/report.pdf`;
+    if (params) url += `?${new URLSearchParams(params).toString()}`;
+    const token = localStorage.getItem('vdk_access_token');
+    const res = await fetch(url, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+    if (!res.ok) {
+      const json = await res.json().catch(() => ({ message: 'PDF export failed' }));
+      throw new Error(json.message || 'PDF export failed');
+    }
+    const blob = await res.blob();
+    const cd = res.headers.get('Content-Disposition') || '';
+    const match = cd.match(/filename="?([^"]+)"?/);
+    const a = window.document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = match ? match[1] : 'katisha-bookings.pdf';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  },
 
   // Departure Blocks
   getDepartureSchedule: (params: Record<string, string>) => request('/departure-blocks/schedule', { params }),
@@ -250,6 +270,7 @@ export const api = {
   clearPromotion: (id: string) => request(`/route-prices/${id}/promotion`, { method: 'DELETE' }),
 
   // Settings
+  getUsers: (params?: Record<string, string>) => request('/users', { params }),
   deleteUser: (id: string) => request(`/users/${id}`, { method: 'DELETE' }),
   getSettings: () => request('/settings'),
   updateSetting: (key: string, value: any, description?: string) =>
@@ -275,6 +296,7 @@ export const api = {
 
   // Accounting (manual, PIN-gated payouts)
   getPayoutSummary: () => request('/accounting/payouts/summary'),
+  getPayoutHistory: (params?: Record<string, string>) => request('/accounting/payouts/history', { params }),
   getPayableBookings: () => request('/accounting/payouts/payable'),
   updatePayoutPhone: (phone: string, method?: string) =>
     request('/accounting/payouts/phone', { method: 'PUT', body: JSON.stringify({ phone, method }) }),
